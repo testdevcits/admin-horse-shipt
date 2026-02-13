@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "name": "horse-shipt-frontend",
   "builds": [
     {
       "src": "package.json",
@@ -10,7 +9,7 @@
   ],
   "routes": [
     {
-      "src": "/.*",
+      "src": "/(.*)",
       "dest": "/index.html"
     }
   ],
