@@ -5,6 +5,7 @@ import {
   useState,
   useCallback,
 } from "react";
+import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
 
 const AuthContext = createContext();
@@ -12,10 +13,22 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null); // logged-in admin
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate(); // navigate hook for redirects
 
-  // ==================================================
-  //  Fetch Admin Profile (JWT Protected)
-  // ==================================================
+  // ================= FETCH PROFILE =================
+  const logout = useCallback(async () => {
+    try {
+      await API.post("/admin/logout");
+    } catch (error) {
+      // ignore backend failure
+    } finally {
+      localStorage.removeItem("adminToken");
+      localStorage.removeItem("adminData");
+      setUser(null);
+      navigate("/"); // redirect to login
+    }
+  }, [navigate]);
+
   const fetchProfile = useCallback(async () => {
     try {
       const token = localStorage.getItem("adminToken");
@@ -23,19 +36,16 @@ export const AuthProvider = ({ children }) => {
 
       const res = await API.get("/admin/profile");
       setUser(res.data.admin);
-      // Save admin info to localStorage
       localStorage.setItem("adminData", JSON.stringify(res.data.admin));
     } catch (error) {
       console.error("Auth error:", error);
-      logout(); // invalid or expired token
+      logout(); // proper dependency included
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [logout]); // ESLint warning fix
 
-  // ==================================================
-  //  Check login on app load
-  // ==================================================
+  // ================= CHECK LOGIN ON APP LOAD =================
   useEffect(() => {
     const token = localStorage.getItem("adminToken");
     const storedUser = localStorage.getItem("adminData");
@@ -50,63 +60,40 @@ export const AuthProvider = ({ children }) => {
     }
   }, [fetchProfile]);
 
-  // ==================================================
-  //  Login
-  // ==================================================
+  // ================= LOGIN =================
   const login = async (email, password) => {
     const res = await API.post("/admin/login", { email, password });
     localStorage.setItem("adminToken", res.data.token);
-    localStorage.setItem("adminData", JSON.stringify(res.data.admin)); // save user info
+    localStorage.setItem("adminData", JSON.stringify(res.data.admin));
     setUser(res.data.admin);
+
+    navigate("/dashboard"); // redirect after login
     return res.data;
   };
 
-  // ==================================================
-  //  Signup (Admin / Internal use)
-  // ==================================================
+  // ================= SIGNUP =================
   const signup = async (data) => {
     const res = await API.post("/admin/signup", data);
     return res.data;
   };
 
-  // ==================================================
-  //  Logout
-  // ==================================================
-  const logout = async () => {
-    try {
-      await API.post("/admin/logout");
-    } catch (error) {
-      // ignore backend failure
-    } finally {
-      localStorage.removeItem("adminToken");
-      localStorage.removeItem("adminData"); // remove stored user
-      setUser(null);
-    }
-  };
-
-  // ==================================================
-  //  Change Password (Logged-in Admin)
-  // ==================================================
+  // ================= CHANGE PASSWORD =================
   const changePassword = async (data) => {
     const res = await API.post("/admin/change-password", data);
     return res.data;
   };
 
-  // ==================================================
-  //  Forgot Password (Send OTP)
-  // ==================================================
+  // ================= FORGOT PASSWORD =================
   const forgotPassword = async (email) => {
     const res = await API.post("/admin/forgot-password", { email });
-    return res.data; // contains success message
+    return res.data;
   };
 
-  // ==================================================
-  //  Verify OTP before allowing reset
-  // ==================================================
+  // ================= VERIFY OTP =================
   const verifyOtp = async (email, otp) => {
     try {
       const res = await API.post("/admin/verify-otp", { email, otp });
-      return res.data; // returns success if OTP is valid
+      return res.data;
     } catch (error) {
       throw (
         error.response?.data || {
@@ -117,9 +104,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // ==================================================
-  //  Reset Password (Using OTP)
-  // ==================================================
+  // ================= RESET PASSWORD =================
   const resetPassword = async ({ email, otp, newPassword }) => {
     const res = await API.post("/admin/reset-password", {
       email,

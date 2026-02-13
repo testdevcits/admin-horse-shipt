@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Login from "../pages/auth/Login";
 import Signup from "../pages/auth/Signup";
 import ForgotPassword from "../pages/auth/ForgotPassword";
@@ -8,32 +8,26 @@ import Shippers from "../pages/shippers/Shippers";
 import Settings from "../pages/settings/Settings";
 import Unauthorized from "../pages/Unauthorized";
 import PrivateRoute from "./PrivateRoute";
-import { useAuth } from "../context/AuthContext";
 import BreedList from "../pages/Breed/BreedList";
+// import { useAuth } from "../context/AuthContext";
 
 const AppRoutes = () => {
-  const { user } = useAuth();
+  // const { user } = useAuth();
 
   return (
     <Routes>
       {/* =====================
           AUTH ROUTES
       ====================== */}
-      <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
-      <Route path="/signup" element={user ? <Navigate to="/" /> : <Signup />} />
-      <Route
-        path="/forgot-password"
-        element={user ? <Navigate to="/" /> : <ForgotPassword />}
-      />
-      <Route
-        path="/reset-password"
-        element={user ? <Navigate to="/" /> : <ResetPassword />}
-      />
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+
+      {/* ROOT ROUTE */}
+      <Route path="/" element={<Login />} />
 
       {/* PROTECTED ROUTES */}
-
-      <Route path="/" element={<Navigate to="/dashboard" />} />
-
       <Route
         path="/dashboard"
         element={
@@ -72,10 +66,8 @@ const AppRoutes = () => {
 
       <Route path="/unauthorized" element={<Unauthorized />} />
 
-      {/* =====================
-          FALLBACK
-      ====================== */}
-      <Route path="*" element={<Navigate to="/" />} />
+      {/* FALLBACK */}
+      <Route path="*" element={<Login />} />
     </Routes>
   );
 };

@@ -1,4 +1,4 @@
-import { HashRouter } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { BreedProvider } from "./context/BreedContext";
@@ -6,7 +6,7 @@ import AppRoutes from "./routes/AppRoutes";
 
 function App() {
   return (
-    <HashRouter>
+    <BrowserRouter>
       <AuthProvider>
         <ThemeProvider>
           <BreedProvider>
@@ -14,7 +14,7 @@ function App() {
           </BreedProvider>
         </ThemeProvider>
       </AuthProvider>
-    </HashRouter>
+    </BrowserRouter>
   );
 }
 
