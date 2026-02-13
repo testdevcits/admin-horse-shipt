@@ -1,3 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+* {
+  font-family: 'Montserrat', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 .App {
   text-align: center;
 }
@@ -36,3 +45,16 @@
     transform: rotate(360deg);
   }
 }
+
+
+/* Apply globally to body & main content */
+body, main {
+  overflow-y: auto; /* ensure scroll */
+  scrollbar-width: thin;
+  scrollbar-color: #BF9B53 #f0f0f0;
+}
+
+
+
+
+
