@@ -5,21 +5,16 @@
     {
       "src": "package.json",
       "use": "@vercel/static-build",
-      "config": {
-        "distDir": "build"
-      }
+      "config": { "distDir": "build" }
     }
   ],
   "routes": [
     {
-      "src": "/(.*)",
+      "src": "/.*",
       "dest": "/index.html"
     }
   ],
   "env": {
     "REACT_APP_API_URL": "https://horse-shipt.vercel.app/api"
-  },
-  "github": {
-    "enabled": true
   }
 }

@@ -1,8 +1,9 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://horse-shipt.vercel.app/api",
-  withCredentials: true, // important if backend uses cookies/sessions
+  baseURL:
+    process.env.REACT_APP_API_URL || "https://horse-shipt.vercel.app/api",
+  withCredentials: true,
 });
 
 // Attach admin token automatically
