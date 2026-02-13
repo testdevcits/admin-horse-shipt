@@ -3,6 +3,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { BreedProvider } from "./context/BreedContext";
 import AppRoutes from "./routes/AppRoutes";
+import { ShipperProvider } from "./context/ShipperContext";
 
 function App() {
   return (
@@ -10,7 +11,9 @@ function App() {
       <AuthProvider>
         <ThemeProvider>
           <BreedProvider>
-            <AppRoutes />
+            <ShipperProvider>
+              <AppRoutes />
+            </ShipperProvider>
           </BreedProvider>
         </ThemeProvider>
       </AuthProvider>

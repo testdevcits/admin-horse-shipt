@@ -31,7 +31,7 @@ const AppRoutes = () => {
       <Route
         path="/shippers"
         element={
-          <PrivateRoute allowedRoles={["admin"]}>
+          <PrivateRoute allowedRoles={["super-admin"]}>
             <Shippers />
           </PrivateRoute>
         }
@@ -39,7 +39,7 @@ const AppRoutes = () => {
       <Route
         path="/breeds"
         element={
-          <PrivateRoute allowedRoles={["admin"]}>
+          <PrivateRoute allowedRoles={["super-admin"]}>
             <BreedList />
           </PrivateRoute>
         }

@@ -20,10 +20,7 @@ const navItems = [
   {
     name: "Shippers",
     icon: <HiOutlineUserGroup size={20} />,
-    subPaths: [
-      { name: "Shippers List", path: "/shippers" },
-      { name: "Create User", path: "/users/create" },
-    ],
+    subPaths: [{ name: "Shippers List", path: "/shippers" }],
   },
 
   {
