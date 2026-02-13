@@ -17,7 +17,7 @@
     }
   ],
   "env": {
-    "REACT_APP_API_URL": "https://your-backend-url.com/api"
+    "REACT_APP_API_URL": "https://horse-shipt.vercel.app/api"
   },
   "github": {
     "enabled": true
