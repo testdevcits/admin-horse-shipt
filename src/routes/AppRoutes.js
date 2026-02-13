@@ -9,25 +9,17 @@ import Settings from "../pages/settings/Settings";
 import Unauthorized from "../pages/Unauthorized";
 import PrivateRoute from "./PrivateRoute";
 import BreedList from "../pages/Breed/BreedList";
-// import { useAuth } from "../context/AuthContext";
 
 const AppRoutes = () => {
-  // const { user } = useAuth();
-
   return (
     <Routes>
-      {/* =====================
-          AUTH ROUTES
-      ====================== */}
+      <Route path="/" element={<Login />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
 
-      {/* ROOT ROUTE */}
-      <Route path="/" element={<Login />} />
-
-      {/* PROTECTED ROUTES */}
+      {/* Private Routes */}
       <Route
         path="/dashboard"
         element={
@@ -36,7 +28,6 @@ const AppRoutes = () => {
           </PrivateRoute>
         }
       />
-
       <Route
         path="/shippers"
         element={
@@ -45,7 +36,6 @@ const AppRoutes = () => {
           </PrivateRoute>
         }
       />
-
       <Route
         path="/breeds"
         element={
@@ -54,7 +44,6 @@ const AppRoutes = () => {
           </PrivateRoute>
         }
       />
-
       <Route
         path="/settings"
         element={
@@ -66,7 +55,7 @@ const AppRoutes = () => {
 
       <Route path="/unauthorized" element={<Unauthorized />} />
 
-      {/* FALLBACK */}
+      {/* Fallback */}
       <Route path="*" element={<Login />} />
     </Routes>
   );

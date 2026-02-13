@@ -6,13 +6,10 @@ import Unauthorized from "../pages/Unauthorized";
 const PrivateRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
 
-  // Optional: loading state handle karo (optional)
-  if (loading) return <div>Loading...</div>; // ya spinner
+  if (loading) return <div>Loading...</div>;
 
-  // Agar login nahi hai, login page bhej do
   if (!user) return <Navigate to="/login" />;
 
-  // Agar role restricted hai aur user ka role allowed nahi → Unauthorized
   if (allowedRoles && !allowedRoles.includes(user.role)) {
     return (
       <AdminLayout>
@@ -21,7 +18,6 @@ const PrivateRoute = ({ children, allowedRoles }) => {
     );
   }
 
-  // Otherwise → page dikhao
   return <AdminLayout>{children}</AdminLayout>;
 };
 

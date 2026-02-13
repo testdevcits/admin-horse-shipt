@@ -7,12 +7,7 @@
       "config": { "distDir": "build" }
     }
   ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
+  "routes": [{ "src": "/(.*)", "dest": "/index.html" }],
   "env": {
     "REACT_APP_API_URL": "https://horse-shipt.vercel.app/api"
   }
