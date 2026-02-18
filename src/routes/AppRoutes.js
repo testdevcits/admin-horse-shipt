@@ -5,6 +5,7 @@ import ForgotPassword from "../pages/auth/ForgotPassword";
 import ResetPassword from "../pages/auth/ResetPassword";
 import Dashboard from "../pages/dashboard/Dashboard";
 import Shippers from "../pages/shippers/Shippers";
+import ShipperDetail from "../pages/shippers/ShipperDetail";
 import Settings from "../pages/settings/Settings";
 import Unauthorized from "../pages/Unauthorized";
 import PrivateRoute from "./PrivateRoute";
@@ -36,6 +37,16 @@ const AppRoutes = () => {
           </PrivateRoute>
         }
       />
+      {/* Shipper detail page */}
+      <Route
+        path="/shippers/:id"
+        element={
+          <PrivateRoute allowedRoles={["super-admin"]}>
+            <ShipperDetail />
+          </PrivateRoute>
+        }
+      />
+
       <Route
         path="/breeds"
         element={

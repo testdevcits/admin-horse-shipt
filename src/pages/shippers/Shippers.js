@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import DataTable from "../../components/common/DataTable";
 import Button from "../../components/common/Button";
-import { FaEdit, FaTrash, FaRegCommentDots, FaPlus } from "react-icons/fa";
+import { FaEdit, FaTrash, FaEye, FaPlus } from "react-icons/fa";
 import { useShippers } from "../../context/ShipperContext";
 
 const Shippers = () => {
   const [page, setPage] = useState(1);
+  const navigate = useNavigate();
 
   const {
     shippers,
@@ -81,10 +83,10 @@ const Shippers = () => {
         <Button
           size="sm"
           variant="secondary"
-          icon={<FaRegCommentDots size={12} />}
-          onClick={() => console.log("Comment shipper:", row)}
+          icon={<FaEye size={12} />}
+          onClick={() => navigate(`/shippers/${row._id}`)}
         >
-          Comment
+          View
         </Button>
       ),
     },
