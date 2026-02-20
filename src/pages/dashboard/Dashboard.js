@@ -11,7 +11,7 @@ const Dashboard = () => {
   // For example purpose, total shippers, pending requests, revenue are static
   const totalShippers = 2;
   const pendingRequests = 14;
-  const revenue = "₹ 2,45,000";
+  const revenue = "$ 2,45,000";
 
   return (
     <div className="p-6 font-montserrat">
