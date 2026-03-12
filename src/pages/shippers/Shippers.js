@@ -17,19 +17,16 @@ const Shippers = () => {
     loading,
   } = useShippers();
 
-  // Fetch shippers on mount
   useEffect(() => {
     fetchShippers();
   }, [fetchShippers]);
 
-  // Pagination setup
   const itemsPerPage = 10;
   const paginatedData = shippers.slice(
     (page - 1) * itemsPerPage,
     page * itemsPerPage
   );
 
-  // Table columns
   const columns = [
     { key: "name", label: "Shipper Name" },
     { key: "email", label: "Email" },
@@ -52,7 +49,6 @@ const Shippers = () => {
     },
   ];
 
-  // Table actions
   const actions = [
     {
       render: (row) => (
@@ -94,7 +90,6 @@ const Shippers = () => {
 
   return (
     <div className="space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen p-4">
-      {/* ================= PAGE HEADER ================= */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
           Shippers Management
@@ -108,7 +103,6 @@ const Shippers = () => {
         </Button>
       </div>
 
-      {/* ================= TABLE ================= */}
       <div className="bg-white dark:bg-gray-900 rounded shadow p-4">
         <DataTable
           columns={columns}

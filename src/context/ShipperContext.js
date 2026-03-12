@@ -2,30 +2,24 @@ import React, { createContext, useContext, useState, useCallback } from "react";
 import API from "../api/axios";
 import Toast from "../components/common/Toast";
 
-// Create context
 const ShipperContext = createContext();
 
-// Custom hook
 export const useShippers = () => useContext(ShipperContext);
 
-// Provider component
 export const ShipperProvider = ({ children }) => {
   const [shippers, setShippers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedShipper, setSelectedShipper] = useState(null);
 
-  // Toast state
   const [toastMessage, setToastMessage] = useState(null);
   const [toastType, setToastType] = useState("info");
 
-  const showToast = (message, type = "info") => {
+  const showToast = useCallback((message, type = "info") => {
     setToastMessage(message);
     setToastType(type);
-  };
+  }, []);
 
-  // ----------------------------
-  // Fetch all shippers (stable with useCallback)
-  // ----------------------------
+  // Fetch all shippers
   const fetchShippers = useCallback(async () => {
     try {
       setLoading(true);
@@ -40,102 +34,103 @@ export const ShipperProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [showToast]);
 
-  // ----------------------------
   // Get shipper by ID
-  // ----------------------------
-  const getShipperById = async (id) => {
-    try {
-      setLoading(true);
-      const res = await API.get(`/admin/shippers/${id}`);
-      if (res.data.success) {
-        setSelectedShipper(res.data.data);
-        return res.data.data;
+  const getShipperById = useCallback(
+    async (id) => {
+      try {
+        setLoading(true);
+        const res = await API.get(`/admin/shippers/${id}`);
+        if (res.data.success) {
+          setSelectedShipper(res.data.data);
+          return res.data.data;
+        }
+      } catch (error) {
+        console.error("Error fetching shipper:", error);
+        showToast(
+          error?.response?.data?.message || "Failed to fetch shipper",
+          "error"
+        );
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error fetching shipper:", error);
-      showToast(
-        error?.response?.data?.message || "Failed to fetch shipper",
-        "error"
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [showToast]
+  );
 
-  // ----------------------------
   // Update shipper
-  // ----------------------------
-  const updateShipper = async (id, payload) => {
-    try {
-      setLoading(true);
-      const res = await API.put(`/admin/shippers/${id}`, payload);
-      if (res.data.success) {
-        showToast(res.data.message, "success");
-        fetchShippers();
+  const updateShipper = useCallback(
+    async (id, payload) => {
+      try {
+        setLoading(true);
+        const res = await API.put(`/admin/shippers/${id}`, payload);
+        if (res.data.success) {
+          showToast(res.data.message, "success");
+          fetchShippers();
+        }
+        return res.data;
+      } catch (error) {
+        console.error("Error updating shipper:", error);
+        showToast(
+          error?.response?.data?.message || "Failed to update shipper",
+          "error"
+        );
+      } finally {
+        setLoading(false);
       }
-      return res.data;
-    } catch (error) {
-      console.error("Error updating shipper:", error);
-      showToast(
-        error?.response?.data?.message || "Failed to update shipper",
-        "error"
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [fetchShippers, showToast]
+  );
 
-  // ----------------------------
   // Toggle shipper status
-  // ----------------------------
-  const toggleShipperStatus = async (id) => {
-    try {
-      setLoading(true);
-      const res = await API.patch(`/admin/shippers/${id}/status`);
-      if (res.data.success) {
-        showToast(res.data.message, "success");
-        fetchShippers();
+  const toggleShipperStatus = useCallback(
+    async (id) => {
+      try {
+        setLoading(true);
+        const res = await API.patch(`/admin/shippers/${id}/status`);
+        if (res.data.success) {
+          showToast(res.data.message, "success");
+          fetchShippers();
+        }
+        return res.data;
+      } catch (error) {
+        console.error("Error toggling shipper status:", error);
+        showToast(
+          error?.response?.data?.message || "Failed to toggle status",
+          "error"
+        );
+      } finally {
+        setLoading(false);
       }
-      return res.data;
-    } catch (error) {
-      console.error("Error toggling shipper status:", error);
-      showToast(
-        error?.response?.data?.message || "Failed to toggle status",
-        "error"
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [fetchShippers, showToast]
+  );
 
-  // ----------------------------
   // Delete shipper
-  // ----------------------------
-  const deleteShipper = async (id) => {
-    try {
-      setLoading(true);
-      const res = await API.delete(`/admin/shippers/${id}`);
-      if (res.data.success) {
-        showToast(res.data.message, "success");
-        fetchShippers();
+  const deleteShipper = useCallback(
+    async (id) => {
+      try {
+        setLoading(true);
+        const res = await API.delete(`/admin/shippers/${id}`);
+        if (res.data.success) {
+          showToast(res.data.message, "success");
+          fetchShippers();
+        }
+        return res.data;
+      } catch (error) {
+        console.error("Error deleting shipper:", error);
+        showToast(
+          error?.response?.data?.message || "Failed to delete shipper",
+          "error"
+        );
+      } finally {
+        setLoading(false);
       }
-      return res.data;
-    } catch (error) {
-      console.error("Error deleting shipper:", error);
-      showToast(
-        error?.response?.data?.message || "Failed to delete shipper",
-        "error"
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [fetchShippers, showToast]
+  );
 
-  // ----------------------------
-  // Context value
-  // ----------------------------
   const value = {
     shippers,
     loading,

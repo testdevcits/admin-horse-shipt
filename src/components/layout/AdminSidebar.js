@@ -4,6 +4,7 @@ import axios from "axios";
 import { LuArrowLeftFromLine, LuArrowRightFromLine } from "react-icons/lu";
 import { CiCircleQuestion } from "react-icons/ci";
 import { RiArrowDropUpLine, RiArrowDropDownLine } from "react-icons/ri";
+import { HiOutlineCreditCard } from "react-icons/hi";
 import {
   HiOutlineHome,
   HiOutlineUserGroup,
@@ -27,6 +28,17 @@ const navItems = [
     name: "Breed List",
     icon: <HiOutlineShoppingBag size={20} />,
     subPaths: [{ name: "Breed List", path: "/breeds" }],
+  },
+
+  {
+    name: "Platform",
+    icon: <HiOutlineCreditCard size={20} />,
+    subPaths: [
+      { name: "Platform Settings", path: "/platform-settings" },
+
+      // NEW PAGE
+      { name: "Stripe Payments", path: "/stripe-payments" },
+    ],
   },
 
   { name: "Settings", path: "/settings", icon: <HiOutlineCog size={20} /> },
