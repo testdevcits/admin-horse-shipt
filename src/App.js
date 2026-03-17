@@ -6,6 +6,10 @@ import { ShipperProvider } from "./context/ShipperContext";
 import { PlatformSettingsProvider } from "./context/PlatformSettingsContext";
 import { StripeAdminProvider } from "./context/StripeAdminContext";
 
+// New contexts
+import { TermsProvider } from "./context/TermsContext";
+import { PrivacyPolicyProvider } from "./context/PrivacyPolicyContext";
+
 import AppRoutes from "./routes/AppRoutes";
 
 function App() {
@@ -17,7 +21,11 @@ function App() {
             <PlatformSettingsProvider>
               <StripeAdminProvider>
                 <ShipperProvider>
-                  <AppRoutes />
+                  <TermsProvider>
+                    <PrivacyPolicyProvider>
+                      <AppRoutes />
+                    </PrivacyPolicyProvider>
+                  </TermsProvider>
                 </ShipperProvider>
               </StripeAdminProvider>
             </PlatformSettingsProvider>

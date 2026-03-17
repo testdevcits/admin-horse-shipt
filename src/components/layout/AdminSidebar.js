@@ -5,6 +5,7 @@ import { LuArrowLeftFromLine, LuArrowRightFromLine } from "react-icons/lu";
 import { CiCircleQuestion } from "react-icons/ci";
 import { RiArrowDropUpLine, RiArrowDropDownLine } from "react-icons/ri";
 import { HiOutlineCreditCard } from "react-icons/hi";
+import { MdOutlinePrivacyTip } from "react-icons/md";
 import {
   HiOutlineHome,
   HiOutlineUserGroup,
@@ -35,9 +36,16 @@ const navItems = [
     icon: <HiOutlineCreditCard size={20} />,
     subPaths: [
       { name: "Platform Settings", path: "/platform-settings" },
-
-      // NEW PAGE
       { name: "Stripe Payments", path: "/stripe-payments" },
+    ],
+  },
+
+  {
+    name: "Legal",
+    icon: <MdOutlinePrivacyTip size={20} />,
+    subPaths: [
+      { name: "Privacy Policy", path: "/privacy-policy" },
+      { name: "Terms & Conditions", path: "/terms-conditions" },
     ],
   },
 

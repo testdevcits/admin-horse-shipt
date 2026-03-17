@@ -6,7 +6,7 @@ const DataTable = ({
   actions = [],
   currentPage = 1,
   totalPages = 1,
-  onPageChange, // 🔑 This will handle page change
+  onPageChange,
 }) => {
   return (
     <div className="bg-white dark:bg-gray-900 rounded shadow">

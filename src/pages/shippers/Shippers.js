@@ -2,11 +2,19 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DataTable from "../../components/common/DataTable";
 import Button from "../../components/common/Button";
-import { FaEdit, FaTrash, FaEye, FaPlus } from "react-icons/fa";
+import { FaTrash, FaEye, FaPlus } from "react-icons/fa";
 import { useShippers } from "../../context/ShipperContext";
+import ConfirmModal from "../../components/common/ConfirmModal";
+import Toast from "../../components/common/Toast";
 
 const Shippers = () => {
   const [page, setPage] = useState(1);
+  const [confirmDelete, setConfirmDelete] = useState({
+    show: false,
+    shipperId: null,
+  });
+  const [toast, setToast] = useState(null);
+
   const navigate = useNavigate();
 
   const {
@@ -26,6 +34,20 @@ const Shippers = () => {
     (page - 1) * itemsPerPage,
     page * itemsPerPage
   );
+
+  const showToast = (message, type = "info") => setToast({ message, type });
+
+  // Handle delete confirmation
+  const handleDelete = async () => {
+    if (!confirmDelete.shipperId) return;
+
+    const result = await deleteShipper(confirmDelete.shipperId);
+    showToast(
+      result.success ? "Shipper deleted successfully" : result.message,
+      result.success ? "success" : "error"
+    );
+    setConfirmDelete({ show: false, shipperId: null });
+  };
 
   const columns = [
     { key: "name", label: "Shipper Name" },
@@ -54,21 +76,9 @@ const Shippers = () => {
       render: (row) => (
         <Button
           size="sm"
-          variant="primary"
-          icon={<FaEdit size={12} />}
-          onClick={() => console.log("Edit shipper:", row)}
-        >
-          Edit
-        </Button>
-      ),
-    },
-    {
-      render: (row) => (
-        <Button
-          size="sm"
           variant="danger"
           icon={<FaTrash size={12} />}
-          onClick={() => deleteShipper(row._id)}
+          onClick={() => setConfirmDelete({ show: true, shipperId: row._id })}
         >
           Delete
         </Button>
@@ -89,10 +99,10 @@ const Shippers = () => {
   ];
 
   return (
-    <div className="space-y-6 bg-gray-50 dark:bg-gray-900 min-h-screen p-4">
+    <div className="space-y-6 min-h-screen">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-          Shippers Management
+          Shippers
         </h1>
 
         <Button
@@ -103,7 +113,7 @@ const Shippers = () => {
         </Button>
       </div>
 
-      <div className="bg-white dark:bg-gray-900 rounded shadow p-4">
+      <div className="bg-white dark:bg-gray-900">
         <DataTable
           columns={columns}
           data={paginatedData}
@@ -114,6 +124,25 @@ const Shippers = () => {
           loading={loading}
         />
       </div>
+
+      {/* Confirm Delete Modal */}
+      <ConfirmModal
+        show={confirmDelete.show}
+        title="Delete Shipper"
+        message="Are you sure you want to delete this shipper?"
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDelete({ show: false, shipperId: null })}
+        confirmText="Delete"
+      />
+
+      {/* Toast */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 };

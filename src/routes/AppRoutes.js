@@ -1,111 +1,143 @@
-import { Routes, Route } from "react-router-dom";
-
-import Login from "../pages/auth/Login";
-import Signup from "../pages/auth/Signup";
-import ForgotPassword from "../pages/auth/ForgotPassword";
-import ResetPassword from "../pages/auth/ResetPassword";
-
-import Dashboard from "../pages/dashboard/Dashboard";
-
-import Shippers from "../pages/shippers/Shippers";
-import ShipperDetail from "../pages/shippers/ShipperDetail";
-
-import Settings from "../pages/settings/Settings";
-import Unauthorized from "../pages/Unauthorized";
-
+import { Routes, Route, Navigate } from "react-router-dom";
+import { lazy, Suspense } from "react";
+// PrivateRoute Wrapper
 import PrivateRoute from "./PrivateRoute";
+// Auth Pages
+const Login = lazy(() => import("../pages/auth/Login"));
+const Signup = lazy(() => import("../pages/auth/Signup"));
+const ForgotPassword = lazy(() => import("../pages/auth/ForgotPassword"));
+const ResetPassword = lazy(() => import("../pages/auth/ResetPassword"));
 
-import BreedList from "../pages/Breed/BreedList";
-import PlatformSettings from "../pages/Platform/PlatformSettings";
+// Dashboard & Admin Pages
+const Dashboard = lazy(() => import("../pages/dashboard/Dashboard"));
+const Shippers = lazy(() => import("../pages/shippers/Shippers"));
+const ShipperDetail = lazy(() => import("../pages/shippers/ShipperDetail"));
+const Settings = lazy(() => import("../pages/settings/Settings"));
+const Unauthorized = lazy(() => import("../pages/Unauthorized"));
 
-import StripePayments from "../pages/Platform/StripePayments";
+// Breed & Platform
+const BreedList = lazy(() => import("../pages/Breed/BreedList"));
+const PlatformSettings = lazy(() =>
+  import("../pages/Platform/PlatformSettings")
+);
+const StripePayments = lazy(() => import("../pages/Platform/StripePayments"));
+
+// Legal Pages
+const PrivacyPolicyList = lazy(() =>
+  import("../pages/Legal/PrivacyPolicyList")
+);
+const TermsConditionList = lazy(() =>
+  import("../pages/Legal/TermsConditionList")
+);
 
 const AppRoutes = () => {
   return (
-    <Routes>
-      <Route path="/" element={<Login />} />
-      <Route path="/login" element={<Login />} />
+    <Suspense fallback={<div className="text-center p-10">Loading...</div>}>
+      <Routes>
+        {/* =========================
+            PUBLIC ROUTES
+        ========================= */}
+        <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
-      <Route path="/signup" element={<Signup />} />
+        {/* =========================
+            PRIVATE ROUTES
+        ========================= */}
 
-      <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
 
-      <Route path="/reset-password" element={<ResetPassword />} />
+        <Route
+          path="/shippers"
+          element={
+            <PrivateRoute allowedRoles={["super-admin"]}>
+              <Shippers />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/shippers/:id"
+          element={
+            <PrivateRoute allowedRoles={["super-admin"]}>
+              <ShipperDetail />
+            </PrivateRoute>
+          }
+        />
 
-      {/* =========================
-          PRIVATE ROUTES
-      ========================= */}
+        <Route
+          path="/breeds"
+          element={
+            <PrivateRoute allowedRoles={["super-admin"]}>
+              <BreedList />
+            </PrivateRoute>
+          }
+        />
 
-      <Route
-        path="/dashboard"
-        element={
-          <PrivateRoute>
-            <Dashboard />
-          </PrivateRoute>
-        }
-      />
+        <Route
+          path="/platform-settings"
+          element={
+            <PrivateRoute allowedRoles={["super-admin"]}>
+              <PlatformSettings />
+            </PrivateRoute>
+          }
+        />
 
-      <Route
-        path="/shippers"
-        element={
-          <PrivateRoute allowedRoles={["super-admin"]}>
-            <Shippers />
-          </PrivateRoute>
-        }
-      />
+        <Route
+          path="/stripe-payments"
+          element={
+            <PrivateRoute allowedRoles={["super-admin"]}>
+              <StripePayments />
+            </PrivateRoute>
+          }
+        />
 
-      <Route
-        path="/shippers/:id"
-        element={
-          <PrivateRoute allowedRoles={["super-admin"]}>
-            <ShipperDetail />
-          </PrivateRoute>
-        }
-      />
+        {/* =========================
+            LEGAL PAGES
+        ========================= */}
+        <Route
+          path="/privacy-policy"
+          element={
+            <PrivateRoute allowedRoles={["super-admin"]}>
+              <PrivacyPolicyList />
+            </PrivateRoute>
+          }
+        />
 
-      <Route
-        path="/breeds"
-        element={
-          <PrivateRoute allowedRoles={["super-admin"]}>
-            <BreedList />
-          </PrivateRoute>
-        }
-      />
+        <Route
+          path="/terms-conditions"
+          element={
+            <PrivateRoute allowedRoles={["super-admin"]}>
+              <TermsConditionList />
+            </PrivateRoute>
+          }
+        />
 
-      {/* PLATFORM SETTINGS */}
-      <Route
-        path="/platform-settings"
-        element={
-          <PrivateRoute allowedRoles={["super-admin"]}>
-            <PlatformSettings />
-          </PrivateRoute>
-        }
-      />
+        {/* SETTINGS */}
+        <Route
+          path="/settings"
+          element={
+            <PrivateRoute allowedRoles={["super-admin"]}>
+              <Settings />
+            </PrivateRoute>
+          }
+        />
 
-      {/* NEW STRIPE PAYMENTS PAGE */}
-      <Route
-        path="/stripe-payments"
-        element={
-          <PrivateRoute allowedRoles={["super-admin"]}>
-            <StripePayments />
-          </PrivateRoute>
-        }
-      />
+        {/* UNAUTHORIZED */}
+        <Route path="/unauthorized" element={<Unauthorized />} />
 
-      <Route
-        path="/settings"
-        element={
-          <PrivateRoute allowedRoles={["super-admin"]}>
-            <Settings />
-          </PrivateRoute>
-        }
-      />
-
-      <Route path="/unauthorized" element={<Unauthorized />} />
-
-      {/* FALLBACK */}
-      <Route path="*" element={<Login />} />
-    </Routes>
+        {/* FALLBACK */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </Suspense>
   );
 };
 
