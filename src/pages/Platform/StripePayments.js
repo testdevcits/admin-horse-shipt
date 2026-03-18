@@ -8,10 +8,10 @@ import {
   ResponsiveContainer,
   LineChart,
   Line,
-  // XAxis,
+  XAxis,
   YAxis,
   Tooltip,
-  // CartesianGrid,
+  CartesianGrid,
   // Legend,
 } from "recharts";
 
@@ -131,8 +131,8 @@ const StripePayments = () => {
         </p>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData}>
-            {/* <CartesianGrid strokeDasharray="3 3" /> */}
-            {/* <XAxis dataKey="date" /> */}
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" />
             <YAxis />
             <Tooltip />
             {/* <Legend /> */}
