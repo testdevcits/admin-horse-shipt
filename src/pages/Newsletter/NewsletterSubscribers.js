@@ -542,7 +542,7 @@ const NewsletterSubscribers = () => {
             <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  📧 Send Newsletter
+                  Send Newsletter
                 </h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                   Recipients:{" "}
@@ -596,7 +596,7 @@ const NewsletterSubscribers = () => {
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                  💡 This will be sent as plain text email content
+                  This will be sent as plain text email content
                 </p>
               </div>
 
@@ -616,20 +616,20 @@ const NewsletterSubscribers = () => {
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm resize-none disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                  💡 HTML content will override plain text if both are provided
+                  HTML content will override plain text if both are provided
                 </p>
               </div>
 
               {/* Info Box */}
               <div className="bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 rounded-lg p-4 space-y-2">
                 <p className="text-sm text-green-800 dark:text-green-200">
-                  <strong>✅ Verified Only:</strong> This newsletter will be
-                  sent to {verifiedCount} verified subscriber
+                  <strong>Verified Only:</strong> This newsletter will be sent
+                  to {verifiedCount} verified subscriber
                   {verifiedCount !== 1 ? "s" : ""} only.
                 </p>
                 <p className="text-sm text-green-800 dark:text-green-200">
-                  <strong>📝 Note:</strong> Subject and (message OR HTML
-                  content) are required.
+                  <strong>Note:</strong> Subject and (message OR HTML content)
+                  are required.
                 </p>
               </div>
             </div>
@@ -677,10 +677,10 @@ const NewsletterSubscribers = () => {
             <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                 {confirmModal.type === "delete"
-                  ? "🗑️ Delete Subscriber"
+                  ? "Delete Subscriber"
                   : confirmModal.type === "deleteMultiple"
-                  ? "🗑️ Delete Multiple Subscribers"
-                  : "📧 Send Newsletter"}
+                  ? "Delete Multiple Subscribers"
+                  : "Send Newsletter"}
               </h3>
             </div>
 
