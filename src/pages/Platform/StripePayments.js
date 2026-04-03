@@ -125,10 +125,10 @@ const StripePayments = () => {
       </div>
 
       {/* LINE CHART */}
+      <p className="text-sm font-semibold mb-3 dark:text-white">
+        Revenue Analytics
+      </p>
       <div className="bg-white dark:bg-dark shadow rounded-xl p-6 h-[300px]">
-        <p className="text-sm font-semibold mb-3 dark:text-white">
-          Revenue Analytics
-        </p>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" />

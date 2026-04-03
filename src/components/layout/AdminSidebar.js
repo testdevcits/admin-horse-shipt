@@ -16,6 +16,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import comingSoonImg from "../../assets/images/defultlogo.png";
 
+// inside navItems array
 const navItems = [
   { name: "Dashboard", path: "/dashboard", icon: <HiOutlineHome size={20} /> },
 
@@ -29,6 +30,15 @@ const navItems = [
     name: "Breed List",
     icon: <HiOutlineShoppingBag size={20} />,
     subPaths: [{ name: "Breed List", path: "/breeds" }],
+  },
+
+  {
+    name: "Newsletter",
+    icon: <HiOutlineUserGroup size={20} />, // change icon if needed
+    subPaths: [
+      { name: "Subscribers", path: "/newsletter-subscribers" },
+      // You can add more newsletter actions here later
+    ],
   },
 
   {

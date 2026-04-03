@@ -14,6 +14,9 @@ const Shippers = lazy(() => import("../pages/shippers/Shippers"));
 const ShipperDetail = lazy(() => import("../pages/shippers/ShipperDetail"));
 const Settings = lazy(() => import("../pages/settings/Settings"));
 const Unauthorized = lazy(() => import("../pages/Unauthorized"));
+const NewsletterSubscribers = lazy(() =>
+  import("../pages/Newsletter/NewsletterSubscribers")
+);
 
 // Breed & Platform
 const BreedList = lazy(() => import("../pages/Breed/BreedList"));
@@ -117,6 +120,14 @@ const AppRoutes = () => {
           element={
             <PrivateRoute allowedRoles={["super-admin"]}>
               <TermsConditionList />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/newsletter-subscribers"
+          element={
+            <PrivateRoute allowedRoles={["super-admin"]}>
+              <NewsletterSubscribers />
             </PrivateRoute>
           }
         />

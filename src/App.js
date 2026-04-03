@@ -10,6 +10,9 @@ import { StripeAdminProvider } from "./context/StripeAdminContext";
 import { TermsProvider } from "./context/TermsContext";
 import { PrivacyPolicyProvider } from "./context/PrivacyPolicyContext";
 
+// Newsletter Admin context
+import { NewsletterAdminProvider } from "./context/NewsletterAdminContext";
+
 import AppRoutes from "./routes/AppRoutes";
 
 function App() {
@@ -23,7 +26,9 @@ function App() {
                 <ShipperProvider>
                   <TermsProvider>
                     <PrivacyPolicyProvider>
-                      <AppRoutes />
+                      <NewsletterAdminProvider>
+                        <AppRoutes />
+                      </NewsletterAdminProvider>
                     </PrivacyPolicyProvider>
                   </TermsProvider>
                 </ShipperProvider>
