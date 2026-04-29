@@ -3,6 +3,8 @@ import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { BreedProvider } from "./context/BreedContext";
 import { ShipperProvider } from "./context/ShipperContext";
+import { CustomerProvider } from "./context/CustomerContext";
+import { ShipmentProvider } from "./context/ShipmentContext";
 import { PlatformSettingsProvider } from "./context/PlatformSettingsContext";
 import { StripeAdminProvider } from "./context/StripeAdminContext";
 
@@ -24,13 +26,17 @@ function App() {
             <PlatformSettingsProvider>
               <StripeAdminProvider>
                 <ShipperProvider>
-                  <TermsProvider>
-                    <PrivacyPolicyProvider>
-                      <NewsletterAdminProvider>
-                        <AppRoutes />
-                      </NewsletterAdminProvider>
-                    </PrivacyPolicyProvider>
-                  </TermsProvider>
+                  <CustomerProvider>
+                    <ShipmentProvider>
+                      <TermsProvider>
+                        <PrivacyPolicyProvider>
+                          <NewsletterAdminProvider>
+                            <AppRoutes />
+                          </NewsletterAdminProvider>
+                        </PrivacyPolicyProvider>
+                      </TermsProvider>
+                    </ShipmentProvider>
+                  </CustomerProvider>
                 </ShipperProvider>
               </StripeAdminProvider>
             </PlatformSettingsProvider>

@@ -27,6 +27,18 @@ const navItems = [
   },
 
   {
+    name: "Customers",
+    icon: <HiOutlineUserGroup size={20} />,
+    subPaths: [{ name: "Customers List", path: "/customers" }],
+  },
+
+  {
+    name: "Shipments",
+    icon: <HiOutlineShoppingBag size={20} />,
+    subPaths: [{ name: "All Shipments", path: "/shipments" }],
+  },
+
+  {
     name: "Breed List",
     icon: <HiOutlineShoppingBag size={20} />,
     subPaths: [{ name: "Breed List", path: "/breeds" }],

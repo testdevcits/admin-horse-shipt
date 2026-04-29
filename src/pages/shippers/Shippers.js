@@ -5,7 +5,6 @@ import Button from "../../components/common/Button";
 import { FaTrash, FaEye, FaPlus } from "react-icons/fa";
 import { useShippers } from "../../context/ShipperContext";
 import ConfirmModal from "../../components/common/ConfirmModal";
-import Toast from "../../components/common/Toast";
 
 const Shippers = () => {
   const [page, setPage] = useState(1);
@@ -13,7 +12,6 @@ const Shippers = () => {
     show: false,
     shipperId: null,
   });
-  const [toast, setToast] = useState(null);
 
   const navigate = useNavigate();
 
@@ -35,17 +33,11 @@ const Shippers = () => {
     page * itemsPerPage
   );
 
-  const showToast = (message, type = "info") => setToast({ message, type });
-
   // Handle delete confirmation
   const handleDelete = async () => {
     if (!confirmDelete.shipperId) return;
 
-    const result = await deleteShipper(confirmDelete.shipperId);
-    showToast(
-      result.success ? "Shipper deleted successfully" : result.message,
-      result.success ? "success" : "error"
-    );
+    await deleteShipper(confirmDelete.shipperId);
     setConfirmDelete({ show: false, shipperId: null });
   };
 
@@ -134,15 +126,6 @@ const Shippers = () => {
         onCancel={() => setConfirmDelete({ show: false, shipperId: null })}
         confirmText="Delete"
       />
-
-      {/* Toast */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
     </div>
   );
 };

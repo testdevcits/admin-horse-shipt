@@ -12,6 +12,10 @@ const ResetPassword = lazy(() => import("../pages/auth/ResetPassword"));
 const Dashboard = lazy(() => import("../pages/dashboard/Dashboard"));
 const Shippers = lazy(() => import("../pages/shippers/Shippers"));
 const ShipperDetail = lazy(() => import("../pages/shippers/ShipperDetail"));
+const Customers = lazy(() => import("../pages/customers/Customers"));
+const CustomerDetail = lazy(() => import("../pages/customers/CustomerDetail"));
+const Shipments = lazy(() => import("../pages/shipments/Shipments"));
+const ShipmentDetail = lazy(() => import("../pages/shipments/ShipmentDetail"));
 const Settings = lazy(() => import("../pages/settings/Settings"));
 const Unauthorized = lazy(() => import("../pages/Unauthorized"));
 const NewsletterSubscribers = lazy(() =>
@@ -72,6 +76,40 @@ const AppRoutes = () => {
           element={
             <PrivateRoute allowedRoles={["super-admin"]}>
               <ShipperDetail />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/customers"
+          element={
+            <PrivateRoute allowedRoles={["super-admin"]}>
+              <Customers />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/customers/:id"
+          element={
+            <PrivateRoute allowedRoles={["super-admin"]}>
+              <CustomerDetail />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/shipments"
+          element={
+            <PrivateRoute allowedRoles={["super-admin"]}>
+              <Shipments />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/shipments/:id"
+          element={
+            <PrivateRoute allowedRoles={["super-admin"]}>
+              <ShipmentDetail />
             </PrivateRoute>
           }
         />

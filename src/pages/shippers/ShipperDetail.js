@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useShippers } from "../../context/ShipperContext";
+import { useAdminShipments } from "../../context/ShipmentContext";
 import Button from "../../components/common/Button";
+import DataTable from "../../components/common/DataTable";
 
 const ShipperDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { getShipperById, loading } = useShippers();
+  const { shipments, fetchShipments } = useAdminShipments();
 
   const [shipper, setShipper] = useState(null);
 
@@ -19,7 +22,8 @@ const ShipperDetail = () => {
       setShipper(data);
     };
     fetchShipper();
-  }, [id, getShipperById]);
+    fetchShipments({ shipper: id });
+  }, [id, getShipperById, fetchShipments]);
 
   if (loading || !shipper) {
     return <div className="text-center py-10">Loading...</div>;
@@ -33,6 +37,28 @@ const ShipperDetail = () => {
   const totalLoginPages = Math.ceil(
     (shipper.loginHistory?.length || 0) / loginPerPage
   );
+
+  const shipmentColumns = [
+    {
+      key: "shipmentCode",
+      label: "Code",
+      render: (row) => row.shipmentCode || row._id,
+    },
+    {
+      key: "customer",
+      label: "Customer",
+      render: (row) => row.customer?.name || row.customer?.email || "N/A",
+    },
+    { key: "pickupLocation", label: "Pickup" },
+    { key: "deliveryLocation", label: "Delivery" },
+    { key: "status", label: "Status" },
+    {
+      key: "createdAt",
+      label: "Created",
+      render: (row) =>
+        row.createdAt ? new Date(row.createdAt).toLocaleDateString() : "N/A",
+    },
+  ];
 
   return (
     <div className="bg-gray-50 dark:bg-gray-900 min-h-screen space-y-6">
@@ -209,6 +235,29 @@ const ShipperDetail = () => {
         ) : (
           <p className="text-sm text-gray-500">No login history available.</p>
         )}
+      </div>
+
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
+          Shipper Shipments
+        </h3>
+        <DataTable
+          columns={shipmentColumns}
+          data={shipments}
+          actions={[
+            {
+              render: (row) => (
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => navigate(`/shipments/${row._id}`)}
+                >
+                  View
+                </Button>
+              ),
+            },
+          ]}
+        />
       </div>
     </div>
   );

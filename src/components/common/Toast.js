@@ -1,22 +1,37 @@
 import React, { useEffect, useState } from "react";
 import { useTheme } from "../../context/ThemeContext"; // Theme context
 
+const activeToastKeys = new Set();
+
 const Toast = ({ message, type = "info", duration = 3000, onClose }) => {
   const [show, setShow] = useState(true);
   const [leaving, setLeaving] = useState(false);
   const { darkMode } = useTheme(); // Theme hook
+  const key = `${type}:${message}`;
 
   useEffect(() => {
+    if (activeToastKeys.has(key)) {
+      setShow(false);
+      onClose && onClose();
+      return undefined;
+    }
+
+    activeToastKeys.add(key);
+
     const timer = setTimeout(() => {
       setLeaving(true);
       setTimeout(() => {
         setShow(false);
+        activeToastKeys.delete(key);
         onClose && onClose();
       }, 300); // matches slide-out duration
     }, duration);
 
-    return () => clearTimeout(timer);
-  }, [duration, onClose]);
+    return () => {
+      clearTimeout(timer);
+      activeToastKeys.delete(key);
+    };
+  }, [duration, key, onClose]);
 
   if (!show) return null;
 
@@ -48,7 +63,14 @@ const Toast = ({ message, type = "info", duration = 3000, onClose }) => {
       <div className="flex justify-between items-center">
         <span className="text-sm sm:text-base">{message}</span>
         <button
-          onClick={() => setLeaving(true)}
+          onClick={() => {
+            setLeaving(true);
+            setTimeout(() => {
+              setShow(false);
+              activeToastKeys.delete(key);
+              onClose && onClose();
+            }, 300);
+          }}
           className="ml-2 text-white font-bold px-2 py-1 rounded hover:bg-white/20 transition-colors"
         >
           ×
