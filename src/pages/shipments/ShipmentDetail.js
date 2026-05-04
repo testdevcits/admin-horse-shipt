@@ -7,6 +7,33 @@ import { useAdminShipments } from "../../context/ShipmentContext";
 
 const formatDate = (value) => (value ? new Date(value).toLocaleString() : "N/A");
 
+const NoteLog = ({ entries = [], fallback }) => {
+  const notes = entries.length ? entries : fallback ? [{ note: fallback }] : [];
+  if (!notes.length) return null;
+
+  return (
+    <div className="mt-3 space-y-2">
+      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+        Chronological Notes
+      </p>
+      {notes.map((entry, index) => (
+        <div
+          key={index}
+          className="rounded-sm border border-gray-200 bg-gray-50 p-3 text-sm dark:border-gray-700 dark:bg-gray-900"
+        >
+          <div className="flex flex-wrap justify-between gap-2 text-xs text-gray-500 dark:text-gray-400">
+            <span className="font-semibold">{entry.userName || "Customer"}</span>
+            {entry.createdAt && <span>{formatDate(entry.createdAt)}</span>}
+          </div>
+          <p className="mt-1 whitespace-pre-wrap text-gray-700 dark:text-gray-200">
+            {entry.note}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 const Info = ({ label, value }) => (
   <p className="text-sm dark:text-gray-200">
     <span className="font-medium">{label}:</span> {value || "N/A"}
@@ -100,6 +127,10 @@ const ShipmentDetail = () => {
           <div className="mt-5 text-sm dark:text-gray-200">
             <span className="font-medium">Additional Info:</span>{" "}
             {shipment.additionalInfo}
+            <NoteLog
+              entries={shipment.additionalInfoLog || []}
+              fallback={shipment.additionalInfo}
+            />
           </div>
         )}
       </div>
@@ -123,6 +154,7 @@ const ShipmentDetail = () => {
               <p className="text-sm text-gray-600 dark:text-gray-300">
                 Stall: {horse.requestedStallSize || "N/A"}
               </p>
+              <NoteLog entries={horse.notesLog || []} fallback={horse.notes} />
             </div>
           ))}
         </div>

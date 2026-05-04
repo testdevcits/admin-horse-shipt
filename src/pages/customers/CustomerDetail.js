@@ -4,6 +4,7 @@ import Button from "../../components/common/Button";
 import DataTable from "../../components/common/DataTable";
 import Toast from "../../components/common/Toast";
 import { useCustomers } from "../../context/CustomerContext";
+import { FaEye } from "react-icons/fa";
 
 const formatDate = (value) => (value ? new Date(value).toLocaleString() : "N/A");
 
@@ -14,6 +15,8 @@ const CustomerDetail = () => {
 
   const [customer, setCustomer] = useState(null);
   const [shipments, setShipments] = useState([]);
+  const [payments, setPayments] = useState([]);
+  const [quotes, setQuotes] = useState([]);
   const [toast, setToast] = useState(null);
   const [page, setPage] = useState(1);
 
@@ -22,6 +25,8 @@ const CustomerDetail = () => {
       .then((data) => {
         setCustomer(data?.customer || null);
         setShipments(data?.shipments || []);
+        setPayments(data?.payments || []);
+        setQuotes(data?.quotes || []);
       })
       .catch((error) => {
         setToast({
@@ -142,6 +147,9 @@ const CustomerDetail = () => {
                 <Button
                   size="sm"
                   variant="secondary"
+                  icon={<FaEye size={12} />}
+                  iconOnly
+                  title="View shipment"
                   onClick={() => navigate(`/shipments/${row._id}`)}
                 >
                   View
@@ -150,6 +158,58 @@ const CustomerDetail = () => {
             },
           ]}
         />
+      </div>
+
+      <div className="grid xl:grid-cols-2 gap-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
+            Payment Settings
+          </h3>
+          <DataTable
+            columns={[
+              { key: "serviceName", label: "Service" },
+              {
+                key: "pkLive",
+                label: "Public Key",
+                render: (row) => row.pkLive || "N/A",
+              },
+              {
+                key: "active",
+                label: "Active",
+                render: (row) => (row.active ? "Yes" : "No"),
+              },
+              {
+                key: "updatedAt",
+                label: "Updated",
+                render: (row) => formatDate(row.updatedAt),
+              },
+            ]}
+            data={payments}
+          />
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
+            Payment Transactions
+          </h3>
+          <DataTable
+            columns={[
+              { key: "contractId", label: "Contract" },
+              {
+                key: "shipper",
+                label: "Shipper",
+                render: (row) => row.shipper?.name || row.shipper?.email || "N/A",
+              },
+              {
+                key: "totalPrice",
+                label: "Total",
+                render: (row) => `$${Number(row.totalPrice || 0).toFixed(2)}`,
+              },
+              { key: "paymentStatus", label: "Payment" },
+            ]}
+            data={quotes}
+          />
+        </div>
       </div>
 
       {toast && (

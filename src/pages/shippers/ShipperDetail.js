@@ -4,6 +4,7 @@ import { useShippers } from "../../context/ShipperContext";
 import { useAdminShipments } from "../../context/ShipmentContext";
 import Button from "../../components/common/Button";
 import DataTable from "../../components/common/DataTable";
+import { FaEye } from "react-icons/fa";
 
 const ShipperDetail = () => {
   const { id } = useParams();
@@ -12,6 +13,7 @@ const ShipperDetail = () => {
   const { shipments, fetchShipments } = useAdminShipments();
 
   const [shipper, setShipper] = useState(null);
+  const [shipperData, setShipperData] = useState({});
 
   const [loginPage, setLoginPage] = useState(1);
   const loginPerPage = 5;
@@ -19,7 +21,8 @@ const ShipperDetail = () => {
   useEffect(() => {
     const fetchShipper = async () => {
       const data = await getShipperById(id);
-      setShipper(data);
+      setShipper(data?.shipper || data);
+      setShipperData(data || {});
     };
     fetchShipper();
     fetchShipments({ shipper: id });
@@ -250,6 +253,9 @@ const ShipperDetail = () => {
                 <Button
                   size="sm"
                   variant="secondary"
+                  icon={<FaEye size={12} />}
+                  iconOnly
+                  title="View shipment"
                   onClick={() => navigate(`/shipments/${row._id}`)}
                 >
                   View
@@ -258,6 +264,38 @@ const ShipperDetail = () => {
             },
           ]}
         />
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
+            Vehicles
+          </h3>
+          <DataTable
+            columns={[
+              { key: "vehicleNumber", label: "Vehicle #" },
+              { key: "vehicleType", label: "Type" },
+              { key: "numberOfStalls", label: "Stalls" },
+              { key: "verificationStatus", label: "Verification" },
+            ]}
+            data={shipperData.vehicles || []}
+          />
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
+            Drivers
+          </h3>
+          <DataTable
+            columns={[
+              { key: "name", label: "Name" },
+              { key: "email", label: "Email" },
+              { key: "phone", label: "Phone" },
+              { key: "driverStatus", label: "Status" },
+            ]}
+            data={shipperData.drivers || []}
+          />
+        </div>
       </div>
     </div>
   );

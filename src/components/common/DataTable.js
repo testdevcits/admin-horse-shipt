@@ -1,4 +1,5 @@
 import React from "react";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 const DataTable = ({
   columns = [],
@@ -7,12 +8,13 @@ const DataTable = ({
   currentPage = 1,
   totalPages = 1,
   onPageChange,
+  loading = false,
 }) => {
   return (
-    <div className="bg-white dark:bg-gray-900 rounded shadow">
+    <div className="bg-white dark:bg-gray-900 rounded-md shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
       {/* ================= DESKTOP TABLE ================= */}
       <div className="hidden md:block overflow-x-auto">
-        <table className="w-full border-collapse">
+        <table className="w-full min-w-[760px] border-collapse">
           <thead className="bg-gray-100 dark:bg-gray-800">
             <tr>
               {columns.map((col) => (
@@ -32,10 +34,19 @@ const DataTable = ({
           </thead>
 
           <tbody>
-            {data.length === 0 ? (
+            {loading ? (
               <tr>
                 <td
-                  colSpan={columns.length + 1}
+                  colSpan={columns.length + (actions.length > 0 ? 1 : 0)}
+                  className="text-center py-8 text-gray-500 dark:text-gray-400"
+                >
+                  Loading...
+                </td>
+              </tr>
+            ) : data.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={columns.length + (actions.length > 0 ? 1 : 0)}
                   className="text-center py-6 text-gray-500 dark:text-gray-400"
                 >
                   No data found
@@ -50,7 +61,7 @@ const DataTable = ({
                   {columns.map((col) => (
                     <td
                       key={col.key}
-                      className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200 border-b"
+                      className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200 border-b align-middle"
                     >
                       {col.render ? col.render(row) : row[col.key]}
                     </td>
@@ -58,7 +69,7 @@ const DataTable = ({
 
                   {actions.length > 0 && (
                     <td className="px-4 py-3 text-center border-b">
-                      <div className="flex justify-center gap-2 flex-wrap">
+                      <div className="flex justify-center gap-1.5">
                         {actions.map((action, i) => (
                           <div key={i}>
                             {action.render ? (
@@ -89,7 +100,11 @@ const DataTable = ({
 
       {/* ================= MOBILE CARD VIEW ================= */}
       <div className="md:hidden space-y-4 p-4">
-        {data.length === 0 ? (
+        {loading ? (
+          <div className="text-center text-gray-500 dark:text-gray-400 py-4">
+            Loading...
+          </div>
+        ) : data.length === 0 ? (
           <div className="text-center text-gray-500 dark:text-gray-400">
             No data found
           </div>
@@ -97,15 +112,15 @@ const DataTable = ({
           data.map((row, index) => (
             <div
               key={index}
-              className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800"
+              className="border rounded-md p-4 bg-gray-50 dark:bg-gray-800 dark:border-gray-700"
             >
               <div className="space-y-2">
                 {columns.map((col) => (
-                  <div key={col.key} className="flex justify-between text-sm">
-                    <span className="font-medium text-gray-600 dark:text-gray-400">
+                  <div key={col.key} className="grid grid-cols-[110px_1fr] gap-3 text-sm">
+                    <span className="font-medium text-gray-600 dark:text-gray-400 break-words">
                       {col.label}
                     </span>
-                    <span className="text-gray-800 dark:text-gray-200 text-right">
+                    <span className="text-gray-800 dark:text-gray-200 text-right break-words min-w-0">
                       {col.render ? col.render(row) : row[col.key]}
                     </span>
                   </div>
@@ -113,7 +128,7 @@ const DataTable = ({
               </div>
 
               {actions.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div className="mt-4 flex flex-wrap gap-2 justify-end">
                   {actions.map((action, i) => (
                     <div key={i}>
                       {action.render ? (
@@ -146,21 +161,23 @@ const DataTable = ({
             Page {currentPage} of {totalPages}
           </span>
 
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <button
               disabled={currentPage === 1}
               onClick={() => onPageChange?.(currentPage - 1)}
-              className="px-3 py-1 border rounded disabled:opacity-50 dark:border-gray-600 dark:text-gray-200"
+              className="w-9 h-9 inline-flex items-center justify-center border rounded disabled:opacity-50 dark:border-gray-600 dark:text-gray-200"
+              aria-label="Previous page"
             >
-              Prev
+              <FaChevronLeft size={12} />
             </button>
 
             <button
               disabled={currentPage === totalPages}
               onClick={() => onPageChange?.(currentPage + 1)}
-              className="px-3 py-1 border rounded disabled:opacity-50 dark:border-gray-600 dark:text-gray-200"
+              className="w-9 h-9 inline-flex items-center justify-center border rounded disabled:opacity-50 dark:border-gray-600 dark:text-gray-200"
+              aria-label="Next page"
             >
-              Next
+              <FaChevronRight size={12} />
             </button>
           </div>
         </div>

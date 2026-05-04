@@ -10,6 +10,8 @@ const Button = ({
   loading = false,
   disabled = false,
   fullWidth = false,
+  iconOnly = false,
+  title = "",
   className = "",
 }) => {
   const variants = {
@@ -29,16 +31,24 @@ const Button = ({
     lg: "px-5 py-2.5 text-base",
   };
 
+  const iconSizes = {
+    sm: "w-8 h-8 text-sm",
+    md: "w-9 h-9 text-sm",
+    lg: "w-10 h-10 text-base",
+  };
+
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={disabled || loading}
+      title={title}
+      aria-label={iconOnly ? title || "Action" : undefined}
       className={`
         inline-flex items-center justify-center gap-2
-        rounded-lg font-medium transition
+        rounded-md font-medium transition
         ${variants[variant]}
-        ${sizes[size]}
+        ${iconOnly ? iconSizes[size] : sizes[size]}
         ${fullWidth ? "w-full" : ""}
         ${disabled || loading ? "opacity-60 cursor-not-allowed" : ""}
         dark:opacity-95
@@ -50,7 +60,7 @@ const Button = ({
       ) : (
         <>
           {icon && <span>{icon}</span>}
-          {children}
+          {!iconOnly && children}
         </>
       )}
     </button>

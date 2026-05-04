@@ -13,6 +13,7 @@ const Shipments = () => {
   const { shipments, fetchShipments, loading } = useAdminShipments();
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState("");
+  const [search, setSearch] = useState("");
   const [toast, setToast] = useState(null);
 
   useEffect(() => {
@@ -25,9 +26,29 @@ const Shipments = () => {
   }, [fetchShipments, status]);
 
   const itemsPerPage = 10;
+  const filteredShipments = useMemo(
+    () =>
+      shipments.filter((shipment) =>
+        [
+          shipment.shipmentCode,
+          shipment.pickupLocation,
+          shipment.deliveryLocation,
+          shipment.customer?.name,
+          shipment.customer?.email,
+          shipment.shipper?.name,
+          shipment.shipper?.email,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase()
+          .includes(search.toLowerCase())
+      ),
+    [shipments, search]
+  );
   const paginatedData = useMemo(
-    () => shipments.slice((page - 1) * itemsPerPage, page * itemsPerPage),
-    [shipments, page]
+    () =>
+      filteredShipments.slice((page - 1) * itemsPerPage, page * itemsPerPage),
+    [filteredShipments, page]
   );
 
   const columns = [
@@ -63,30 +84,41 @@ const Shipments = () => {
           Shipments
         </h1>
 
-        <select
-          value={status}
-          onChange={(e) => {
-            setStatus(e.target.value);
-            setPage(1);
-          }}
-          className="border rounded px-3 py-2 text-sm dark:bg-gray-900 dark:text-white dark:border-gray-700"
-        >
-          <option value="">All statuses</option>
-          <option value="pending">Pending</option>
-          <option value="assigned">Assigned</option>
-          <option value="picked">Picked</option>
-          <option value="in_transit">In Transit</option>
-          <option value="delivered">Delivered</option>
-          <option value="cancelled">Cancelled</option>
-          <option value="open_for_offers">Open For Offers</option>
-        </select>
+        <div className="grid grid-cols-1 sm:grid-cols-[1fr_190px] gap-2 w-full sm:w-auto">
+          <input
+            value={search}
+            onChange={(event) => {
+              setSearch(event.target.value);
+              setPage(1);
+            }}
+            placeholder="Search shipments"
+            className="border rounded-md px-3 py-2 text-sm dark:bg-gray-900 dark:text-white dark:border-gray-700"
+          />
+          <select
+            value={status}
+            onChange={(e) => {
+              setStatus(e.target.value);
+              setPage(1);
+            }}
+            className="border rounded-md px-3 py-2 text-sm dark:bg-gray-900 dark:text-white dark:border-gray-700"
+          >
+            <option value="">All statuses</option>
+            <option value="pending">Pending</option>
+            <option value="assigned">Assigned</option>
+            <option value="picked">Picked</option>
+            <option value="in_transit">In Transit</option>
+            <option value="delivered">Delivered</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="open_for_offers">Open For Offers</option>
+          </select>
+        </div>
       </div>
 
       <DataTable
         columns={columns}
         data={paginatedData}
         currentPage={page}
-        totalPages={Math.ceil(shipments.length / itemsPerPage) || 1}
+        totalPages={Math.ceil(filteredShipments.length / itemsPerPage) || 1}
         onPageChange={setPage}
         loading={loading}
         actions={[
@@ -96,6 +128,8 @@ const Shipments = () => {
                 size="sm"
                 variant="secondary"
                 icon={<FaEye size={12} />}
+                iconOnly
+                title="View shipment"
                 onClick={() => navigate(`/shipments/${row._id}`)}
               >
                 View

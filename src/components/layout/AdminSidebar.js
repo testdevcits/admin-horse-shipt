@@ -6,6 +6,7 @@ import { CiCircleQuestion } from "react-icons/ci";
 import { RiArrowDropUpLine, RiArrowDropDownLine } from "react-icons/ri";
 import { HiOutlineCreditCard } from "react-icons/hi";
 import { MdOutlinePrivacyTip } from "react-icons/md";
+import { FiMoon, FiSun } from "react-icons/fi";
 import {
   HiOutlineHome,
   HiOutlineUserGroup,
@@ -236,24 +237,35 @@ const AdminSidebar = ({
         </nav>
 
         {/* Bottom Settings */}
-        <div className="p-3 border-t dark:border-gray-700">
+        <div className="p-3 border-t dark:border-gray-700 space-y-2">
+          <button
+            onClick={toggleTheme}
+            className="w-full min-h-10 flex items-center justify-center gap-2 px-3 py-2 rounded-md bg-gray-100 dark:bg-gray-800 text-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+            title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+            aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {darkMode ? <FiSun size={18} /> : <FiMoon size={18} />}
+            {sidebarOpen && (
+              <span className="text-sm font-medium">
+                {darkMode ? "Light Mode" : "Dark Mode"}
+              </span>
+            )}
+          </button>
+
           <button
             onClick={() => setHelpModalOpen(!helpModalOpen)}
-            className="w-full flex justify-center py-2 rounded bg-gray-100 dark:bg-gray-800 dark:text-white"
+            className="w-full min-h-10 flex justify-center py-2 rounded-md bg-gray-100 dark:bg-gray-800 dark:text-white"
           >
             <CiCircleQuestion size={20} />
           </button>
 
           {helpModalOpen && (
-            <div className="mt-3 p-3 bg-white dark:bg-gray-800 rounded shadow">
-              <div className="flex justify-between items-center text-sm dark:text-white">
-                <span>Dark Mode</span>
-                <button
-                  onClick={toggleTheme}
-                  className="px-2 py-1 bg-gray-200 dark:bg-gray-700 dark:text-white rounded"
-                >
-                  {darkMode ? "Light" : "Dark"}
-                </button>
+            <div className="mt-3 p-3 bg-white dark:bg-gray-800 rounded-md shadow border dark:border-gray-700">
+              <div className="text-sm dark:text-white">
+                <p className="font-medium">Need help?</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Contact support from your settings page.
+                </p>
               </div>
             </div>
           )}

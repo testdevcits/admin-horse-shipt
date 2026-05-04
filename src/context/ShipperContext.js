@@ -25,9 +25,8 @@ export const ShipperProvider = ({ children }) => {
       setLoading(true);
       const res = await API.get("/admin/shippers/all");
       if (res.data.success) setShippers(res.data.data);
-    } catch (error) {
-      console.error("Error fetching shippers:", error);
-      showToast(
+      } catch (error) {
+        showToast(
         error?.response?.data?.message || "Failed to fetch shippers",
         "error"
       );
@@ -43,11 +42,12 @@ export const ShipperProvider = ({ children }) => {
         setLoading(true);
         const res = await API.get(`/admin/shippers/${id}`);
         if (res.data.success) {
-          setSelectedShipper(res.data.data);
-          return res.data.data;
+          const payload = res.data.data;
+          const shipper = payload?.shipper || payload;
+          setSelectedShipper(shipper);
+          return { ...payload, shipper };
         }
       } catch (error) {
-        console.error("Error fetching shipper:", error);
         showToast(
           error?.response?.data?.message || "Failed to fetch shipper",
           "error"
@@ -71,7 +71,6 @@ export const ShipperProvider = ({ children }) => {
         }
         return res.data;
       } catch (error) {
-        console.error("Error updating shipper:", error);
         showToast(
           error?.response?.data?.message || "Failed to update shipper",
           "error"
@@ -95,7 +94,6 @@ export const ShipperProvider = ({ children }) => {
         }
         return res.data;
       } catch (error) {
-        console.error("Error toggling shipper status:", error);
         showToast(
           error?.response?.data?.message || "Failed to toggle status",
           "error"
@@ -119,7 +117,6 @@ export const ShipperProvider = ({ children }) => {
         }
         return res.data;
       } catch (error) {
-        console.error("Error deleting shipper:", error);
         showToast(
           error?.response?.data?.message || "Failed to delete shipper",
           "error"

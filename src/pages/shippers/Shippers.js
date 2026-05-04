@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DataTable from "../../components/common/DataTable";
 import Button from "../../components/common/Button";
@@ -8,6 +8,7 @@ import ConfirmModal from "../../components/common/ConfirmModal";
 
 const Shippers = () => {
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
   const [confirmDelete, setConfirmDelete] = useState({
     show: false,
     shipperId: null,
@@ -28,7 +29,18 @@ const Shippers = () => {
   }, [fetchShippers]);
 
   const itemsPerPage = 10;
-  const paginatedData = shippers.slice(
+  const filteredShippers = useMemo(
+    () =>
+      shippers.filter((shipper) =>
+        [shipper.name, shipper.email, shipper.mobile, shipper.uniqueId]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase()
+          .includes(search.toLowerCase())
+      ),
+    [shippers, search]
+  );
+  const paginatedData = filteredShippers.slice(
     (page - 1) * itemsPerPage,
     page * itemsPerPage
   );
@@ -44,7 +56,7 @@ const Shippers = () => {
   const columns = [
     { key: "name", label: "Shipper Name" },
     { key: "email", label: "Email" },
-    { key: "phone", label: "Phone" },
+    { key: "mobile", label: "Phone", render: (row) => row.mobile || "N/A" },
     {
       key: "status",
       label: "Status",
@@ -70,6 +82,8 @@ const Shippers = () => {
           size="sm"
           variant="danger"
           icon={<FaTrash size={12} />}
+          iconOnly
+          title="Delete shipper"
           onClick={() => setConfirmDelete({ show: true, shipperId: row._id })}
         >
           Delete
@@ -82,6 +96,8 @@ const Shippers = () => {
           size="sm"
           variant="secondary"
           icon={<FaEye size={12} />}
+          iconOnly
+          title="View shipper"
           onClick={() => navigate(`/shippers/${row._id}`)}
         >
           View
@@ -97,12 +113,20 @@ const Shippers = () => {
           Shippers
         </h1>
 
-        <Button
-          icon={<FaPlus size={14} />}
-          onClick={() => console.log("Add new shipper")}
-        >
-          Add Shipper
-        </Button>
+        <div className="flex w-full sm:w-auto gap-2">
+          <input
+            value={search}
+            onChange={(event) => {
+              setSearch(event.target.value);
+              setPage(1);
+            }}
+            placeholder="Search shippers"
+            className="min-w-0 flex-1 sm:w-72 border rounded-md px-3 py-2 text-sm dark:bg-gray-900 dark:text-white dark:border-gray-700"
+          />
+          <Button icon={<FaPlus size={14} />} iconOnly title="Add shipper" disabled>
+            Add Shipper
+          </Button>
+        </div>
       </div>
 
       <div className="bg-white dark:bg-gray-900">
@@ -111,7 +135,7 @@ const Shippers = () => {
           data={paginatedData}
           actions={actions}
           currentPage={page}
-          totalPages={Math.ceil(shippers.length / itemsPerPage) || 1}
+          totalPages={Math.ceil(filteredShippers.length / itemsPerPage) || 1}
           onPageChange={setPage}
           loading={loading}
         />

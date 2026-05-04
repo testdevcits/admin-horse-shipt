@@ -18,6 +18,7 @@ const Customers = () => {
   } = useCustomers();
 
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
   const [toast, setToast] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState({
     show: false,
@@ -34,9 +35,21 @@ const Customers = () => {
   }, [fetchCustomers]);
 
   const itemsPerPage = 10;
+  const filteredCustomers = useMemo(
+    () =>
+      customers.filter((customer) =>
+        [customer.name, customer.email, customer.phone, customer.uniqueId]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase()
+          .includes(search.toLowerCase())
+      ),
+    [customers, search]
+  );
   const paginatedData = useMemo(
-    () => customers.slice((page - 1) * itemsPerPage, page * itemsPerPage),
-    [customers, page]
+    () =>
+      filteredCustomers.slice((page - 1) * itemsPerPage, page * itemsPerPage),
+    [filteredCustomers, page]
   );
 
   const handleDelete = async () => {
@@ -109,6 +122,8 @@ const Customers = () => {
           size="sm"
           variant="secondary"
           icon={<FaEye size={12} />}
+          iconOnly
+          title="View customer"
           onClick={() => navigate(`/customers/${row._id}`)}
         >
           View
@@ -121,6 +136,8 @@ const Customers = () => {
           size="sm"
           variant="danger"
           icon={<FaTrash size={12} />}
+          iconOnly
+          title="Delete customer"
           onClick={() =>
             setConfirmDelete({ show: true, customerId: row._id })
           }
@@ -137,6 +154,15 @@ const Customers = () => {
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
           Customers
         </h1>
+        <input
+          value={search}
+          onChange={(event) => {
+            setSearch(event.target.value);
+            setPage(1);
+          }}
+          placeholder="Search customers"
+          className="w-full sm:w-72 border rounded-md px-3 py-2 text-sm dark:bg-gray-900 dark:text-white dark:border-gray-700"
+        />
       </div>
 
       <DataTable
@@ -144,7 +170,7 @@ const Customers = () => {
         data={paginatedData}
         actions={actions}
         currentPage={page}
-        totalPages={Math.ceil(customers.length / itemsPerPage) || 1}
+        totalPages={Math.ceil(filteredCustomers.length / itemsPerPage) || 1}
         onPageChange={setPage}
         loading={loading}
       />
