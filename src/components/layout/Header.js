@@ -2,6 +2,7 @@ import { useTheme } from "../../context/ThemeContext";
 import { useAuth } from "../../context/AuthContext";
 import { useState, useRef, useEffect } from "react";
 import { CiSettings } from "react-icons/ci";
+import { FiMenu } from "react-icons/fi";
 import comingSoonImg from "../../assets/images/defultlogo.png";
 
 const Header = ({ sidebarOpen, setSidebarOpen, isDesktop }) => {
@@ -24,8 +25,8 @@ const Header = ({ sidebarOpen, setSidebarOpen, isDesktop }) => {
 
   return (
     <header
-      className={`shadow flex justify-between items-center p-2 h-13 z-50 fixed top-0 transition-all duration-300  border-b dark:border-gray-700 ${
-        darkMode ? "bg-gray-900 text-white" : "bg-header text-dark"
+      className={`shadow-sm flex justify-between items-center px-4 h-14 z-50 fixed top-0 transition-all duration-300 border-b dark:border-gray-800 ${
+        darkMode ? "bg-gray-950/95 text-white" : "bg-white/95 text-dark"
       }`}
       style={{
         left: isDesktop ? (sidebarOpen ? 257 : 81) : 0,
@@ -36,32 +37,34 @@ const Header = ({ sidebarOpen, setSidebarOpen, isDesktop }) => {
       <div className="flex items-center gap-2">
         {!isDesktop && (
           <button
-            className={`p-2 border rounded transition-colors ${
+            className={`p-2 border rounded-md transition-colors ${
               darkMode
                 ? "bg-gray-800 hover:bg-gray-700 border-gray-700"
                 : "bg-light hover:bg-gray-200 border-gray-300"
             }`}
             onClick={() => setSidebarOpen((prev) => !prev)}
+            aria-label="Open navigation"
           >
-            ☰
+            <FiMenu />
           </button>
         )}
-        <span
-          className={`font-medium ml-2 ${
-            darkMode ? "text-white" : "text-dark"
-          }`}
-        >
-          Welcome {user?.name || "Admin"}
-        </span>
+        <div className="ml-1">
+          <p className={`text-sm font-bold ${darkMode ? "text-white" : "text-dark"}`}>
+            Welcome {user?.name || "Admin"}
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">
+            Manage Horse Shipt operations
+          </p>
+        </div>
       </div>
 
       {/* Right side: Avatar + Tooltip */}
       <div className="relative" ref={tooltipRef}>
         <button
-          className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-colors ${
+          className={`w-9 h-9 rounded-full flex items-center justify-center border text-sm font-bold transition-colors ${
             darkMode
               ? "bg-gray-800 border-gray-700 hover:bg-gray-700"
-              : "bg-light border-gray-300 hover:bg-gray-200"
+              : "bg-[#BF9B53]/10 border-[#BF9B53]/30 text-[#8B7138] hover:bg-[#BF9B53]/20"
           }`}
           onClick={() => setTooltipOpen((prev) => !prev)}
         >
@@ -71,7 +74,7 @@ const Header = ({ sidebarOpen, setSidebarOpen, isDesktop }) => {
         {/* Tooltip / Dropdown */}
         {tooltipOpen && (
           <div
-            className={`absolute right-0 mt-2 w-70 rounded-md shadow-lg overflow-hidden z-50 transition-transform transform scale-95 animate-slide-down ${
+            className={`absolute right-0 mt-2 w-72 rounded-md border shadow-lg overflow-hidden z-50 transition-transform transform scale-95 animate-slide-down ${
               darkMode ? "bg-gray-800 text-white" : "bg-white text-dark"
             }`}
           >

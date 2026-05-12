@@ -11,22 +11,22 @@ const DataTable = ({
   loading = false,
 }) => {
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-md shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+    <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
       {/* ================= DESKTOP TABLE ================= */}
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full min-w-[760px] border-collapse">
-          <thead className="bg-gray-100 dark:bg-gray-800">
+          <thead className="bg-slate-50 dark:bg-gray-800">
             <tr>
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-200 border-b"
+                  className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700"
                 >
                   {col.label}
                 </th>
               ))}
               {actions.length > 0 && (
-                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700 dark:text-gray-200 border-b">
+                <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
                   Actions
                 </th>
               )}
@@ -56,19 +56,19 @@ const DataTable = ({
               data.map((row, index) => (
                 <tr
                   key={index}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+                  className="hover:bg-[#BF9B53]/5 dark:hover:bg-gray-800 transition"
                 >
                   {columns.map((col) => (
                     <td
                       key={col.key}
-                      className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200 border-b align-middle"
+                      className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200 border-b border-gray-100 dark:border-gray-800 align-middle"
                     >
                       {col.render ? col.render(row) : row[col.key]}
                     </td>
                   ))}
 
                   {actions.length > 0 && (
-                    <td className="px-4 py-3 text-center border-b">
+                    <td className="px-4 py-3 text-center border-b border-gray-100 dark:border-gray-800">
                       <div className="flex justify-center gap-1.5">
                         {actions.map((action, i) => (
                           <div key={i}>
@@ -77,7 +77,7 @@ const DataTable = ({
                             ) : (
                               <button
                                 onClick={() => action.onClick?.(row)}
-                                className={`px-3 py-1 text-xs rounded text-white ${
+                                className={`px-3 py-1.5 text-xs rounded-md font-semibold text-white transition hover:opacity-90 ${
                                   action.className || "bg-gray-500"
                                 }`}
                               >
@@ -112,7 +112,7 @@ const DataTable = ({
           data.map((row, index) => (
             <div
               key={index}
-              className="border rounded-md p-4 bg-gray-50 dark:bg-gray-800 dark:border-gray-700"
+              className="border rounded-lg p-4 bg-slate-50 dark:bg-gray-800 dark:border-gray-700"
             >
               <div className="space-y-2">
                 {columns.map((col) => (
@@ -136,7 +136,7 @@ const DataTable = ({
                       ) : (
                         <button
                           onClick={() => action.onClick?.(row)}
-                          className={`px-3 py-1 text-xs rounded text-white ${
+                          className={`px-3 py-1.5 text-xs rounded-md font-semibold text-white transition hover:opacity-90 ${
                             action.className || "bg-gray-500"
                           }`}
                         >
@@ -156,7 +156,7 @@ const DataTable = ({
 
       {/* ================= PAGINATION ================= */}
       {totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row gap-2 justify-between items-center p-3 border-t dark:border-gray-700">
+        <div className="flex flex-col sm:flex-row gap-2 justify-between items-center p-3 border-t bg-slate-50 dark:bg-gray-900 dark:border-gray-700">
           <span className="text-sm text-gray-600 dark:text-gray-300">
             Page {currentPage} of {totalPages}
           </span>
@@ -165,7 +165,7 @@ const DataTable = ({
             <button
               disabled={currentPage === 1}
               onClick={() => onPageChange?.(currentPage - 1)}
-              className="w-9 h-9 inline-flex items-center justify-center border rounded disabled:opacity-50 dark:border-gray-600 dark:text-gray-200"
+              className="w-9 h-9 inline-flex items-center justify-center border rounded-md bg-white disabled:opacity-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
               aria-label="Previous page"
             >
               <FaChevronLeft size={12} />
@@ -174,7 +174,7 @@ const DataTable = ({
             <button
               disabled={currentPage === totalPages}
               onClick={() => onPageChange?.(currentPage + 1)}
-              className="w-9 h-9 inline-flex items-center justify-center border rounded disabled:opacity-50 dark:border-gray-600 dark:text-gray-200"
+              className="w-9 h-9 inline-flex items-center justify-center border rounded-md bg-white disabled:opacity-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
               aria-label="Next page"
             >
               <FaChevronRight size={12} />

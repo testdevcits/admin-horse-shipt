@@ -9,21 +9,21 @@ const NoData = ({
   showReload = true,
 }) => {
   return (
-    <div className="flex flex-col items-center justify-center px-6 py-12 font-montserrat animate-slide-fade-in text-center">
+    <div className="flex flex-col items-center justify-center px-6 py-12 font-montserrat animate-slide-fade-in text-center rounded-lg border border-dashed border-gray-300 bg-white dark:bg-gray-900 dark:border-gray-700">
       {/* Image */}
       <img
         src={comingSoonImg}
         alt="No Data"
-        className="w-16 sm:w-20 mb-6 object-contain"
+        className="w-14 sm:w-16 mb-5 object-contain"
       />
 
       {/* Title */}
-      <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-gray-800 dark:text-white mb-4">
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white mb-2">
         {title}
       </h2>
 
       {/* Description */}
-      <p className="text-gray-500 dark:text-gray-400 max-w-md sm:max-w-lg md:max-w-xl mb-8 px-2">
+      <p className="text-sm text-gray-500 dark:text-gray-400 max-w-md sm:max-w-lg md:max-w-xl mb-6 px-2">
         {description}
       </p>
 
@@ -32,8 +32,8 @@ const NoData = ({
         {showGoBack && (
           <button
             onClick={() => window.history.back()}
-            className="px-6 sm:px-8 py-3 border border-system-primary text-system-primary 
-            rounded-2xl font-medium transition 
+            className="px-5 py-2 border border-system-primary text-system-primary 
+            rounded-md font-medium transition 
             hover:bg-system-primary hover:text-white 
             dark:border-system-primary dark:text-system-primary"
           >
@@ -44,8 +44,8 @@ const NoData = ({
         {showReload && (
           <button
             onClick={() => window.location.reload()}
-            className="px-6 sm:px-8 py-3 border border-system-primary text-system-primary 
-            rounded-2xl font-medium transition 
+            className="px-5 py-2 border border-system-primary text-system-primary 
+            rounded-md font-medium transition 
             hover:bg-system-primary hover:text-white 
             dark:border-system-primary dark:text-system-primary"
           >

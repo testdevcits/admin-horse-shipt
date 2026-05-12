@@ -21,7 +21,7 @@ const AdminLayout = ({ children }) => {
   const sidebarWidth = sidebarOpen ? 257 : 81;
 
   return (
-    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <div className="flex min-h-screen bg-slate-100 dark:bg-gray-950 transition-colors duration-300">
       {/* SIDEBAR */}
       <AdminSidebar
         sidebarOpen={sidebarOpen}
@@ -50,7 +50,7 @@ const AdminLayout = ({ children }) => {
         <main
           className={`
             flex-1 overflow-auto
-            p-2 md:p-4
+            p-4 md:p-6 lg:p-8
             mt-14
             text-gray-800 dark:text-gray-100
           `}
