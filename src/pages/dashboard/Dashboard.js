@@ -35,13 +35,28 @@ const number = (value = 0) =>
 
 const statusClass = {
   published: "bg-emerald-50 text-emerald-600",
+  open_for_offers: "bg-cyan-50 text-cyan-600",
   pending: "bg-amber-50 text-amber-600",
+  paid: "bg-emerald-50 text-emerald-600",
+  unpaid: "bg-amber-50 text-amber-600",
   draft: "bg-gray-100 text-gray-600",
   cancelled: "bg-rose-50 text-rose-600",
   canceled: "bg-rose-50 text-rose-600",
+  rejected: "bg-rose-50 text-rose-600",
   completed: "bg-green-50 text-green-600",
   accepted: "bg-blue-50 text-blue-600",
+  assigned: "bg-indigo-50 text-indigo-600",
 };
+
+const formatStatus = (value = "pending") =>
+  String(value)
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+
+const shortId = (value = "") => String(value || "").slice(-7).toUpperCase();
+
+const userName = (user, fallback = "Unknown") =>
+  user?.name || user?.email || fallback;
 
 const DashboardSkeleton = () => (
   <div className="min-h-screen bg-[#f5f6fb] -m-4 sm:-m-6 p-4 sm:p-6 font-montserrat">
@@ -204,6 +219,14 @@ const Dashboard = () => {
     () => dashboard?.recent?.shipments || [],
     [dashboard]
   );
+  const recentPayments = useMemo(
+    () => dashboard?.recent?.payments || [],
+    [dashboard]
+  );
+  const pendingSignups = useMemo(
+    () => dashboard?.recent?.pendingSignups || [],
+    [dashboard]
+  );
 
   const chartData = useMemo(() => {
     if (!monthly.length) {
@@ -231,10 +254,11 @@ const Dashboard = () => {
     [chartData]
   );
 
-  const recentOrders = recentShipments.slice(0, 5);
+  const recentOrders = recentPayments.slice(0, 5);
   const topRoutes = recentShipments.slice(0, 5);
-
-  const todayOrders = chartData[chartData.length - 1]?.orders || 0;
+  const paymentSeries = chartData.slice(-6).map((item) => ({
+    value: item.payments || 0,
+  }));
 
   const primaryStats = [
     {
@@ -252,11 +276,11 @@ const Dashboard = () => {
       trend: "-12%",
       color: "#ef4444",
       icon: <FiTruck size={17} />,
-      data: miniSeries,
+      data: paymentSeries,
     },
     {
-      label: "Today Orders",
-      value: number(todayOrders),
+      label: "Paid Transactions",
+      value: number(totals.paidTransactions || 0),
       trend: "+23%",
       color: "#10b981",
       icon: <FiTag size={17} />,
@@ -280,11 +304,18 @@ const Dashboard = () => {
       icon: <FiTruck size={17} />,
     },
     {
-      label: "Open Shipments",
-      value: number(totals.shipments || 0),
+      label: "Pending Shipments",
+      value: number(totals.pendingShipments || 0),
       trend: "-2%",
       color: "#f97316",
       icon: <FiBox size={17} />,
+    },
+    {
+      label: "Pending Signups",
+      value: number(totals.pendingSignups || 0),
+      trend: "+0%",
+      color: "#3844b8",
+      icon: <FiUsers size={17} />,
     },
   ];
 
@@ -450,7 +481,7 @@ const Dashboard = () => {
         </section>
       </div>
 
-      <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div className="mt-5 grid grid-cols-1 md:grid-cols-4 gap-5">
         {secondaryStats.map((stat) => (
           <div
             key={stat.label}
@@ -495,34 +526,45 @@ const Dashboard = () => {
                 <tr className="text-[11px] text-gray-500 border-b border-gray-100">
                   <th className="font-medium pb-3">Route</th>
                   <th className="font-medium pb-3">Customer</th>
-                  <th className="font-medium pb-3 text-right">Revenue</th>
+                  <th className="font-medium pb-3 text-right">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {topRoutes.length ? (
-                  topRoutes.map((shipment) => (
-                    <tr
-                      key={shipment._id}
-                      className="border-b border-gray-50 last:border-0"
-                    >
-                      <td className="py-3">
-                        <p className="text-xs font-semibold text-gray-900 dark:text-white">
-                          {shipment.pickupLocation || "Pickup pending"}
-                        </p>
-                        <p className="text-[11px] text-gray-500 mt-1">
-                          {shipment.deliveryLocation || "Delivery pending"}
-                        </p>
-                      </td>
-                      <td className="py-3 text-xs text-gray-600">
-                        {shipment.customer?.name ||
-                          shipment.customer?.email ||
-                          "Customer"}
-                      </td>
-                      <td className="py-3 text-xs font-semibold text-gray-900 dark:text-white text-right">
-                        {money(shipment.amount || shipment.totalAmount || 0)}
-                      </td>
-                    </tr>
-                  ))
+                  topRoutes.map((shipment) => {
+                    const status = String(shipment.status || "pending");
+                    return (
+                      <tr
+                        key={shipment._id}
+                        className="border-b border-gray-50 last:border-0"
+                      >
+                        <td className="py-3 min-w-[220px]">
+                          <p className="text-xs font-semibold text-gray-900 dark:text-white">
+                            {shipment.pickupLocation || "Pickup pending"}
+                          </p>
+                          <p className="text-[11px] text-gray-500 mt-1">
+                            {shipment.deliveryLocation || "Delivery pending"}
+                          </p>
+                        </td>
+                        <td className="py-3 text-xs text-gray-600">
+                          <p>{userName(shipment.customer, "Unknown Customer")}</p>
+                          <p className="text-[11px] text-gray-400 mt-1">
+                            {shipment.shipmentCode || `#${shortId(shipment._id)}`}
+                          </p>
+                        </td>
+                        <td className="py-3 text-right">
+                          <span
+                            className={`inline-flex px-3 py-1 rounded-full text-[11px] font-semibold whitespace-nowrap ${
+                              statusClass[status.toLowerCase()] ||
+                              "bg-gray-100 text-gray-600"
+                            }`}
+                          >
+                            {formatStatus(status)}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })
                 ) : (
                   <tr>
                     <td
@@ -556,28 +598,32 @@ const Dashboard = () => {
               </thead>
               <tbody>
                 {recentOrders.length ? (
-                  recentOrders.map((shipment) => {
-                    const status = String(shipment.status || "pending");
+                  recentOrders.map((payment) => {
+                    const status = String(
+                      payment.paymentStatus || payment.status || "pending"
+                    );
+                    const shipment = payment.shipment;
                     return (
                       <tr
-                        key={shipment._id}
+                        key={payment._id}
                         className="border-b border-gray-50 last:border-0"
                       >
                         <td className="py-3 text-xs font-semibold text-gray-900 dark:text-white">
-                          #{shipment.shipmentCode || shipment._id?.slice(-7)}
+                          #{shipment?.shipmentCode || shortId(payment._id)}
                         </td>
                         <td className="py-3 text-xs text-gray-600">
-                          {shipment.customer?.name ||
-                            shipment.customer?.email ||
-                            "Customer"}
+                          <p>{userName(shipment?.customer, "Unknown Customer")}</p>
+                          <p className="text-[11px] text-gray-400 mt-1">
+                            Shipper: {userName(payment.shipper, "Unknown Shipper")}
+                          </p>
                         </td>
                         <td className="py-3 text-xs text-gray-600">
-                          {shipment.createdAt
-                            ? new Date(shipment.createdAt).toLocaleDateString()
+                          {payment.createdAt
+                            ? new Date(payment.createdAt).toLocaleDateString()
                             : "N/A"}
                         </td>
                         <td className="py-3 text-xs text-gray-600">
-                          {money(shipment.amount || shipment.totalAmount || 0)}
+                          {money(payment.totalPrice || 0)}
                         </td>
                         <td className="py-3 text-right">
                           <span
@@ -586,7 +632,7 @@ const Dashboard = () => {
                               "bg-gray-100 text-gray-600"
                             }`}
                           >
-                            {status}
+                            {formatStatus(status)}
                           </span>
                         </td>
                       </tr>
@@ -607,6 +653,63 @@ const Dashboard = () => {
           </div>
         </section>
       </div>
+
+      <section className="mt-5 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-sm p-5 overflow-hidden">
+        <h2 className="text-sm font-bold text-gray-900 dark:text-white mb-5">
+          Pending Email Verifications
+        </h2>
+
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-left">
+            <thead>
+              <tr className="text-[11px] text-gray-500 border-b border-gray-100">
+                <th className="font-medium pb-3">Name</th>
+                <th className="font-medium pb-3">Email</th>
+                <th className="font-medium pb-3">Role</th>
+                <th className="font-medium pb-3">OTP Expires</th>
+                <th className="font-medium pb-3 text-right">Attempts</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pendingSignups.length ? (
+                pendingSignups.map((item) => (
+                  <tr
+                    key={item._id}
+                    className="border-b border-gray-50 last:border-0"
+                  >
+                    <td className="py-3 text-xs font-semibold text-gray-900 dark:text-white">
+                      {item.name || "Pending user"}
+                    </td>
+                    <td className="py-3 text-xs text-gray-600">
+                      {item.email}
+                    </td>
+                    <td className="py-3 text-xs text-gray-600 capitalize">
+                      {item.role}
+                    </td>
+                    <td className="py-3 text-xs text-gray-600">
+                      {item.otpExpiresAt
+                        ? new Date(item.otpExpiresAt).toLocaleString()
+                        : "N/A"}
+                    </td>
+                    <td className="py-3 text-xs text-gray-600 text-right">
+                      {item.attempts || 0}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan="5"
+                    className="py-8 text-center text-xs text-gray-500"
+                  >
+                    No pending email verifications.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
   );
 };
