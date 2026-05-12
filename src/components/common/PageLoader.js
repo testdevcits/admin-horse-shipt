@@ -1,11 +1,17 @@
 import React from "react";
 import "../css/Loader.css";
+import { PageSkeleton } from "./Skeleton";
 
 const PageLoader = ({
   text = "Loading...",
   fullScreen = false,
   color = "#BF9B53",
+  variant = "skeleton",
 }) => {
+  if (variant === "skeleton" && !fullScreen) {
+    return <PageSkeleton />;
+  }
+
   const cubes = Array.from({ length: 9 });
   const loaderSize = 18;
 

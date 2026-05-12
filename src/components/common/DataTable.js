@@ -1,5 +1,6 @@
 import React from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { CardListSkeleton, TableSkeleton } from "./Skeleton";
 
 const DataTable = ({
   columns = [],
@@ -35,14 +36,10 @@ const DataTable = ({
 
           <tbody>
             {loading ? (
-              <tr>
-                <td
-                  colSpan={columns.length + (actions.length > 0 ? 1 : 0)}
-                  className="text-center py-8 text-gray-500 dark:text-gray-400"
-                >
-                  Loading...
-                </td>
-              </tr>
+              <TableSkeleton
+                rows={6}
+                columns={columns.length + (actions.length > 0 ? 1 : 0)}
+              />
             ) : data.length === 0 ? (
               <tr>
                 <td
@@ -101,9 +98,7 @@ const DataTable = ({
       {/* ================= MOBILE CARD VIEW ================= */}
       <div className="md:hidden space-y-4 p-4">
         {loading ? (
-          <div className="text-center text-gray-500 dark:text-gray-400 py-4">
-            Loading...
-          </div>
+          <CardListSkeleton rows={4} />
         ) : data.length === 0 ? (
           <div className="text-center text-gray-500 dark:text-gray-400">
             No data found
