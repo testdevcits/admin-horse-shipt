@@ -5,6 +5,12 @@ import PageLoader from "../../components/common/PageLoader";
 import BreedModal from "../../components/breeds/BreedModal";
 import DataTable from "../../components/common/DataTable";
 import ConfirmModal from "../../components/common/ConfirmModal";
+import {
+  FaEdit,
+  FaTrash,
+  FaToggleOn,
+  FaToggleOff,
+} from "react-icons/fa";
 
 const BreedList = () => {
   const {
@@ -81,22 +87,46 @@ const BreedList = () => {
 
   const actions = [
     {
-      label: "Edit",
-      className: "bg-blue-500",
-      onClick: (row) => {
-        setEditBreed(row);
-        setModalOpen(true);
-      },
-    },
-    {
-      label: (row) => (row.isActive ? "Deactivate" : "Activate"),
-      className: "bg-system-primary",
-      onClick: (row) => updateBreedStatus(row._id, !row.isActive),
-    },
-    {
-      label: "Delete",
-      className: "bg-red-500",
-      onClick: handleDelete,
+      render: (row) => (
+        <div className="flex items-center justify-center gap-2">
+          <button
+            type="button"
+            title="Edit breed"
+            aria-label="Edit breed"
+            onClick={() => {
+              setEditBreed(row);
+              setModalOpen(true);
+            }}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-blue-100 bg-blue-50 text-blue-600 transition hover:bg-blue-100"
+          >
+            <FaEdit size={14} />
+          </button>
+
+          <button
+            type="button"
+            title={row.isActive ? "Deactivate breed" : "Activate breed"}
+            aria-label={row.isActive ? "Deactivate breed" : "Activate breed"}
+            onClick={() => updateBreedStatus(row._id, !row.isActive)}
+            className={`inline-flex h-9 w-9 items-center justify-center rounded-md border transition ${
+              row.isActive
+                ? "border-green-100 bg-green-50 text-green-600 hover:bg-green-100"
+                : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-gray-100"
+            }`}
+          >
+            {row.isActive ? <FaToggleOn size={18} /> : <FaToggleOff size={18} />}
+          </button>
+
+          <button
+            type="button"
+            title="Delete breed"
+            aria-label="Delete breed"
+            onClick={() => handleDelete(row)}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-red-100 bg-red-50 text-red-600 transition hover:bg-red-100"
+          >
+            <FaTrash size={13} />
+          </button>
+        </div>
+      ),
     },
   ];
 
