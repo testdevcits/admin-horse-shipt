@@ -1,7 +1,6 @@
 import React, {
   createContext,
   useContext,
-  useEffect,
   useState,
   useCallback,
 } from "react";
@@ -13,6 +12,7 @@ export const BreedProvider = ({ children }) => {
   const [breeds, setBreeds] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [hasFetched, setHasFetched] = useState(false);
 
   // Pagination state
   const [page, setPage] = useState(1);
@@ -39,8 +39,10 @@ export const BreedProvider = ({ children }) => {
 
         setPage(newPage);
         setTotalPages(tp || 1);
+        setHasFetched(true);
       } catch (err) {
         setError(err.response?.data?.message || "Failed to fetch breeds");
+        setHasFetched(true);
       } finally {
         setLoading(false);
         setFetchingMore(false);
@@ -102,16 +104,13 @@ export const BreedProvider = ({ children }) => {
     }
   }, []);
 
-  useEffect(() => {
-    fetchBreeds(1);
-  }, [fetchBreeds]);
-
   return (
     <BreedContext.Provider
       value={{
         breeds,
         loading,
         error,
+        hasFetched,
         page,
         totalPages,
         fetchingMore,

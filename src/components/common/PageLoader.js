@@ -4,23 +4,23 @@ import "../css/Loader.css";
 const PageLoader = ({
   text = "Loading...",
   fullScreen = false,
-  size = 22,
   color = "#BF9B53",
 }) => {
   const cubes = Array.from({ length: 9 });
+  const loaderSize = 18;
 
   return (
     <div
       className={`flex flex-col items-center justify-center font-montserrat text-center ${
         fullScreen
-          ? "fixed inset-0 z-50 bg-white/90 dark:bg-gray-900/80"
-          : "w-full"
+          ? "fixed inset-0 z-50 min-h-screen bg-white/90 dark:bg-gray-900/80"
+          : "w-full min-h-[70vh]"
       }`}
     >
       {/* Cube Grid Loader */}
       <div
         className={fullScreen ? "cube-loader-fullscreen" : "cube-loader-root"}
-        style={{ "--cube-size": `${size}px`, "--cube-color": color }}
+        style={{ "--cube-size": `${loaderSize}px`, "--cube-color": color }}
       >
         <span className="sr-only">Loading…</span>
         <div className="cube-grid">
@@ -35,9 +35,11 @@ const PageLoader = ({
       </div>
 
       {/* Loader Text */}
-      <p className="mt-4 text-gray-900 dark:text-white text-sm sm:text-base">
-        {text}
-      </p>
+      {text && (
+        <p className="mt-4 text-gray-900 dark:text-white text-sm sm:text-base">
+          {text}
+        </p>
+      )}
     </div>
   );
 };

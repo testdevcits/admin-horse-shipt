@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useBreeds } from "../../context/BreedContext";
 import NoData from "../../components/common/NoData";
 import PageLoader from "../../components/common/PageLoader";
@@ -10,6 +10,7 @@ const BreedList = () => {
   const {
     breeds,
     loading,
+    hasFetched,
     fetchingMore,
     page,
     totalPages,
@@ -25,6 +26,10 @@ const BreedList = () => {
     show: false,
     breed: null,
   });
+
+  useEffect(() => {
+    fetchBreeds(1);
+  }, [fetchBreeds]);
 
   const loadPage = async (newPage) => {
     if (newPage < 1 || newPage > totalPages) return;
@@ -95,7 +100,7 @@ const BreedList = () => {
     },
   ];
 
-  if (loading && page === 1)
+  if ((loading && page === 1) || !hasFetched)
     return <PageLoader text="Loading breeds..." size={24} />;
 
   return (
