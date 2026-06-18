@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
 import { HiPlus, HiPencil, HiTrash } from "react-icons/hi";
 import { useTerms } from "../../context/TermsContext";
 import { useTheme } from "../../context/ThemeContext";
 import Button from "../../components/common/Button";
 import ConfirmModal from "../../components/common/ConfirmModal";
+import Pagination from "../../components/common/Pagination";
 import Toast from "../../components/common/Toast";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
@@ -16,6 +17,8 @@ const TermsConditionList = () => {
   const {
     terms,
     loading,
+    pagination,
+    fetchTerms,
     createTerm,
     updateTerm,
     deleteTerm,
@@ -28,9 +31,14 @@ const TermsConditionList = () => {
     show: false,
     term: null,
   });
+  const [page, setPage] = useState(1);
   const [toast, setToast] = useState(null);
 
   const showToast = (message, type = "info") => setToast({ message, type });
+
+  useEffect(() => {
+    fetchTerms(page, 10);
+  }, [fetchTerms, page]);
 
   const handleAdd = () => {
     setEditingTerm(null);
@@ -96,6 +104,15 @@ const TermsConditionList = () => {
             No terms found
           </div>
         ) : (
+          <>
+          <div className="border-b border-gray-200 bg-slate-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
+            <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+              Total terms:{" "}
+              <span className="text-[#BF9B53]">
+                {pagination.totalRecords || pagination.total || 0}
+              </span>
+            </p>
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
               <thead className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
@@ -113,7 +130,9 @@ const TermsConditionList = () => {
                     key={term._id}
                     className="border-t dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
-                    <td className="px-4 py-3">{index + 1}. </td>
+                    <td className="px-4 py-3">
+                      {(pagination.page - 1) * (pagination.limit || 10) + index + 1}.
+                    </td>
                     <td className="px-4 py-3 font-medium text-gray-800 dark:text-white">
                       {term.title}
                     </td>
@@ -156,7 +175,15 @@ const TermsConditionList = () => {
               </tbody>
             </table>
           </div>
+          </>
         )}
+
+        <Pagination
+          currentPage={pagination.page}
+          totalPages={pagination.totalPages}
+          onPageChange={setPage}
+          isLoading={loading}
+        />
       </div>
 
       {/* MODAL */}

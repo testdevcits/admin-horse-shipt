@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaEye, FaTrash } from "react-icons/fa";
 import Button from "../../components/common/Button";
@@ -6,6 +6,7 @@ import ConfirmModal from "../../components/common/ConfirmModal";
 import DataTable from "../../components/common/DataTable";
 import Toast from "../../components/common/Toast";
 import { useCustomers } from "../../context/CustomerContext";
+import useDebouncedValue from "../../hooks/useDebouncedValue";
 
 const Customers = () => {
   const navigate = useNavigate();
@@ -14,11 +15,13 @@ const Customers = () => {
     fetchCustomers,
     toggleCustomerStatus,
     deleteCustomer,
+    pagination,
     loading,
   } = useCustomers();
 
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedValue(search, 350);
   const [toast, setToast] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState({
     show: false,
@@ -26,31 +29,13 @@ const Customers = () => {
   });
 
   useEffect(() => {
-    fetchCustomers().catch((error) => {
+    fetchCustomers({ page, limit: 10, search: debouncedSearch }).catch((error) => {
       setToast({
         message: error?.response?.data?.message || "Failed to fetch customers",
         type: "error",
       });
     });
-  }, [fetchCustomers]);
-
-  const itemsPerPage = 10;
-  const filteredCustomers = useMemo(
-    () =>
-      customers.filter((customer) =>
-        [customer.name, customer.email, customer.phone, customer.uniqueId]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase()
-          .includes(search.toLowerCase())
-      ),
-    [customers, search]
-  );
-  const paginatedData = useMemo(
-    () =>
-      filteredCustomers.slice((page - 1) * itemsPerPage, page * itemsPerPage),
-    [filteredCustomers, page]
-  );
+  }, [debouncedSearch, fetchCustomers, page]);
 
   const handleDelete = async () => {
     if (!confirmDelete.customerId) return;
@@ -167,10 +152,11 @@ const Customers = () => {
 
       <DataTable
         columns={columns}
-        data={paginatedData}
+        data={customers}
         actions={actions}
-        currentPage={page}
-        totalPages={Math.ceil(filteredCustomers.length / itemsPerPage) || 1}
+        currentPage={pagination.page || page}
+        totalPages={pagination.totalPages || 1}
+        totalRecords={pagination.totalRecords || pagination.total || 0}
         onPageChange={setPage}
         loading={loading}
       />

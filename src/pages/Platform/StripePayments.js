@@ -3,6 +3,7 @@ import { useStripeAdmin } from "../../context/StripeAdminContext";
 // import { HiOutlineCreditCard } from "react-icons/hi";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { usePlatformSettings } from "../../context/PlatformSettingsContext";
+import Pagination from "../../components/common/Pagination";
 
 import {
   ResponsiveContainer,
@@ -15,16 +16,20 @@ import {
   // Legend,
 } from "recharts";
 
+const PAGE_SIZE = 10;
+
 const StripePayments = () => {
   const {
     balance,
     transactions,
+    transactionPagination,
     loading,
     fetchStripeBalance,
     fetchStripeTransactions,
   } = useStripeAdmin();
 
   const [range, setRange] = useState("all");
+  const [page, setPage] = useState(1);
   const [visibleIds, setVisibleIds] = useState({});
   const { settings } = usePlatformSettings();
 
@@ -34,8 +39,12 @@ const StripePayments = () => {
 
   useEffect(() => {
     fetchStripeBalance();
-    fetchStripeTransactions(range);
-  }, [range, fetchStripeBalance, fetchStripeTransactions]);
+    fetchStripeTransactions(range, { page, limit: PAGE_SIZE });
+  }, [fetchStripeBalance, fetchStripeTransactions, page, range]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [range]);
 
   const toggleId = (id) => {
     setVisibleIds((prev) => ({
@@ -83,6 +92,8 @@ const StripePayments = () => {
       .sort((a, b) => a.rawDate - b.rawDate)
       .map(({ rawDate, ...rest }) => rest);
   }, [transactions]);
+
+  const totalPages = transactionPagination?.totalPages || 1;
 
   return (
     <div className="space-y-6 w-full">
@@ -178,6 +189,17 @@ const StripePayments = () => {
 
       {/* TRANSACTION TABLE */}
       <div className="bg-white dark:bg-dark shadow rounded-xl overflow-x-auto">
+        <div className="border-b border-gray-200 bg-slate-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
+          <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+            Total transactions:{" "}
+            <span className="text-[#BF9B53]">
+              {transactionPagination?.totalRecords ||
+                transactionPagination?.total ||
+                transactions?.length ||
+                0}
+            </span>
+          </p>
+        </div>
         <table className="min-w-[900px] w-full text-sm">
           <thead className="border-b bg-light dark:bg-gray-800">
             <tr className="text-left text-gray-600 dark:text-gray-300">
@@ -246,6 +268,12 @@ const StripePayments = () => {
             )}
           </tbody>
         </table>
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          isLoading={loading}
+        />
       </div>
     </div>
   );

@@ -1,8 +1,10 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { NewsletterAdminContext } from "../../context/NewsletterAdminContext";
 import { FiTrash2, FiMail, FiSearch, FiX } from "react-icons/fi";
 import { AiOutlineCheckCircle, AiOutlineCloseCircle } from "react-icons/ai";
+import Pagination from "../../components/common/Pagination";
+import useDebouncedValue from "../../hooks/useDebouncedValue";
 
 const NewsletterSubscribers = () => {
   const context = useContext(NewsletterAdminContext);
@@ -13,13 +15,21 @@ const NewsletterSubscribers = () => {
     );
   }
 
-  const { fetchSubscribers, deleteSubscriber, sendNewsletter, loading } =
-    context;
+  const {
+    fetchSubscribers,
+    deleteSubscriber,
+    sendNewsletter,
+    loading,
+    pagination,
+    summary,
+  } = context;
 
   // State management
   const [subscribers, setSubscribers] = useState([]);
-  const [filteredSubscribers, setFilteredSubscribers] = useState([]);
   const [searchEmail, setSearchEmail] = useState("");
+  const debouncedSearchEmail = useDebouncedValue(searchEmail, 400);
+  const [statusFilter, setStatusFilter] = useState("");
+  const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isLoadingSubscribers, setIsLoadingSubscribers] = useState(true);
@@ -40,59 +50,37 @@ const NewsletterSubscribers = () => {
     htmlContent: "",
   });
 
-  // Load subscribers ONLY once on mount
-  useEffect(() => {
-    const loadSubscribers = async () => {
-      try {
-        setIsLoadingSubscribers(true);
-        const res = await fetchSubscribers();
+  const loadSubscribers = useCallback(async () => {
+    try {
+      setIsLoadingSubscribers(true);
+      const res = await fetchSubscribers({
+        page,
+        limit: 10,
+        search: debouncedSearchEmail,
+        status: statusFilter,
+      });
 
-        // Handle response - could be array or object with data property
-        const subscribersList = Array.isArray(res.data)
-          ? res.data
-          : Array.isArray(res)
-          ? res
-          : res.data || [];
+      const subscribersList = Array.isArray(res.data)
+        ? res.data
+        : Array.isArray(res)
+        ? res
+        : [];
 
-        setSubscribers(subscribersList);
-        setFilteredSubscribers(subscribersList);
-
-        // Show success toast
-        if (subscribersList.length > 0) {
-          toast.success(`Loaded ${subscribersList.length} subscriber(s)`, {
-            duration: 2,
-          });
-        }
-      } catch (err) {
-        console.error("Fetch subscribers error:", err);
-        toast.error(
-          err.response?.data?.message || "Failed to fetch subscribers"
-        );
-        setSubscribers([]);
-        setFilteredSubscribers([]);
-      } finally {
-        setIsLoadingSubscribers(false);
-      }
-    };
-
-    loadSubscribers();
-    // Empty dependency array - loads only once on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Search filter effect
-  useEffect(() => {
-    if (searchEmail.trim() === "") {
-      setFilteredSubscribers(subscribers);
-    } else {
-      const filtered = subscribers.filter((sub) =>
-        sub.email.toLowerCase().includes(searchEmail.toLowerCase())
-      );
-      setFilteredSubscribers(filtered);
+      setSubscribers(subscribersList);
+      setSelectAll(false);
+      setSelectedIds(new Set());
+    } catch (err) {
+      console.error("Fetch subscribers error:", err);
+      toast.error(err.response?.data?.message || "Failed to fetch subscribers");
+      setSubscribers([]);
+    } finally {
+      setIsLoadingSubscribers(false);
     }
-    setSelectAll(false);
-    setSelectedIds(new Set());
-  }, [searchEmail, subscribers]);
+  }, [debouncedSearchEmail, fetchSubscribers, page, statusFilter]);
+
+  useEffect(() => {
+    loadSubscribers();
+  }, [loadSubscribers]);
 
   // Handle individual checkbox
   const handleCheckboxChange = (id) => {
@@ -103,7 +91,9 @@ const NewsletterSubscribers = () => {
       newSelected.add(id);
     }
     setSelectedIds(newSelected);
-    setSelectAll(newSelected.size === filteredSubscribers.length);
+    setSelectAll(
+      subscribers.length > 0 && newSelected.size === subscribers.length
+    );
   };
 
   // Handle select all checkbox
@@ -112,11 +102,23 @@ const NewsletterSubscribers = () => {
       setSelectedIds(new Set());
       setSelectAll(false);
     } else {
-      const allIds = new Set(filteredSubscribers.map((sub) => sub._id));
+      const allIds = new Set(subscribers.map((sub) => sub._id));
       setSelectedIds(allIds);
       setSelectAll(true);
     }
   };
+
+  const verifiedCount =
+    summary?.verifiedSubscribers ??
+    subscribers.filter((s) => s.isVerified).length;
+  const totalSubscribers = summary?.totalSubscribers ?? pagination?.total ?? 0;
+  const unverifiedCount =
+    summary?.unverifiedSubscribers ??
+    subscribers.filter((s) => !s.isVerified).length;
+  const currentPage = pagination?.page || page;
+  const pageLimit = pagination?.limit || 10;
+  const totalPages = pagination?.totalPages || 1;
+  const filteredTotal = pagination?.total ?? subscribers.length;
 
   // Open delete confirmation modal (single)
   const openDeleteConfirm = (id, email) => {
@@ -140,7 +142,6 @@ const NewsletterSubscribers = () => {
 
   // Open send confirmation modal
   const openSendConfirm = () => {
-    const verifiedCount = subscribers.filter((s) => s.isVerified).length;
     if (verifiedCount === 0) {
       toast.error("No verified subscribers to send newsletter to");
       return;
@@ -169,7 +170,7 @@ const NewsletterSubscribers = () => {
 
     try {
       await deleteSubscriber(targetId);
-      setSubscribers((prev) => prev.filter((sub) => sub._id !== targetId));
+      await loadSubscribers();
       setSelectedIds((prev) => {
         const newSet = new Set(prev);
         newSet.delete(targetId);
@@ -193,7 +194,7 @@ const NewsletterSubscribers = () => {
     try {
       const idsArray = Array.from(selectedIds);
       await deleteSubscriber(idsArray);
-      setSubscribers((prev) => prev.filter((sub) => !selectedIds.has(sub._id)));
+      await loadSubscribers();
       toast.success(`${selectedIds.size} subscriber(s) deleted successfully`);
       setSelectedIds(new Set());
       setSelectAll(false);
@@ -219,10 +220,7 @@ const NewsletterSubscribers = () => {
       return;
     }
 
-    // Get verified subscribers only
-    const verifiedSubscribers = subscribers.filter((s) => s.isVerified);
-
-    if (verifiedSubscribers.length === 0) {
+    if (verifiedCount === 0) {
       toast.error("No verified subscribers to send newsletter to");
       return;
     }
@@ -234,12 +232,11 @@ const NewsletterSubscribers = () => {
         subject: formData.subject.trim(),
         message: formData.message.trim(),
         htmlContent: formData.htmlContent.trim(),
-        recipients: verifiedSubscribers.map((sub) => sub.email),
       };
 
       const response = await sendNewsletter(payload);
 
-      const sentCount = response?.sentCount || verifiedSubscribers.length;
+      const sentCount = response?.sentCount || verifiedCount;
       toast.success(
         `Newsletter sent successfully to ${sentCount} verified subscriber${
           sentCount !== 1 ? "s" : ""
@@ -270,10 +267,8 @@ const NewsletterSubscribers = () => {
     });
   };
 
-  const verifiedCount = subscribers.filter((s) => s.isVerified).length;
-
   // Loading state
-  if (isLoadingSubscribers && loading) {
+  if (isLoadingSubscribers && loading && subscribers.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
         <div className="text-center">
@@ -287,7 +282,7 @@ const NewsletterSubscribers = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-1">
+    <div className="min-h-screen  p-1">
       <div className="max-w-full mx-auto">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
@@ -304,6 +299,7 @@ const NewsletterSubscribers = () => {
             {selectedIds.size > 0 && (
               <button
                 onClick={openDeleteMultipleConfirm}
+                disabled={loading}
                 className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 shadow-md hover:shadow-lg whitespace-nowrap"
               >
                 <FiTrash2 size={20} />
@@ -312,7 +308,7 @@ const NewsletterSubscribers = () => {
             )}
             <button
               onClick={() => setIsModalOpen(true)}
-              disabled={verifiedCount === 0}
+              disabled={loading || verifiedCount === 0}
               className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 shadow-md hover:shadow-lg whitespace-nowrap"
             >
               <FiMail size={20} />
@@ -331,7 +327,7 @@ const NewsletterSubscribers = () => {
                   Total Subscribers
                 </p>
                 <p className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mt-2">
-                  {subscribers.length}
+                  {totalSubscribers}
                 </p>
               </div>
               <div className="text-blue-500 text-5xl opacity-20">
@@ -365,7 +361,7 @@ const NewsletterSubscribers = () => {
                   Unverified
                 </p>
                 <p className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mt-2">
-                  {subscribers.filter((s) => !s.isVerified).length}
+                  {unverifiedCount}
                 </p>
               </div>
               <div className="text-red-500 text-5xl opacity-20">
@@ -377,64 +373,99 @@ const NewsletterSubscribers = () => {
 
         {/* Search Section */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 mb-6 hover:shadow-lg transition-shadow duration-200">
-          <div className="flex items-center gap-3 bg-gray-50 dark:bg-gray-700 px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-600">
-            <FiSearch className="text-gray-400" size={20} />
-            <input
-              type="text"
-              placeholder="Search by email address..."
-              value={searchEmail}
-              onChange={(e) => setSearchEmail(e.target.value)}
-              className="flex-1 bg-transparent outline-none text-gray-800 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 text-sm md:text-base"
-            />
-            {searchEmail && (
-              <button
-                onClick={() => setSearchEmail("")}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-              >
-                <FiX size={18} />
-              </button>
-            )}
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_180px] gap-3">
+            <div className="flex items-center gap-3 bg-gray-50 dark:bg-gray-700 px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-600">
+              <FiSearch className="text-gray-400" size={20} />
+              <input
+                type="text"
+                placeholder="Search by email address..."
+                value={searchEmail}
+                onChange={(e) => {
+                  setPage(1);
+                  setSearchEmail(e.target.value);
+                }}
+                className="flex-1 bg-transparent outline-none text-gray-800 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 text-sm md:text-base"
+              />
+              {loading && searchEmail !== debouncedSearchEmail && (
+                <span className="h-4 w-4 animate-spin border-2 border-[#BF9B53] border-t-transparent" />
+              )}
+              {searchEmail && (
+                <button
+                  onClick={() => {
+                    setPage(1);
+                    setSearchEmail("");
+                  }}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                >
+                  <FiX size={18} />
+                </button>
+              )}
+            </div>
+            <select
+              value={statusFilter}
+              onChange={(event) => {
+                setPage(1);
+                setStatusFilter(event.target.value);
+              }}
+              className="bg-gray-50 dark:bg-gray-700 px-4 py-3 border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200 text-sm outline-none"
+            >
+              <option value="">All Status</option>
+              <option value="verified">Verified</option>
+              <option value="unverified">Unverified</option>
+            </select>
           </div>
-          {searchEmail && (
+          {(debouncedSearchEmail || statusFilter) && (
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-3">
               Found{" "}
-              <span className="font-semibold text-blue-600">
-                {filteredSubscribers.length}
+              <span className="font-semibold text-[#BF9B53]">
+                {filteredTotal}
               </span>{" "}
-              of <span className="font-semibold">{subscribers.length}</span>{" "}
+              of <span className="font-semibold">{totalSubscribers}</span>{" "}
               subscribers
             </p>
           )}
         </div>
 
         {/* Subscribers Table */}
-        {filteredSubscribers.length === 0 ? (
+        {loading && subscribers.length > 0 && (
+          <div className="mb-3 text-sm text-gray-500 dark:text-gray-400">
+            Updating subscribers...
+          </div>
+        )}
+        {subscribers.length === 0 ? (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-12 text-center hover:shadow-lg transition-shadow duration-200">
             <FiMail className="mx-auto text-5xl text-gray-300 dark:text-gray-600 mb-4" />
             <p className="text-lg text-gray-600 dark:text-gray-300 font-medium">
-              {searchEmail
+              {debouncedSearchEmail || statusFilter
                 ? "No subscribers found matching your search"
                 : "No subscribers yet"}
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-              {searchEmail
-                ? "Try adjusting your search query"
+              {debouncedSearchEmail || statusFilter
+                ? "Try adjusting your search or status filter"
                 : "When subscribers join, they will appear here"}
             </p>
           </div>
         ) : (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow duration-200">
+            <div className="border-b border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800 md:px-6">
+              <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                Total subscribers:{" "}
+                <span className="text-[#BF9B53]">{filteredTotal}</span>
+              </p>
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="bg-gray-100 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
                     <th className="px-4 md:px-6 py-4 text-left text-xs md:text-sm font-semibold text-gray-800 dark:text-gray-200">
-                      <input
-                        type="checkbox"
-                        checked={selectAll}
-                        onChange={handleSelectAll}
-                        className="w-4 h-4 rounded border-gray-300 cursor-pointer"
-                      />
+                        <input
+                          type="checkbox"
+                          checked={selectAll}
+                          onChange={handleSelectAll}
+                          disabled={loading || subscribers.length === 0}
+                          className="w-4 h-4 rounded border-gray-300 cursor-pointer"
+                        />
                     </th>
                     <th className="px-4 md:px-6 py-4 text-left text-xs md:text-sm font-semibold text-gray-800 dark:text-gray-200">
                       #
@@ -454,7 +485,7 @@ const NewsletterSubscribers = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {filteredSubscribers.map((sub, idx) => (
+                  {subscribers.map((sub, idx) => (
                     <tr
                       key={sub._id}
                       className={`transition-colors duration-150 ${
@@ -468,11 +499,12 @@ const NewsletterSubscribers = () => {
                           type="checkbox"
                           checked={selectedIds.has(sub._id)}
                           onChange={() => handleCheckboxChange(sub._id)}
+                          disabled={loading}
                           className="w-4 h-4 rounded border-gray-300 cursor-pointer"
                         />
                       </td>
                       <td className="px-4 md:px-6 py-4 text-sm text-gray-700 dark:text-gray-300 font-medium">
-                        {idx + 1}
+                        {(currentPage - 1) * pageLimit + idx + 1}
                       </td>
                       <td className="px-4 md:px-6 py-4 text-sm text-gray-700 dark:text-gray-300 break-all">
                         {sub.email}
@@ -502,7 +534,8 @@ const NewsletterSubscribers = () => {
                       <td className="px-4 md:px-6 py-4 text-center">
                         <button
                           onClick={() => openDeleteConfirm(sub._id, sub.email)}
-                          className="inline-flex items-center gap-1.5 bg-red-100 dark:bg-red-900 hover:bg-red-200 dark:hover:bg-red-800 text-red-700 dark:text-red-200 px-3 py-1.5 rounded-lg font-medium text-sm transition-colors duration-200 whitespace-nowrap"
+                          disabled={loading}
+                          className="inline-flex items-center gap-1.5 bg-red-100 dark:bg-red-900 hover:bg-red-200 dark:hover:bg-red-800 text-red-700 dark:text-red-200 px-3 py-1.5 rounded-lg font-medium text-sm transition-colors duration-200 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <FiTrash2 size={14} />
                           <span className="hidden sm:inline">Delete</span>
@@ -519,9 +552,9 @@ const NewsletterSubscribers = () => {
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 Showing{" "}
                 <span className="font-semibold">
-                  {filteredSubscribers.length}
+                  {subscribers.length}
                 </span>{" "}
-                of <span className="font-semibold">{subscribers.length}</span>{" "}
+                of <span className="font-semibold">{filteredTotal}</span>{" "}
                 subscribers
                 {selectedIds.size > 0 && (
                   <span className="ml-3 text-blue-600 dark:text-blue-400">
@@ -529,6 +562,15 @@ const NewsletterSubscribers = () => {
                   </span>
                 )}
               </p>
+              <div className="mt-3">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setPage}
+                  isLoading={loading}
+                  className="justify-end"
+                />
+              </div>
             </div>
           </div>
         )}
@@ -554,7 +596,7 @@ const NewsletterSubscribers = () => {
               </div>
               <button
                 onClick={handleCloseModal}
-                disabled={isSending}
+                disabled={isSending || loading}
                 className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-3xl disabled:opacity-50 transition-colors"
               >
                 ×
@@ -638,7 +680,7 @@ const NewsletterSubscribers = () => {
             <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 px-6 py-4 flex gap-3 justify-end sticky bottom-0">
               <button
                 onClick={handleCloseModal}
-                disabled={isSending}
+                disabled={isSending || loading}
                 className="px-6 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
               >
                 Cancel

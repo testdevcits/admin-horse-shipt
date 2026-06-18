@@ -1,14 +1,16 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DataTable from "../../components/common/DataTable";
 import Button from "../../components/common/Button";
 import { FaTrash, FaEye, FaPlus } from "react-icons/fa";
 import { useShippers } from "../../context/ShipperContext";
 import ConfirmModal from "../../components/common/ConfirmModal";
+import useDebouncedValue from "../../hooks/useDebouncedValue";
 
 const Shippers = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedValue(search, 350);
   const [confirmDelete, setConfirmDelete] = useState({
     show: false,
     shipperId: null,
@@ -21,29 +23,13 @@ const Shippers = () => {
     fetchShippers,
     toggleShipperStatus,
     deleteShipper,
+    pagination,
     loading,
   } = useShippers();
 
   useEffect(() => {
-    fetchShippers();
-  }, [fetchShippers]);
-
-  const itemsPerPage = 10;
-  const filteredShippers = useMemo(
-    () =>
-      shippers.filter((shipper) =>
-        [shipper.name, shipper.email, shipper.mobile, shipper.uniqueId]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase()
-          .includes(search.toLowerCase())
-      ),
-    [shippers, search]
-  );
-  const paginatedData = filteredShippers.slice(
-    (page - 1) * itemsPerPage,
-    page * itemsPerPage
-  );
+    fetchShippers({ page, limit: 10, search: debouncedSearch });
+  }, [debouncedSearch, fetchShippers, page]);
 
   // Handle delete confirmation
   const handleDelete = async () => {
@@ -132,10 +118,11 @@ const Shippers = () => {
       <div className="bg-white dark:bg-gray-900">
         <DataTable
           columns={columns}
-          data={paginatedData}
+          data={shippers}
           actions={actions}
-          currentPage={page}
-          totalPages={Math.ceil(filteredShippers.length / itemsPerPage) || 1}
+          currentPage={pagination.page || page}
+          totalPages={pagination.totalPages || 1}
+          totalRecords={pagination.totalRecords || pagination.total || 0}
           onPageChange={setPage}
           loading={loading}
         />

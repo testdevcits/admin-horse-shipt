@@ -37,6 +37,28 @@ body {
   scrollbar-color: #BF9B53 #f0f0f0;
 }
 
+/* ===============================
+   ADMIN SQUARE UI
+   Keep admin tables, containers, forms, and buttons sharp-edged.
+================================= */
+#root button,
+#root input,
+#root select,
+#root textarea,
+#root table,
+#root section,
+#root article,
+#root dialog,
+#root .rounded,
+#root .rounded-sm,
+#root .rounded-md,
+#root .rounded-lg,
+#root .rounded-xl,
+#root .rounded-2xl,
+#root .rounded-custom {
+  border-radius: 0 !important;
+}
+
 
 /* ===============================
    GLOBAL CUSTOM SCROLLBAR
@@ -69,23 +91,27 @@ body {
    CUSTOM SCROLL CLASS
    (for specific scrollable divs if needed)
 ================================= */
-.customscroll {
+.customscroll,
+.app-sidebar-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: #BF9B53 #f0f0f0;
 }
 
-.customscroll::-webkit-scrollbar {
+.customscroll::-webkit-scrollbar,
+.app-sidebar-scrollbar::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
-.customscroll::-webkit-scrollbar-thumb {
+.customscroll::-webkit-scrollbar-thumb,
+.app-sidebar-scrollbar::-webkit-scrollbar-thumb {
   background-color: #BF9B53;
   border-radius: 0px;
   border: none; /* clean look */
 }
 
-.customscroll::-webkit-scrollbar-track {
+.customscroll::-webkit-scrollbar-track,
+.app-sidebar-scrollbar::-webkit-scrollbar-track {
   background-color: #f0f0f0;
   border: none;
 }

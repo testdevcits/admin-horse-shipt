@@ -17,6 +17,7 @@ const CustomerDetail = lazy(() => import("../pages/customers/CustomerDetail"));
 const Shipments = lazy(() => import("../pages/shipments/Shipments"));
 const ShipmentDetail = lazy(() => import("../pages/shipments/ShipmentDetail"));
 const Settings = lazy(() => import("../pages/settings/Settings"));
+const AdminProfile = lazy(() => import("../pages/profile/AdminProfile"));
 const Unauthorized = lazy(() => import("../pages/Unauthorized"));
 const NewsletterSubscribers = lazy(() =>
   import("../pages/Newsletter/NewsletterSubscribers")
@@ -171,6 +172,15 @@ const AppRoutes = () => {
         />
 
         {/* SETTINGS */}
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute allowedRoles={["super-admin"]}>
+              <AdminProfile />
+            </PrivateRoute>
+          }
+        />
+
         <Route
           path="/settings"
           element={

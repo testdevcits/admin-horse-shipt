@@ -18,6 +18,7 @@ export const BreedProvider = ({ children }) => {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
   const [fetchingMore, setFetchingMore] = useState(false);
 
   // =========================
@@ -32,13 +33,13 @@ export const BreedProvider = ({ children }) => {
         const res = await API.get(
           `/admin/breeds?page=${newPage}&limit=${limit}`
         );
-        const { data, totalPages: tp } = res.data;
+        const { data, totalPages: tp, total } = res.data;
 
-        if (newPage === 1) setBreeds(data || []);
-        else setBreeds((prev) => [...prev, ...(data || [])]);
+        setBreeds(data || []);
 
         setPage(newPage);
         setTotalPages(tp || 1);
+        setTotalRecords(total || 0);
         setHasFetched(true);
       } catch (err) {
         setError(err.response?.data?.message || "Failed to fetch breeds");
@@ -112,7 +113,9 @@ export const BreedProvider = ({ children }) => {
         error,
         hasFetched,
         page,
+        limit,
         totalPages,
+        totalRecords,
         fetchingMore,
         fetchBreeds,
         createBreed,

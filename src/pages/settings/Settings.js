@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FiCheckCircle,
   FiLock,
@@ -8,9 +8,30 @@ import {
   FiSun,
   FiUser,
 } from "react-icons/fi";
+import {
+  FaFacebook,
+  FaInstagram,
+  FaLinkedin,
+  FaYoutube,
+} from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import Toast from "../../components/common/Toast";
+import API from "../../api/axios";
+
+const SOCIAL_PLATFORMS = [
+  { key: "instagram", label: "Instagram", icon: FaInstagram },
+  { key: "facebook", label: "Facebook", icon: FaFacebook },
+  { key: "twitter", label: "X", icon: FaXTwitter, placeholder: "https://x.com/horse-shipt" },
+  { key: "youtube", label: "YouTube", icon: FaYoutube },
+  { key: "linkedin", label: "LinkedIn", icon: FaLinkedin },
+];
+
+const emptySocialSettings = SOCIAL_PLATFORMS.reduce((acc, platform) => {
+  acc[platform.key] = "";
+  return acc;
+}, {});
 
 const SettingsCard = ({ title, description, icon, children }) => (
   <section className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
@@ -48,6 +69,12 @@ const Settings = () => {
 
   const [toast, setToast] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [socialLoading, setSocialLoading] = useState(false);
+  const [socialSaving, setSocialSaving] = useState(false);
+  const [socialErrors, setSocialErrors] = useState({});
+  const [socialLinks, setSocialLinks] = useState(emptySocialSettings);
+  const [savedSocialLinks, setSavedSocialLinks] = useState(emptySocialSettings);
+  const [socialSettingsId, setSocialSettingsId] = useState("");
   const [passwords, setPasswords] = useState({
     currentPassword: "",
     newPassword: "",
@@ -56,9 +83,139 @@ const Settings = () => {
 
   const storedTheme = darkMode ? "dark" : "light";
 
+  useEffect(() => {
+    let mounted = true;
+
+    const fetchSocialSettings = async () => {
+      setSocialLoading(true);
+      try {
+        const res = await API.get("/admin/social-media-settings");
+        const data = { ...emptySocialSettings, ...(res.data?.data || {}) };
+        if (!mounted) return;
+        setSocialLinks(data);
+        setSavedSocialLinks(data);
+        setSocialSettingsId(res.data?.data?._id || "");
+      } catch (error) {
+        if (!mounted) return;
+        setToast({
+          type: "error",
+          message:
+            error?.response?.data?.message ||
+            "Failed to fetch social media settings",
+        });
+      } finally {
+        if (mounted) setSocialLoading(false);
+      }
+    };
+
+    fetchSocialSettings();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   const handlePasswordChange = (event) => {
     const { name, value } = event.target;
     setPasswords((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const validateSocialLinks = () => {
+    const nextErrors = {};
+    const seenUrls = new Map();
+
+    SOCIAL_PLATFORMS.forEach(({ key }) => {
+      const value = (socialLinks[key] || "").trim();
+      if (!value) return;
+
+      try {
+        const url = new URL(value);
+        if (!["http:", "https:"].includes(url.protocol)) {
+          nextErrors[key] = "Enter a valid URL";
+        }
+      } catch (_error) {
+        nextErrors[key] = "Enter a valid URL";
+      }
+
+      const normalized = value.toLowerCase();
+      if (seenUrls.has(normalized)) {
+        nextErrors[key] = "Duplicate URL";
+        nextErrors[seenUrls.get(normalized)] = "Duplicate URL";
+      }
+      seenUrls.set(normalized, key);
+    });
+
+    setSocialErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  };
+
+  const handleSocialChange = (key, value) => {
+    setSocialLinks((prev) => ({ ...prev, [key]: value }));
+    setSocialErrors((prev) => ({ ...prev, [key]: "" }));
+  };
+
+  const handleSocialSave = async (event) => {
+    event.preventDefault();
+    if (!validateSocialLinks()) return;
+
+    setSocialSaving(true);
+    try {
+      const payload = SOCIAL_PLATFORMS.reduce((acc, platform) => {
+        acc[platform.key] = (socialLinks[platform.key] || "").trim();
+        return acc;
+      }, {});
+      const res = socialSettingsId
+        ? await API.put("/admin/social-media-settings", payload)
+        : await API.post("/admin/social-media-settings", payload);
+      const data = { ...emptySocialSettings, ...(res.data?.data || {}) };
+      setSocialLinks(data);
+      setSavedSocialLinks(data);
+      setSocialSettingsId(res.data?.data?._id || socialSettingsId);
+      setToast({
+        type: "success",
+        message: res.data?.message || "Social media settings saved",
+      });
+    } catch (error) {
+      setSocialErrors(error?.response?.data?.errors || {});
+      setToast({
+        type: "error",
+        message:
+          error?.response?.data?.message ||
+          "Failed to save social media settings",
+      });
+    } finally {
+      setSocialSaving(false);
+    }
+  };
+
+  const handleSocialReset = () => {
+    setSocialLinks(savedSocialLinks);
+    setSocialErrors({});
+  };
+
+  const handleSocialDelete = async (platform) => {
+    setSocialSaving(true);
+    try {
+      const res = await API.delete(`/admin/social-media-settings/${platform}`);
+      const data = { ...emptySocialSettings, ...(res.data?.data || {}) };
+      setSocialLinks(data);
+      setSavedSocialLinks(data);
+      setSocialSettingsId(res.data?.data?._id || socialSettingsId);
+      setSocialErrors({});
+      setToast({
+        type: "success",
+        message: res.data?.message || "Social media link removed",
+      });
+    } catch (error) {
+      setToast({
+        type: "error",
+        message:
+          error?.response?.data?.message ||
+          "Failed to delete social media link",
+      });
+    } finally {
+      setSocialSaving(false);
+    }
   };
 
   const handlePasswordSubmit = async (event) => {
@@ -237,6 +394,77 @@ const Settings = () => {
           >
             Logout
           </button>
+        </SettingsCard>
+
+        <SettingsCard
+          title="Social Media"
+          description="Manage footer social links without changing code."
+          icon={<FaInstagram size={18} />}
+        >
+          <form onSubmit={handleSocialSave} className="space-y-4">
+            {socialLoading ? (
+              <div className="rounded-md border border-gray-100 bg-slate-50 p-4 text-sm font-semibold text-gray-500 dark:border-gray-800 dark:bg-gray-950">
+                Loading social media settings...
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-3">
+                {SOCIAL_PLATFORMS.map(({ key, label, icon: Icon, placeholder }) => (
+                  <div key={key} className="space-y-1">
+                    <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-gray-500">
+                      <Icon className="text-[#BF9B53]" />
+                      {label}
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="url"
+                        value={socialLinks[key] || ""}
+                        onChange={(event) =>
+                          handleSocialChange(key, event.target.value)
+                        }
+                        placeholder={placeholder || `https://${key}.com/horse-shipt`}
+                        className="min-w-0 flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#BF9B53] focus:ring-2 focus:ring-[#BF9B53]/20 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleSocialDelete(key)}
+                        disabled={socialSaving || !savedSocialLinks[key]}
+                        className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs font-bold text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-red-900 dark:bg-red-950"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                    {socialErrors[key] && (
+                      <p className="text-xs font-semibold text-red-500">
+                        {socialErrors[key]}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="flex flex-wrap gap-3">
+              <button
+                type="submit"
+                disabled={socialLoading || socialSaving}
+                className="rounded-md bg-[#BF9B53] px-5 py-2 text-sm font-bold text-white transition hover:bg-[#997C42] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {socialSaving
+                  ? "Saving..."
+                  : socialSettingsId
+                  ? "Update Links"
+                  : "Create Links"}
+              </button>
+              <button
+                type="button"
+                onClick={handleSocialReset}
+                disabled={socialLoading || socialSaving}
+                className="rounded-md border border-gray-300 bg-white px-5 py-2 text-sm font-bold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-200"
+              >
+                Reset
+              </button>
+            </div>
+          </form>
         </SettingsCard>
       </div>
     </div>

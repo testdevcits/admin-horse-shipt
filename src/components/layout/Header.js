@@ -25,7 +25,7 @@ const Header = ({ sidebarOpen, setSidebarOpen, isDesktop }) => {
 
   return (
     <header
-      className={`shadow-sm flex justify-between items-center px-4 h-14 z-50 fixed top-0 transition-all duration-300 border-b dark:border-gray-800 ${
+      className={`shadow-sm flex justify-between items-center px-4 h-12 z-50 fixed top-0 transition-all duration-300 border-b dark:border-gray-800 ${
         darkMode ? "bg-gray-950/95 text-white" : "bg-white/95 text-dark"
       }`}
       style={{

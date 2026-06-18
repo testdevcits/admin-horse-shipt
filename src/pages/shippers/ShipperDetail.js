@@ -1,32 +1,42 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useShippers } from "../../context/ShipperContext";
-import { useAdminShipments } from "../../context/ShipmentContext";
 import Button from "../../components/common/Button";
 import DataTable from "../../components/common/DataTable";
+import Pagination from "../../components/common/Pagination";
 import { FaEye } from "react-icons/fa";
 
 const ShipperDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { getShipperById, loading } = useShippers();
-  const { shipments, fetchShipments } = useAdminShipments();
 
   const [shipper, setShipper] = useState(null);
   const [shipperData, setShipperData] = useState({});
+  const [tablePagination, setTablePagination] = useState({});
 
   const [loginPage, setLoginPage] = useState(1);
+  const [shipmentPage, setShipmentPage] = useState(1);
+  const [vehiclePage, setVehiclePage] = useState(1);
+  const [driverPage, setDriverPage] = useState(1);
   const loginPerPage = 5;
 
   useEffect(() => {
     const fetchShipper = async () => {
-      const data = await getShipperById(id);
+      const data = await getShipperById(id, {
+        shipmentPage,
+        shipmentLimit: 10,
+        vehiclePage,
+        vehicleLimit: 5,
+        driverPage,
+        driverLimit: 5,
+      });
       setShipper(data?.shipper || data);
       setShipperData(data || {});
+      setTablePagination(data?.pagination || {});
     };
     fetchShipper();
-    fetchShipments({ shipper: id });
-  }, [id, getShipperById, fetchShipments]);
+  }, [driverPage, getShipperById, id, shipmentPage, vehiclePage]);
 
   if (loading || !shipper) {
     return <div className="text-center py-10">Loading...</div>;
@@ -40,7 +50,6 @@ const ShipperDetail = () => {
   const totalLoginPages = Math.ceil(
     (shipper.loginHistory?.length || 0) / loginPerPage
   );
-
   const shipmentColumns = [
     {
       key: "shipmentCode",
@@ -64,7 +73,7 @@ const ShipperDetail = () => {
   ];
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen space-y-6">
+    <div className=" min-h-screen space-y-6">
       {/* Back Button */}
       <Button onClick={() => navigate(-1)}>Back</Button>
 
@@ -178,6 +187,14 @@ const ShipperDetail = () => {
 
         {shipper.loginHistory && shipper.loginHistory.length > 0 ? (
           <>
+            <div className="border-b border-gray-200 bg-slate-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
+              <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                Total login history:{" "}
+                <span className="text-[#BF9B53]">
+                  {shipper.loginHistory.length}
+                </span>
+              </p>
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm border rounded">
                 <thead>
@@ -212,28 +229,11 @@ const ShipperDetail = () => {
               </table>
             </div>
 
-            {/* Pagination */}
-            <div className="flex justify-end mt-4 gap-2">
-              <button
-                disabled={loginPage === 1}
-                onClick={() => setLoginPage(loginPage - 1)}
-                className="px-3 py-1 border rounded disabled:opacity-50"
-              >
-                Prev
-              </button>
-
-              <span className="px-3 py-1 text-sm">
-                {loginPage} / {totalLoginPages || 1}
-              </span>
-
-              <button
-                disabled={loginPage === totalLoginPages}
-                onClick={() => setLoginPage(loginPage + 1)}
-                className="px-3 py-1 border rounded disabled:opacity-50"
-              >
-                Next
-              </button>
-            </div>
+            <Pagination
+              currentPage={loginPage}
+              totalPages={totalLoginPages || 1}
+              onPageChange={setLoginPage}
+            />
           </>
         ) : (
           <p className="text-sm text-gray-500">No login history available.</p>
@@ -246,7 +246,15 @@ const ShipperDetail = () => {
         </h3>
         <DataTable
           columns={shipmentColumns}
-          data={shipments}
+          data={shipperData.shipments || []}
+          currentPage={tablePagination.shipments?.page || shipmentPage}
+          totalPages={tablePagination.shipments?.totalPages || 1}
+          totalRecords={
+            tablePagination.shipments?.totalRecords ||
+            tablePagination.shipments?.total ||
+            0
+          }
+          onPageChange={setShipmentPage}
           actions={[
             {
               render: (row) => (
@@ -279,6 +287,14 @@ const ShipperDetail = () => {
               { key: "verificationStatus", label: "Verification" },
             ]}
             data={shipperData.vehicles || []}
+            currentPage={tablePagination.vehicles?.page || vehiclePage}
+            totalPages={tablePagination.vehicles?.totalPages || 1}
+            totalRecords={
+              tablePagination.vehicles?.totalRecords ||
+              tablePagination.vehicles?.total ||
+              0
+            }
+            onPageChange={setVehiclePage}
           />
         </div>
 
@@ -294,6 +310,14 @@ const ShipperDetail = () => {
               { key: "driverStatus", label: "Status" },
             ]}
             data={shipperData.drivers || []}
+            currentPage={tablePagination.drivers?.page || driverPage}
+            totalPages={tablePagination.drivers?.totalPages || 1}
+            totalRecords={
+              tablePagination.drivers?.totalRecords ||
+              tablePagination.drivers?.total ||
+              0
+            }
+            onPageChange={setDriverPage}
           />
         </div>
       </div>

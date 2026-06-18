@@ -83,6 +83,13 @@ export const AuthProvider = ({ children }) => {
     return res.data;
   };
 
+  const updateProfile = async (data) => {
+    const res = await API.put("/admin/profile", data);
+    localStorage.setItem("adminData", JSON.stringify(res.data.admin));
+    setUser(res.data.admin);
+    return res.data;
+  };
+
   // ================= FORGOT PASSWORD =================
   const forgotPassword = async (email) => {
     const res = await API.post("/admin/forgot-password", { email });
@@ -124,6 +131,7 @@ export const AuthProvider = ({ children }) => {
         signup,
         logout,
         fetchProfile,
+        updateProfile,
         changePassword,
         forgotPassword,
         verifyOtp,

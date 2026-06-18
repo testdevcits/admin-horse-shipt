@@ -2,7 +2,6 @@ import React, {
   createContext,
   useContext,
   useState,
-  useEffect,
   useCallback,
 } from "react";
 import API from "../api/axios";
@@ -13,6 +12,13 @@ export const PrivacyPolicyProvider = ({ children }) => {
   const [policies, setPolicies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    totalPages: 1,
+    total: 0,
+  });
+  const { page: currentPage, limit: currentLimit } = pagination;
 
   // =========================
   // FETCH POLICIES (PAGINATED)
@@ -25,11 +31,24 @@ export const PrivacyPolicyProvider = ({ children }) => {
       const res = await API.get(
         `/admin/privacy-policy?page=${page}&limit=${limit}`
       );
-      setPolicies(res.data.data || []);
+
+      const data = res.data.data || [];
+      const paginationData = res.data.pagination || {};
+
+      setPolicies(data);
+      setPagination({
+        page: paginationData.page || page,
+        limit: paginationData.limit || limit,
+        totalPages: paginationData.totalPages || 1,
+        total: paginationData.total || data.length,
+      });
+
+      return { data, pagination: paginationData };
     } catch (err) {
       setError(
         err.response?.data?.message || "Failed to fetch privacy policies"
       );
+      return { data: [], pagination: { page, limit, totalPages: 1, total: 0 } };
     } finally {
       setLoading(false);
     }
@@ -45,8 +64,8 @@ export const PrivacyPolicyProvider = ({ children }) => {
 
         const res = await API.post("/admin/privacy-policy", { title, content });
 
-        // Refresh the list after creation
-        await fetchPolicies();
+        // Refresh the current page after creation
+        await fetchPolicies(currentPage, currentLimit);
 
         return { success: true, data: res.data.data };
       } catch (err) {
@@ -58,7 +77,7 @@ export const PrivacyPolicyProvider = ({ children }) => {
         setLoading(false);
       }
     },
-    [fetchPolicies]
+    [currentLimit, currentPage, fetchPolicies]
   );
 
   // =========================
@@ -74,8 +93,8 @@ export const PrivacyPolicyProvider = ({ children }) => {
           content,
         });
 
-        // Refresh the list after update
-        await fetchPolicies();
+        // Refresh the current page after update
+        await fetchPolicies(currentPage, currentLimit);
 
         return { success: true, data: res.data.data };
       } catch (err) {
@@ -87,7 +106,7 @@ export const PrivacyPolicyProvider = ({ children }) => {
         setLoading(false);
       }
     },
-    [fetchPolicies]
+    [currentLimit, currentPage, fetchPolicies]
   );
 
   // =========================
@@ -100,8 +119,8 @@ export const PrivacyPolicyProvider = ({ children }) => {
 
         await API.delete(`/admin/privacy-policy/${id}`);
 
-        // Refresh the list after deletion
-        await fetchPolicies();
+        // Refresh the current page after deletion
+        await fetchPolicies(currentPage, currentLimit);
 
         return { success: true };
       } catch (err) {
@@ -113,7 +132,7 @@ export const PrivacyPolicyProvider = ({ children }) => {
         setLoading(false);
       }
     },
-    [fetchPolicies]
+    [currentLimit, currentPage, fetchPolicies]
   );
 
   // =========================
@@ -126,8 +145,8 @@ export const PrivacyPolicyProvider = ({ children }) => {
           isActive,
         });
 
-        // Refresh the list after status change
-        await fetchPolicies();
+        // Refresh the current page after status change
+        await fetchPolicies(currentPage, currentLimit);
 
         return { success: true, data: res.data.data };
       } catch (err) {
@@ -137,7 +156,7 @@ export const PrivacyPolicyProvider = ({ children }) => {
         };
       }
     },
-    [fetchPolicies]
+    [currentLimit, currentPage, fetchPolicies]
   );
 
   // =========================
@@ -153,19 +172,13 @@ export const PrivacyPolicyProvider = ({ children }) => {
     }
   }, []);
 
-  // =========================
-  // INITIAL LOAD
-  // =========================
-  useEffect(() => {
-    fetchPolicies();
-  }, [fetchPolicies]);
-
   return (
     <PrivacyPolicyContext.Provider
       value={{
         policies,
         loading,
         error,
+        pagination,
 
         // actions
         fetchPolicies,

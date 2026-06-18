@@ -1,55 +1,36 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaEye } from "react-icons/fa";
 import Button from "../../components/common/Button";
 import DataTable from "../../components/common/DataTable";
 import Toast from "../../components/common/Toast";
 import { useAdminShipments } from "../../context/ShipmentContext";
+import useDebouncedValue from "../../hooks/useDebouncedValue";
 
 const formatDate = (value) => (value ? new Date(value).toLocaleDateString() : "N/A");
 
 const Shipments = () => {
   const navigate = useNavigate();
-  const { shipments, fetchShipments, loading } = useAdminShipments();
+  const { shipments, fetchShipments, pagination, loading } = useAdminShipments();
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState("");
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedValue(search, 350);
   const [toast, setToast] = useState(null);
 
   useEffect(() => {
-    fetchShipments(status ? { status } : {}).catch((error) => {
+    fetchShipments({
+      page,
+      limit: 10,
+      search: debouncedSearch,
+      status,
+    }).catch((error) => {
       setToast({
         message: error?.response?.data?.message || "Failed to fetch shipments",
         type: "error",
       });
     });
-  }, [fetchShipments, status]);
-
-  const itemsPerPage = 10;
-  const filteredShipments = useMemo(
-    () =>
-      shipments.filter((shipment) =>
-        [
-          shipment.shipmentCode,
-          shipment.pickupLocation,
-          shipment.deliveryLocation,
-          shipment.customer?.name,
-          shipment.customer?.email,
-          shipment.shipper?.name,
-          shipment.shipper?.email,
-        ]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase()
-          .includes(search.toLowerCase())
-      ),
-    [shipments, search]
-  );
-  const paginatedData = useMemo(
-    () =>
-      filteredShipments.slice((page - 1) * itemsPerPage, page * itemsPerPage),
-    [filteredShipments, page]
-  );
+  }, [debouncedSearch, fetchShipments, page, status]);
 
   const columns = [
     {
@@ -116,9 +97,10 @@ const Shipments = () => {
 
       <DataTable
         columns={columns}
-        data={paginatedData}
-        currentPage={page}
-        totalPages={Math.ceil(filteredShipments.length / itemsPerPage) || 1}
+        data={shipments}
+        currentPage={pagination.page || page}
+        totalPages={pagination.totalPages || 1}
+        totalRecords={pagination.totalRecords || pagination.total || 0}
         onPageChange={setPage}
         loading={loading}
         actions={[

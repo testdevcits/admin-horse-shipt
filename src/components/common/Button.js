@@ -46,7 +46,7 @@ const Button = ({
       aria-label={iconOnly ? title || "Action" : undefined}
       className={`
         inline-flex items-center justify-center gap-2
-        rounded-md font-medium transition
+        font-medium transition
         ${variants[variant]}
         ${iconOnly ? iconSizes[size] : sizes[size]}
         ${fullWidth ? "w-full" : ""}

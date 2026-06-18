@@ -4,50 +4,53 @@ import axios from "axios";
 import { LuArrowLeftFromLine, LuArrowRightFromLine } from "react-icons/lu";
 import { CiCircleQuestion } from "react-icons/ci";
 import { RiArrowDropUpLine, RiArrowDropDownLine } from "react-icons/ri";
-import { HiOutlineCreditCard } from "react-icons/hi";
-import { MdOutlinePrivacyTip } from "react-icons/md";
 import { FiMoon, FiSun } from "react-icons/fi";
 import {
-  HiOutlineHome,
-  HiOutlineUserGroup,
-  HiOutlineShoppingBag,
-  HiOutlineCog,
-} from "react-icons/hi";
+  BookOpen,
+  CreditCard,
+  Home,
+  Leaf,
+  Mail,
+  ShieldCheck,
+  Truck,
+  UserCircle,
+  Users,
+} from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import comingSoonImg from "../../assets/images/defultlogo.png";
 
 // inside navItems array
 const navItems = [
-  { name: "Dashboard", path: "/dashboard", icon: <HiOutlineHome size={20} /> },
+  { name: "Dashboard", path: "/dashboard", icon: <Home size={20} /> },
 
   {
     name: "Shippers",
-    icon: <HiOutlineUserGroup size={20} />,
+    icon: <Truck size={20} />,
     subPaths: [{ name: "Shippers List", path: "/shippers" }],
   },
 
   {
     name: "Customers",
-    icon: <HiOutlineUserGroup size={20} />,
+    icon: <Users size={20} />,
     subPaths: [{ name: "Customers List", path: "/customers" }],
   },
 
   {
     name: "Shipments",
-    icon: <HiOutlineShoppingBag size={20} />,
+    icon: <ShieldCheck size={20} />,
     subPaths: [{ name: "All Shipments", path: "/shipments" }],
   },
 
   {
     name: "Breed List",
-    icon: <HiOutlineShoppingBag size={20} />,
+    icon: <Leaf size={20} />,
     subPaths: [{ name: "Breed List", path: "/breeds" }],
   },
 
   {
     name: "Newsletter",
-    icon: <HiOutlineUserGroup size={20} />, // change icon if needed
+    icon: <Mail size={20} />,
     subPaths: [
       { name: "Subscribers", path: "/newsletter-subscribers" },
       // You can add more newsletter actions here later
@@ -56,7 +59,7 @@ const navItems = [
 
   {
     name: "Platform",
-    icon: <HiOutlineCreditCard size={20} />,
+    icon: <CreditCard size={20} />,
     subPaths: [
       { name: "Platform Settings", path: "/platform-settings" },
       { name: "Stripe Payments", path: "/stripe-payments" },
@@ -65,14 +68,21 @@ const navItems = [
 
   {
     name: "Legal",
-    icon: <MdOutlinePrivacyTip size={20} />,
+    icon: <BookOpen size={20} />,
     subPaths: [
       { name: "Privacy Policy", path: "/privacy-policy" },
       { name: "Terms & Conditions", path: "/terms-conditions" },
     ],
   },
 
-  { name: "Settings", path: "/settings", icon: <HiOutlineCog size={20} /> },
+  {
+    name: "Account",
+    icon: <UserCircle size={20} />,
+    subPaths: [
+      { name: "Admin Profile", path: "/profile" },
+      { name: "Settings", path: "/settings" },
+    ],
+  },
 ];
 
 const AdminSidebar = ({
@@ -167,7 +177,7 @@ const AdminSidebar = ({
         </div>
 
         {/* Menu */}
-        <nav className="flex-1 overflow-y-auto p-2 space-y-1 ">
+        <nav className="flex-1 overflow-y-auto p-2 space-y-1 app-sidebar-scrollbar">
           {navItems.map((item) => (
             <div key={item.name}>
               {/* 🔹 NORMAL LINK */}
@@ -184,7 +194,9 @@ const AdminSidebar = ({
                     }`
                   }
                 >
-                  {item.icon}
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center">
+                    {item.icon}
+                  </span>
                   {sidebarOpen && <span>{item.name}</span>}
                 </NavLink>
               )}
@@ -197,7 +209,9 @@ const AdminSidebar = ({
                     className="w-full flex items-center gap-3 px-3 py-2 rounded
                       text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
                   >
-                    {item.icon}
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center">
+                      {item.icon}
+                    </span>
                     {sidebarOpen && (
                       <span className="flex-1 text-left">{item.name}</span>
                     )}

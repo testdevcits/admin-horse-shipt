@@ -47,13 +47,19 @@ const ShipmentDetail = () => {
 
   const [shipment, setShipment] = useState(null);
   const [quotes, setQuotes] = useState([]);
+  const [tablePagination, setTablePagination] = useState({});
   const [toast, setToast] = useState(null);
+  const [quotePage, setQuotePage] = useState(1);
 
   useEffect(() => {
-    getShipmentById(id)
+    getShipmentById(id, {
+      quotePage,
+      quoteLimit: 5,
+    })
       .then((data) => {
         setShipment(data?.shipment || null);
         setQuotes(data?.quotes || []);
+        setTablePagination(data?.pagination || {});
       })
       .catch((error) => {
         setToast({
@@ -61,7 +67,7 @@ const ShipmentDetail = () => {
           type: "error",
         });
       });
-  }, [getShipmentById, id]);
+  }, [getShipmentById, id, quotePage]);
 
   if (loading || !shipment) {
     return <div className="text-center py-10">Loading...</div>;
@@ -86,7 +92,7 @@ const ShipmentDetail = () => {
   ];
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen space-y-6">
+    <div className="min-h-screen space-y-6">
       <Button onClick={() => navigate(-1)}>Back</Button>
 
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
@@ -164,7 +170,18 @@ const ShipmentDetail = () => {
         <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
           Quotes
         </h2>
-        <DataTable columns={quoteColumns} data={quotes} />
+        <DataTable
+          columns={quoteColumns}
+          data={quotes}
+          currentPage={tablePagination.quotes?.page || quotePage}
+          totalPages={tablePagination.quotes?.totalPages || 1}
+          totalRecords={
+            tablePagination.quotes?.totalRecords ||
+            tablePagination.quotes?.total ||
+            0
+          }
+          onPageChange={setQuotePage}
+        />
       </div>
 
       {toast && (

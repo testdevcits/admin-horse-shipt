@@ -2,7 +2,6 @@ import React, {
   createContext,
   useContext,
   useState,
-  useEffect,
   useCallback,
 } from "react";
 import API from "../api/axios";
@@ -13,6 +12,12 @@ export const TermsProvider = ({ children }) => {
   const [terms, setTerms] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    totalPages: 1,
+    total: 0,
+  });
 
   // =========================
   // FETCH TERMS (PAGINATED)
@@ -25,9 +30,22 @@ export const TermsProvider = ({ children }) => {
       const res = await API.get(
         `/admin/terms-condition?page=${page}&limit=${limit}`
       );
-      setTerms(res.data.data || []);
+
+      const data = res.data.data || [];
+      const paginationData = res.data.pagination || {};
+
+      setTerms(data);
+      setPagination({
+        page: paginationData.page || page,
+        limit: paginationData.limit || limit,
+        totalPages: paginationData.totalPages || 1,
+        total: paginationData.total || data.length,
+      });
+
+      return { data, pagination: paginationData };
     } catch (err) {
       setError(err.response?.data?.message || "Failed to fetch terms");
+      return { data: [], pagination: { page, limit, totalPages: 1, total: 0 } };
     } finally {
       setLoading(false);
     }
@@ -46,8 +64,8 @@ export const TermsProvider = ({ children }) => {
           content,
         });
 
-        // Refresh the list after creation
-        await fetchTerms();
+        // Refresh the current page after creation
+        await fetchTerms(pagination.page, pagination.limit);
 
         return { success: true, data: res.data.data };
       } catch (err) {
@@ -59,7 +77,7 @@ export const TermsProvider = ({ children }) => {
         setLoading(false);
       }
     },
-    [fetchTerms]
+    [fetchTerms, pagination.limit, pagination.page]
   );
 
   // =========================
@@ -75,8 +93,8 @@ export const TermsProvider = ({ children }) => {
           content,
         });
 
-        // Refresh the list after update
-        await fetchTerms();
+        // Refresh the current page after update
+        await fetchTerms(pagination.page, pagination.limit);
 
         return { success: true, data: res.data.data };
       } catch (err) {
@@ -88,7 +106,7 @@ export const TermsProvider = ({ children }) => {
         setLoading(false);
       }
     },
-    [fetchTerms]
+    [fetchTerms, pagination.limit, pagination.page]
   );
 
   // =========================
@@ -101,8 +119,8 @@ export const TermsProvider = ({ children }) => {
 
         await API.delete(`/admin/terms-condition/${id}`);
 
-        // Refresh the list after deletion
-        await fetchTerms();
+        // Refresh the current page after deletion
+        await fetchTerms(pagination.page, pagination.limit);
 
         return { success: true };
       } catch (err) {
@@ -114,7 +132,7 @@ export const TermsProvider = ({ children }) => {
         setLoading(false);
       }
     },
-    [fetchTerms]
+    [fetchTerms, pagination.limit, pagination.page]
   );
 
   // =========================
@@ -127,8 +145,8 @@ export const TermsProvider = ({ children }) => {
           isActive,
         });
 
-        // Refresh the list after status change
-        await fetchTerms();
+        // Refresh the current page after status change
+        await fetchTerms(pagination.page, pagination.limit);
 
         return { success: true, data: res.data.data };
       } catch (err) {
@@ -138,7 +156,7 @@ export const TermsProvider = ({ children }) => {
         };
       }
     },
-    [fetchTerms]
+    [fetchTerms, pagination.limit, pagination.page]
   );
 
   // =========================
@@ -154,19 +172,13 @@ export const TermsProvider = ({ children }) => {
     }
   }, []);
 
-  // =========================
-  // INITIAL LOAD
-  // =========================
-  useEffect(() => {
-    fetchTerms();
-  }, [fetchTerms]);
-
   return (
     <TermsContext.Provider
       value={{
         terms,
         loading,
         error,
+        pagination,
 
         // actions
         fetchTerms,

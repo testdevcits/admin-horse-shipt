@@ -17,16 +17,27 @@ const CustomerDetail = () => {
   const [shipments, setShipments] = useState([]);
   const [payments, setPayments] = useState([]);
   const [quotes, setQuotes] = useState([]);
+  const [tablePagination, setTablePagination] = useState({});
   const [toast, setToast] = useState(null);
-  const [page, setPage] = useState(1);
+  const [shipmentPage, setShipmentPage] = useState(1);
+  const [paymentPage, setPaymentPage] = useState(1);
+  const [quotePage, setQuotePage] = useState(1);
 
   useEffect(() => {
-    getCustomerById(id)
+    getCustomerById(id, {
+      shipmentPage,
+      shipmentLimit: 5,
+      paymentPage,
+      paymentLimit: 5,
+      quotePage,
+      quoteLimit: 5,
+    })
       .then((data) => {
         setCustomer(data?.customer || null);
         setShipments(data?.shipments || []);
         setPayments(data?.payments || []);
         setQuotes(data?.quotes || []);
+        setTablePagination(data?.pagination || {});
       })
       .catch((error) => {
         setToast({
@@ -34,17 +45,11 @@ const CustomerDetail = () => {
           type: "error",
         });
       });
-  }, [getCustomerById, id]);
+  }, [getCustomerById, id, paymentPage, quotePage, shipmentPage]);
 
   if (loading || !customer) {
     return <div className="text-center py-10">Loading...</div>;
   }
-
-  const itemsPerPage = 5;
-  const paginatedShipments = shipments.slice(
-    (page - 1) * itemsPerPage,
-    page * itemsPerPage
-  );
 
   const shipmentColumns = [
     {
@@ -68,7 +73,7 @@ const CustomerDetail = () => {
   ];
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen space-y-6">
+    <div className=" min-h-screen space-y-6">
       <Button onClick={() => navigate(-1)}>Back</Button>
 
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 flex flex-col md:flex-row gap-6 items-center md:items-start">
@@ -137,10 +142,15 @@ const CustomerDetail = () => {
         </h3>
         <DataTable
           columns={shipmentColumns}
-          data={paginatedShipments}
-          currentPage={page}
-          totalPages={Math.ceil(shipments.length / itemsPerPage) || 1}
-          onPageChange={setPage}
+          data={shipments}
+          currentPage={tablePagination.shipments?.page || shipmentPage}
+          totalPages={tablePagination.shipments?.totalPages || 1}
+          totalRecords={
+            tablePagination.shipments?.totalRecords ||
+            tablePagination.shipments?.total ||
+            0
+          }
+          onPageChange={setShipmentPage}
           actions={[
             {
               render: (row) => (
@@ -185,6 +195,14 @@ const CustomerDetail = () => {
               },
             ]}
             data={payments}
+            currentPage={tablePagination.payments?.page || paymentPage}
+            totalPages={tablePagination.payments?.totalPages || 1}
+            totalRecords={
+              tablePagination.payments?.totalRecords ||
+              tablePagination.payments?.total ||
+              0
+            }
+            onPageChange={setPaymentPage}
           />
         </div>
 
@@ -208,6 +226,14 @@ const CustomerDetail = () => {
               { key: "paymentStatus", label: "Payment" },
             ]}
             data={quotes}
+            currentPage={tablePagination.quotes?.page || quotePage}
+            totalPages={tablePagination.quotes?.totalPages || 1}
+            totalRecords={
+              tablePagination.quotes?.totalRecords ||
+              tablePagination.quotes?.total ||
+              0
+            }
+            onPageChange={setQuotePage}
           />
         </div>
       </div>

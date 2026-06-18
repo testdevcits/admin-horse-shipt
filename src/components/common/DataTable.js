@@ -1,5 +1,5 @@
 import React from "react";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import Pagination from "./Pagination";
 import { CardListSkeleton, TableSkeleton } from "./Skeleton";
 
 const DataTable = ({
@@ -8,11 +8,25 @@ const DataTable = ({
   actions = [],
   currentPage = 1,
   totalPages = 1,
+  totalRecords,
+  totalLabel = "Total records",
   onPageChange,
   loading = false,
 }) => {
+  const resolvedTotalRecords =
+    totalRecords === undefined || totalRecords === null
+      ? data.length
+      : totalRecords;
+
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
+    <div className="bg-white dark:bg-gray-900 shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 bg-slate-50 px-4 py-3 dark:border-gray-800 dark:bg-gray-900">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+          {totalLabel}:{" "}
+          <span className="text-[#BF9B53]">{resolvedTotalRecords}</span>
+        </p>
+      </div>
+
       {/* ================= DESKTOP TABLE ================= */}
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full min-w-[760px] border-collapse">
@@ -74,7 +88,7 @@ const DataTable = ({
                             ) : (
                               <button
                                 onClick={() => action.onClick?.(row)}
-                                className={`px-3 py-1.5 text-xs rounded-md font-semibold text-white transition hover:opacity-90 ${
+                                className={`px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90 ${
                                   action.className || "bg-gray-500"
                                 }`}
                               >
@@ -107,7 +121,7 @@ const DataTable = ({
           data.map((row, index) => (
             <div
               key={index}
-              className="border rounded-lg p-4 bg-slate-50 dark:bg-gray-800 dark:border-gray-700"
+              className="border p-4 bg-slate-50 dark:bg-gray-800 dark:border-gray-700"
             >
               <div className="space-y-2">
                 {columns.map((col) => (
@@ -131,7 +145,7 @@ const DataTable = ({
                       ) : (
                         <button
                           onClick={() => action.onClick?.(row)}
-                          className={`px-3 py-1.5 text-xs rounded-md font-semibold text-white transition hover:opacity-90 ${
+                          className={`px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90 ${
                             action.className || "bg-gray-500"
                           }`}
                         >
@@ -150,33 +164,12 @@ const DataTable = ({
       </div>
 
       {/* ================= PAGINATION ================= */}
-      {totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row gap-2 justify-between items-center p-3 border-t bg-slate-50 dark:bg-gray-900 dark:border-gray-700">
-          <span className="text-sm text-gray-600 dark:text-gray-300">
-            Page {currentPage} of {totalPages}
-          </span>
-
-          <div className="flex items-center gap-2">
-            <button
-              disabled={currentPage === 1}
-              onClick={() => onPageChange?.(currentPage - 1)}
-              className="w-9 h-9 inline-flex items-center justify-center border rounded-md bg-white disabled:opacity-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
-              aria-label="Previous page"
-            >
-              <FaChevronLeft size={12} />
-            </button>
-
-            <button
-              disabled={currentPage === totalPages}
-              onClick={() => onPageChange?.(currentPage + 1)}
-              className="w-9 h-9 inline-flex items-center justify-center border rounded-md bg-white disabled:opacity-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
-              aria-label="Next page"
-            >
-              <FaChevronRight size={12} />
-            </button>
-          </div>
-        </div>
-      )}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={onPageChange}
+        isLoading={loading}
+      />
     </div>
   );
 };

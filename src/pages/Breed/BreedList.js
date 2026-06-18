@@ -20,6 +20,7 @@ const BreedList = () => {
     fetchingMore,
     page,
     totalPages,
+    totalRecords,
     fetchBreeds,
     deleteBreed,
     updateBreedStatus,
@@ -163,6 +164,7 @@ const BreedList = () => {
             actions={actions}
             currentPage={page}
             totalPages={totalPages}
+            totalRecords={totalRecords}
             onPageChange={loadPage}
           />
 

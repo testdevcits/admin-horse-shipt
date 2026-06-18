@@ -8,6 +8,12 @@ const StripeAdminContext = createContext();
 export const StripeAdminProvider = ({ children }) => {
   const [balance, setBalance] = useState(null);
   const [transactions, setTransactions] = useState([]);
+  const [transactionPagination, setTransactionPagination] = useState({
+    page: 1,
+    limit: 10,
+    totalPages: 1,
+    totalRecords: 0,
+  });
 
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
@@ -38,13 +44,27 @@ export const StripeAdminProvider = ({ children }) => {
   /* =========================
        FETCH STRIPE TRANSACTIONS
     ========================= */
-  const fetchStripeTransactions = useCallback(async (range = "all") => {
+  const fetchStripeTransactions = useCallback(async (range = "all", filters = {}) => {
     try {
       setLoading(true);
 
-      const res = await API.get(`/admin/stripe/transactions?range=${range}`);
+      const res = await API.get("/admin/stripe/transactions", {
+        params: {
+          range,
+          page: filters.page || 1,
+          limit: filters.limit || 10,
+        },
+      });
 
       setTransactions(res.data.data || []);
+      setTransactionPagination(
+        res.data.pagination || {
+          page: filters.page || 1,
+          limit: filters.limit || 10,
+          totalPages: 1,
+          totalRecords: 0,
+        }
+      );
     } catch (err) {
       const message =
         err.response?.data?.message || "Failed to fetch transactions";
@@ -63,6 +83,7 @@ export const StripeAdminProvider = ({ children }) => {
       value={{
         balance,
         transactions,
+        transactionPagination,
         loading,
         fetchStripeBalance,
         fetchStripeTransactions,
