@@ -7,6 +7,7 @@ const StripeAdminContext = createContext();
 
 export const StripeAdminProvider = ({ children }) => {
   const [balance, setBalance] = useState(null);
+  const [transferAvailability, setTransferAvailability] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [transactionPagination, setTransactionPagination] = useState({
     page: 1,
@@ -42,6 +43,35 @@ export const StripeAdminProvider = ({ children }) => {
   }, []);
 
   /* =========================
+       FETCH TRANSFER AVAILABILITY
+    ========================= */
+  const fetchTransferAvailability = useCallback(async (filters = {}) => {
+    try {
+      setLoading(true);
+
+      const res = await API.get("/admin/stripe/transfer-availability", {
+        params: {
+          startDate: filters.startDate || undefined,
+          endDate: filters.endDate || undefined,
+        },
+      });
+
+      setTransferAvailability(res.data.data);
+    } catch (err) {
+      const message =
+        err.response?.data?.message ||
+        "Failed to fetch transfer availability report";
+
+      setToast({
+        type: "error",
+        message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /* =========================
        FETCH STRIPE TRANSACTIONS
     ========================= */
   const fetchStripeTransactions = useCallback(async (range = "all", filters = {}) => {
@@ -53,6 +83,8 @@ export const StripeAdminProvider = ({ children }) => {
           range,
           page: filters.page || 1,
           limit: filters.limit || 10,
+          startDate: filters.startDate || undefined,
+          endDate: filters.endDate || undefined,
         },
       });
 
@@ -82,10 +114,12 @@ export const StripeAdminProvider = ({ children }) => {
     <StripeAdminContext.Provider
       value={{
         balance,
+        transferAvailability,
         transactions,
         transactionPagination,
         loading,
         fetchStripeBalance,
+        fetchTransferAvailability,
         fetchStripeTransactions,
       }}
     >

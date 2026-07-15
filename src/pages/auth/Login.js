@@ -5,10 +5,12 @@ import * as Yup from "yup";
 import logo from "../../assets/images/logo.png";
 import Toast from "../../components/common/Toast";
 import { Link } from "react-router-dom";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 const Login = () => {
   const { login } = useAuth();
   const [toast, setToast] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const validationSchema = Yup.object({
     email: Yup.string()
@@ -86,12 +88,23 @@ const Login = () => {
                   <label className="block text-sm font-medium text-systemText mb-2">
                     Password
                   </label>
-                  <Field
-                    type="password"
-                    name="password"
-                    placeholder="••••••••"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-system-primary"
-                  />
+                  <div className="relative">
+                    <Field
+                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      placeholder="••••••••"
+                      className="w-full px-4 py-3 pr-11 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-system-primary"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      title={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                    </button>
+                  </div>
                   <ErrorMessage
                     name="password"
                     component="p"

@@ -270,9 +270,9 @@ const NewsletterSubscribers = () => {
   // Loading state
   if (isLoadingSubscribers && loading && subscribers.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="flex min-h-screen items-center justify-center bg-slate-100 dark:bg-gray-950">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-2 border-[#E8D7AD] border-t-[#BF9B53]"></div>
           <p className="text-gray-600 dark:text-gray-300 font-medium">
             Loading subscribers...
           </p>
@@ -282,15 +282,15 @@ const NewsletterSubscribers = () => {
   }
 
   return (
-    <div className="min-h-screen  p-1">
+    <div className="min-h-screen bg-slate-100 -m-4 p-4 font-montserrat dark:bg-gray-950 sm:-m-6 sm:p-6">
       <div className="max-w-full mx-auto">
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+        <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="mb-1 text-2xl font-bold text-gray-900 dark:text-white">
               Newsletter Subscribers
             </h1>
-            <p className="text-gray-600 dark:text-gray-300 text-sm md:text-base">
+            <p className="text-sm text-gray-600 dark:text-gray-300">
               Manage your email subscriber list and send newsletters to verified
               subscribers
             </p>
@@ -300,7 +300,7 @@ const NewsletterSubscribers = () => {
               <button
                 onClick={openDeleteMultipleConfirm}
                 disabled={loading}
-                className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 shadow-md hover:shadow-lg whitespace-nowrap"
+                className="flex items-center justify-center gap-2 rounded-sm bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60 whitespace-nowrap"
               >
                 <FiTrash2 size={20} />
                 Delete ({selectedIds.size})
@@ -309,7 +309,7 @@ const NewsletterSubscribers = () => {
             <button
               onClick={() => setIsModalOpen(true)}
               disabled={loading || verifiedCount === 0}
-              className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 shadow-md hover:shadow-lg whitespace-nowrap"
+              className="flex items-center justify-center gap-2 rounded-sm bg-[#BF9B53] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#997C42] disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500 whitespace-nowrap"
             >
               <FiMail size={20} />
               Send Newsletter
@@ -318,63 +318,63 @@ const NewsletterSubscribers = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div className="mb-5 grid grid-cols-1 gap-5 md:grid-cols-3">
           {/* Total Subscribers */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border-l-4 border-blue-500 hover:shadow-lg transition-shadow duration-200">
+          <div className="border border-gray-100 bg-white p-5 shadow-sm transition hover:border-[#BF9B53]/30 dark:border-gray-800 dark:bg-gray-900">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">
                   Total Subscribers
                 </p>
-                <p className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mt-2">
+                <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">
                   {totalSubscribers}
                 </p>
               </div>
-              <div className="text-blue-500 text-5xl opacity-20">
-                <FiMail />
+              <div className="flex h-11 w-11 items-center justify-center rounded-md bg-[#BF9B53]/10 text-[#BF9B53]">
+                <FiMail size={24} />
               </div>
             </div>
           </div>
 
           {/* Verified Subscribers */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border-l-4 border-green-500 hover:shadow-lg transition-shadow duration-200">
+          <div className="border border-gray-100 bg-white p-5 shadow-sm transition hover:border-[#BF9B53]/30 dark:border-gray-800 dark:bg-gray-900">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">
                   Verified
                 </p>
-                <p className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mt-2">
+                <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">
                   {verifiedCount}
                 </p>
               </div>
-              <div className="text-green-500 text-5xl opacity-20">
-                <AiOutlineCheckCircle />
+              <div className="flex h-11 w-11 items-center justify-center rounded-md bg-[#BF9B53]/10 text-[#BF9B53]">
+                <AiOutlineCheckCircle size={26} />
               </div>
             </div>
           </div>
 
           {/* Unverified Subscribers */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border-l-4 border-red-500 hover:shadow-lg transition-shadow duration-200">
+          <div className="border border-gray-100 bg-white p-5 shadow-sm transition hover:border-[#BF9B53]/30 dark:border-gray-800 dark:bg-gray-900">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">
                   Unverified
                 </p>
-                <p className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mt-2">
+                <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">
                   {unverifiedCount}
                 </p>
               </div>
-              <div className="text-red-500 text-5xl opacity-20">
-                <AiOutlineCloseCircle />
+              <div className="flex h-11 w-11 items-center justify-center rounded-md bg-[#BF9B53]/10 text-[#BF9B53]">
+                <AiOutlineCloseCircle size={26} />
               </div>
             </div>
           </div>
         </div>
 
         {/* Search Section */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 mb-6 hover:shadow-lg transition-shadow duration-200">
+        <div className="mb-5 border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
           <div className="grid grid-cols-1 md:grid-cols-[1fr_180px] gap-3">
-            <div className="flex items-center gap-3 bg-gray-50 dark:bg-gray-700 px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-600">
+            <div className="flex items-center gap-3 border border-gray-200 bg-slate-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
               <FiSearch className="text-gray-400" size={20} />
               <input
                 type="text"
@@ -407,7 +407,7 @@ const NewsletterSubscribers = () => {
                 setPage(1);
                 setStatusFilter(event.target.value);
               }}
-              className="bg-gray-50 dark:bg-gray-700 px-4 py-3 border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200 text-sm outline-none"
+              className="border border-gray-200 bg-slate-50 px-4 py-3 text-sm text-gray-800 outline-none focus:border-[#BF9B53] dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
             >
               <option value="">All Status</option>
               <option value="verified">Verified</option>
@@ -433,8 +433,8 @@ const NewsletterSubscribers = () => {
           </div>
         )}
         {subscribers.length === 0 ? (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-12 text-center hover:shadow-lg transition-shadow duration-200">
-            <FiMail className="mx-auto text-5xl text-gray-300 dark:text-gray-600 mb-4" />
+          <div className="border border-dashed border-[#BF9B53]/30 bg-white p-12 text-center shadow-sm dark:bg-gray-900">
+            <FiMail className="mx-auto mb-4 text-5xl text-[#BF9B53]/40" />
             <p className="text-lg text-gray-600 dark:text-gray-300 font-medium">
               {debouncedSearchEmail || statusFilter
                 ? "No subscribers found matching your search"
@@ -447,8 +447,8 @@ const NewsletterSubscribers = () => {
             </p>
           </div>
         ) : (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow duration-200">
-            <div className="border-b border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800 md:px-6">
+          <div className="overflow-hidden border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <div className="border-b border-gray-200 bg-slate-50 px-4 py-3 dark:border-gray-800 dark:bg-gray-900 md:px-6">
               <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
                 Total subscribers:{" "}
                 <span className="text-[#BF9B53]">{filteredTotal}</span>
@@ -457,29 +457,29 @@ const NewsletterSubscribers = () => {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="bg-gray-100 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
-                    <th className="px-4 md:px-6 py-4 text-left text-xs md:text-sm font-semibold text-gray-800 dark:text-gray-200">
+                  <tr className="border-b border-gray-200 bg-slate-50 dark:border-gray-800 dark:bg-gray-800">
+                    <th className="px-4 py-4 text-left text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-300 md:px-6">
                         <input
                           type="checkbox"
                           checked={selectAll}
                           onChange={handleSelectAll}
                           disabled={loading || subscribers.length === 0}
-                          className="w-4 h-4 rounded border-gray-300 cursor-pointer"
+                          className="h-4 w-4 cursor-pointer rounded border-gray-300 accent-[#BF9B53]"
                         />
                     </th>
-                    <th className="px-4 md:px-6 py-4 text-left text-xs md:text-sm font-semibold text-gray-800 dark:text-gray-200">
+                    <th className="px-4 py-4 text-left text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-300 md:px-6">
                       #
                     </th>
-                    <th className="px-4 md:px-6 py-4 text-left text-xs md:text-sm font-semibold text-gray-800 dark:text-gray-200">
+                    <th className="px-4 py-4 text-left text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-300 md:px-6">
                       Email
                     </th>
-                    <th className="px-4 md:px-6 py-4 text-left text-xs md:text-sm font-semibold text-gray-800 dark:text-gray-200">
+                    <th className="px-4 py-4 text-left text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-300 md:px-6">
                       Status
                     </th>
-                    <th className="px-4 md:px-6 py-4 text-left text-xs md:text-sm font-semibold text-gray-800 dark:text-gray-200">
+                    <th className="px-4 py-4 text-left text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-300 md:px-6">
                       Subscribed At
                     </th>
-                    <th className="px-4 md:px-6 py-4 text-center text-xs md:text-sm font-semibold text-gray-800 dark:text-gray-200">
+                    <th className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-300 md:px-6">
                       Action
                     </th>
                   </tr>
@@ -490,8 +490,8 @@ const NewsletterSubscribers = () => {
                       key={sub._id}
                       className={`transition-colors duration-150 ${
                         selectedIds.has(sub._id)
-                          ? "bg-blue-50 dark:bg-blue-900"
-                          : "hover:bg-gray-50 dark:hover:bg-gray-700"
+                          ? "bg-[#BF9B53]/10 dark:bg-[#BF9B53]/20"
+                          : "hover:bg-[#BF9B53]/5 dark:hover:bg-gray-800"
                       }`}
                     >
                       <td className="px-4 md:px-6 py-4 text-sm">
@@ -500,7 +500,7 @@ const NewsletterSubscribers = () => {
                           checked={selectedIds.has(sub._id)}
                           onChange={() => handleCheckboxChange(sub._id)}
                           disabled={loading}
-                          className="w-4 h-4 rounded border-gray-300 cursor-pointer"
+                          className="h-4 w-4 cursor-pointer rounded border-gray-300 accent-[#BF9B53]"
                         />
                       </td>
                       <td className="px-4 md:px-6 py-4 text-sm text-gray-700 dark:text-gray-300 font-medium">
@@ -511,12 +511,12 @@ const NewsletterSubscribers = () => {
                       </td>
                       <td className="px-4 md:px-6 py-4 text-sm">
                         {sub.isVerified ? (
-                          <span className="inline-flex items-center gap-2 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap">
+                          <span className="inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-700 dark:bg-green-900/40 dark:text-green-200 whitespace-nowrap">
                             <AiOutlineCheckCircle size={14} />
                             Verified
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-2 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap">
+                          <span className="inline-flex items-center gap-2 rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-700 dark:bg-red-900/40 dark:text-red-200 whitespace-nowrap">
                             <AiOutlineCloseCircle size={14} />
                             Unverified
                           </span>
@@ -535,7 +535,7 @@ const NewsletterSubscribers = () => {
                         <button
                           onClick={() => openDeleteConfirm(sub._id, sub.email)}
                           disabled={loading}
-                          className="inline-flex items-center gap-1.5 bg-red-100 dark:bg-red-900 hover:bg-red-200 dark:hover:bg-red-800 text-red-700 dark:text-red-200 px-3 py-1.5 rounded-lg font-medium text-sm transition-colors duration-200 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="inline-flex items-center gap-1.5 rounded-sm bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 transition-colors duration-200 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-900/40 dark:text-red-200 dark:hover:bg-red-900 whitespace-nowrap"
                         >
                           <FiTrash2 size={14} />
                           <span className="hidden sm:inline">Delete</span>
@@ -548,7 +548,7 @@ const NewsletterSubscribers = () => {
             </div>
 
             {/* Table Footer */}
-            <div className="bg-gray-50 dark:bg-gray-700 px-4 md:px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="border-t border-gray-200 bg-slate-50 px-4 py-4 dark:border-gray-800 dark:bg-gray-900 md:px-6">
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 Showing{" "}
                 <span className="font-semibold">
@@ -557,8 +557,8 @@ const NewsletterSubscribers = () => {
                 of <span className="font-semibold">{filteredTotal}</span>{" "}
                 subscribers
                 {selectedIds.size > 0 && (
-                  <span className="ml-3 text-blue-600 dark:text-blue-400">
-                    • {selectedIds.size} selected
+                  <span className="ml-3 text-[#997C42] dark:text-[#E8D7AD]">
+                    - {selectedIds.size} selected
                   </span>
                 )}
               </p>
@@ -578,17 +578,17 @@ const NewsletterSubscribers = () => {
 
       {/* Send Newsletter Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto border border-gray-200 bg-white shadow-2xl dark:border-gray-800 dark:bg-gray-900">
             {/* Modal Header */}
-            <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
+            <div className="sticky top-0 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4 dark:border-gray-800 dark:bg-gray-900">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                   Send Newsletter
                 </h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                   Recipients:{" "}
-                  <span className="font-semibold text-green-600">
+                  <span className="font-semibold text-[#997C42] dark:text-[#E8D7AD]">
                     {verifiedCount}
                   </span>{" "}
                   verified subscriber{verifiedCount !== 1 ? "s" : ""}
@@ -597,7 +597,7 @@ const NewsletterSubscribers = () => {
               <button
                 onClick={handleCloseModal}
                 disabled={isSending || loading}
-                className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-3xl disabled:opacity-50 transition-colors"
+                className="text-3xl text-gray-500 transition-colors hover:text-[#997C42] disabled:opacity-50 dark:text-gray-400 dark:hover:text-[#E8D7AD]"
               >
                 ×
               </button>
@@ -618,7 +618,7 @@ const NewsletterSubscribers = () => {
                     setFormData({ ...formData, subject: e.target.value })
                   }
                   disabled={isSending}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                  className="w-full border border-gray-300 bg-white px-4 py-3 text-gray-900 transition-all duration-200 placeholder-gray-500 focus:border-[#BF9B53] focus:outline-none focus:ring-2 focus:ring-[#BF9B53]/20 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400"
                 />
               </div>
 
@@ -635,7 +635,7 @@ const NewsletterSubscribers = () => {
                   }
                   disabled={isSending}
                   rows="5"
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                  className="w-full resize-none border border-gray-300 bg-white px-4 py-3 text-gray-900 transition-all duration-200 placeholder-gray-500 focus:border-[#BF9B53] focus:outline-none focus:ring-2 focus:ring-[#BF9B53]/20 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400"
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                   This will be sent as plain text email content
@@ -655,7 +655,7 @@ const NewsletterSubscribers = () => {
                   }
                   disabled={isSending}
                   rows="5"
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm resize-none disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                  className="w-full resize-none border border-gray-300 bg-white px-4 py-3 font-mono text-sm text-gray-900 transition-all duration-200 placeholder-gray-500 focus:border-[#BF9B53] focus:outline-none focus:ring-2 focus:ring-[#BF9B53]/20 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400"
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                   HTML content will override plain text if both are provided
@@ -663,13 +663,13 @@ const NewsletterSubscribers = () => {
               </div>
 
               {/* Info Box */}
-              <div className="bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 rounded-lg p-4 space-y-2">
-                <p className="text-sm text-green-800 dark:text-green-200">
+              <div className="space-y-2 border border-[#BF9B53]/25 bg-[#BF9B53]/10 p-4 dark:bg-[#BF9B53]/15">
+                <p className="text-sm text-gray-700 dark:text-gray-200">
                   <strong>Verified Only:</strong> This newsletter will be sent
                   to {verifiedCount} verified subscriber
                   {verifiedCount !== 1 ? "s" : ""} only.
                 </p>
-                <p className="text-sm text-green-800 dark:text-green-200">
+                <p className="text-sm text-gray-700 dark:text-gray-200">
                   <strong>Note:</strong> Subject and (message OR HTML content)
                   are required.
                 </p>
@@ -677,11 +677,11 @@ const NewsletterSubscribers = () => {
             </div>
 
             {/* Modal Footer */}
-            <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 px-6 py-4 flex gap-3 justify-end sticky bottom-0">
+            <div className="sticky bottom-0 flex justify-end gap-3 border-t border-gray-200 bg-slate-50 px-6 py-4 dark:border-gray-800 dark:bg-gray-900">
               <button
                 onClick={handleCloseModal}
                 disabled={isSending || loading}
-                className="px-6 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                className="border border-gray-300 px-6 py-2.5 font-semibold text-gray-700 transition-colors duration-200 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 whitespace-nowrap"
               >
                 Cancel
               </button>
@@ -692,7 +692,7 @@ const NewsletterSubscribers = () => {
                   !formData.subject.trim() ||
                   (!formData.message.trim() && !formData.htmlContent.trim())
                 }
-                className="flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                className="flex items-center justify-center gap-2 bg-[#BF9B53] px-6 py-2.5 font-semibold text-white transition-colors duration-200 hover:bg-[#997C42] disabled:cursor-not-allowed disabled:opacity-50 whitespace-nowrap"
               >
                 {isSending ? (
                   <>
@@ -713,10 +713,10 @@ const NewsletterSubscribers = () => {
 
       {/* Confirmation Modal */}
       {confirmModal.open && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl w-full max-w-md">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md border border-gray-200 bg-white shadow-2xl dark:border-gray-800 dark:bg-gray-900">
             {/* Modal Header */}
-            <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+            <div className="border-b border-gray-200 bg-white px-6 py-4 dark:border-gray-800 dark:bg-gray-900">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                 {confirmModal.type === "delete"
                   ? "Delete Subscriber"
@@ -733,7 +733,7 @@ const NewsletterSubscribers = () => {
                   <p className="text-gray-700 dark:text-gray-300">
                     Are you sure you want to delete this subscriber?
                   </p>
-                  <div className="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg p-3">
+                  <div className="border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/40">
                     <p className="text-sm text-red-800 dark:text-red-200">
                       <strong>Email:</strong> {confirmModal.targetEmail}
                     </p>
@@ -751,7 +751,7 @@ const NewsletterSubscribers = () => {
                     </span>{" "}
                     subscriber{selectedIds.size !== 1 ? "s" : ""}?
                   </p>
-                  <div className="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg p-3">
+                  <div className="border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/40">
                     <p className="text-sm text-red-800 dark:text-red-200">
                       <strong>Selected:</strong> {selectedIds.size} subscriber
                       {selectedIds.size !== 1 ? "s" : ""}
@@ -765,17 +765,17 @@ const NewsletterSubscribers = () => {
                 <div className="space-y-3">
                   <p className="text-gray-700 dark:text-gray-300">
                     Are you sure you want to send this newsletter to{" "}
-                    <span className="font-semibold text-green-600">
+                    <span className="font-semibold text-[#997C42] dark:text-[#E8D7AD]">
                       {verifiedCount}
                     </span>{" "}
                     verified subscriber
                     {verifiedCount !== 1 ? "s" : ""}?
                   </p>
-                  <div className="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg p-3 space-y-1">
-                    <p className="text-sm text-blue-800 dark:text-blue-200">
+                  <div className="space-y-1 border border-[#BF9B53]/25 bg-[#BF9B53]/10 p-3 dark:bg-[#BF9B53]/15">
+                    <p className="text-sm text-gray-700 dark:text-gray-200">
                       <strong>Subject:</strong> {formData.subject}
                     </p>
-                    <p className="text-sm text-blue-800 dark:text-blue-200">
+                    <p className="text-sm text-gray-700 dark:text-gray-200">
                       <strong>Recipients:</strong> {verifiedCount} verified
                     </p>
                   </div>
@@ -787,11 +787,11 @@ const NewsletterSubscribers = () => {
             </div>
 
             {/* Modal Footer */}
-            <div className="bg-gray-50 dark:bg-gray-700 px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex gap-3 justify-end">
+            <div className="flex justify-end gap-3 border-t border-gray-200 bg-slate-50 px-6 py-4 dark:border-gray-800 dark:bg-gray-900">
               <button
                 onClick={closeConfirmModal}
                 disabled={isSending}
-                className="px-6 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="border border-gray-300 px-6 py-2.5 font-semibold text-gray-700 transition-colors duration-200 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
               >
                 Cancel
               </button>
@@ -806,9 +806,9 @@ const NewsletterSubscribers = () => {
                   }
                 }}
                 disabled={isSending}
-                className={`px-6 py-2.5 text-white font-semibold rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ${
+                className={`flex items-center gap-2 px-6 py-2.5 font-semibold text-white transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${
                   confirmModal.type === "send"
-                    ? "bg-blue-600 hover:bg-blue-700"
+                    ? "bg-[#BF9B53] hover:bg-[#997C42]"
                     : "bg-red-600 hover:bg-red-700"
                 }`}
               >

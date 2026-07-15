@@ -7,6 +7,7 @@ import { RiArrowDropUpLine, RiArrowDropDownLine } from "react-icons/ri";
 import { FiMoon, FiSun } from "react-icons/fi";
 import {
   BookOpen,
+  Bell,
   CreditCard,
   Home,
   Leaf,
@@ -58,12 +59,15 @@ const navItems = [
   },
 
   {
+    name: "Notifications",
+    icon: <Bell size={20} />,
+    subPaths: [{ name: "All Notifications", path: "/notifications" }],
+  },
+
+  {
     name: "Platform",
     icon: <CreditCard size={20} />,
-    subPaths: [
-      { name: "Platform Settings", path: "/platform-settings" },
-      { name: "Stripe Payments", path: "/stripe-payments" },
-    ],
+    subPaths: [{ name: "Platform Settings", path: "/platform-settings" }],
   },
 
   {

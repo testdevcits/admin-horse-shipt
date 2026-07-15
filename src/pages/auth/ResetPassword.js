@@ -2,13 +2,19 @@ import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import API from "../../api/axios";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 const ResetPassword = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const normalizeOtp = (value = "") => value.replace(/\D/g, "").slice(0, 6);
 
   const schema = Yup.object({
-    otp: Yup.string().length(6).required(),
+    otp: Yup.string()
+      .matches(/^\d{6}$/, "OTP must be 6 digits")
+      .required("OTP is required"),
     newPassword: Yup.string().min(6).required(),
   });
 
@@ -39,24 +45,51 @@ const ResetPassword = () => {
           validationSchema={schema}
           onSubmit={handleSubmit}
         >
-          <Form className="space-y-4">
-            <Field
-              name="otp"
-              placeholder="Enter OTP"
-              className="w-full px-4 py-3 border rounded-xl"
-            />
+          {({ setFieldValue }) => (
+            <Form className="space-y-4">
+              <Field
+                name="otp"
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                placeholder="Enter 6-digit OTP"
+                onChange={(event) =>
+                  setFieldValue("otp", normalizeOtp(event.target.value))
+                }
+                onPaste={(event) => {
+                  event.preventDefault();
+                  setFieldValue(
+                    "otp",
+                    normalizeOtp(event.clipboardData.getData("text"))
+                  );
+                }}
+                className="w-full px-4 py-3 border rounded-xl"
+              />
 
-            <Field
-              name="newPassword"
-              type="password"
-              placeholder="New Password"
-              className="w-full px-4 py-3 border rounded-xl"
-            />
+              <div className="relative">
+                <Field
+                  name="newPassword"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="New Password"
+                  className="w-full px-4 py-3 pr-11 border rounded-xl"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  title={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                </button>
+              </div>
 
-            <button className="w-full bg-system-primary text-white py-3 rounded-xl">
-              Reset Password
-            </button>
-          </Form>
+              <button className="w-full bg-system-primary text-white py-3 rounded-xl">
+                Reset Password
+              </button>
+            </Form>
+          )}
         </Formik>
       </div>
     </div>

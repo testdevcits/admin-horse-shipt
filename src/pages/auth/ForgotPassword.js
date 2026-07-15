@@ -4,6 +4,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
 import Toast from "../../components/common/Toast";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 const ForgotPassword = () => {
   const { forgotPassword, verifyOtp, resetPassword } = useAuth();
@@ -12,7 +13,11 @@ const ForgotPassword = () => {
   const [step, setStep] = useState("email"); // email | otp | reset
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState(""); // store verified OTP
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [toast, setToast] = useState(null);
+
+  const normalizeOtp = (value = "") => value.replace(/\D/g, "").slice(0, 6);
 
   // =====================
   // Email Schema
@@ -28,7 +33,7 @@ const ForgotPassword = () => {
   // =====================
   const otpSchema = Yup.object({
     otp: Yup.string()
-      .length(6, "OTP must be 6 digits")
+      .matches(/^\d{6}$/, "OTP must be 6 digits")
       .required("OTP is required"),
   });
 
@@ -51,6 +56,7 @@ const ForgotPassword = () => {
     try {
       await forgotPassword(values.email);
       setEmail(values.email);
+      setOtp("");
       setStep("otp");
       setToast({ message: "OTP sent successfully", type: "success" });
     } catch (error) {
@@ -87,6 +93,15 @@ const ForgotPassword = () => {
   // =====================
   const handleResetPassword = async (values, { setSubmitting }) => {
     try {
+      if (!otp) {
+        setStep("otp");
+        setToast({
+          message: "Please verify OTP before resetting password",
+          type: "error",
+        });
+        return;
+      }
+
       await resetPassword({
         email,
         otp, // use verified OTP from state
@@ -170,12 +185,26 @@ const ForgotPassword = () => {
               validationSchema={otpSchema}
               onSubmit={handleVerifyOtp}
             >
-              {({ isSubmitting }) => (
+              {({ isSubmitting, setFieldValue }) => (
                 <Form className="space-y-4">
                   <div>
                     <Field
                       name="otp"
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      maxLength={6}
                       placeholder="Enter 6-digit OTP"
+                      onChange={(event) =>
+                        setFieldValue("otp", normalizeOtp(event.target.value))
+                      }
+                      onPaste={(event) => {
+                        event.preventDefault();
+                        setFieldValue(
+                          "otp",
+                          normalizeOtp(event.clipboardData.getData("text"))
+                        );
+                      }}
                       className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-system-primary"
                     />
                     <ErrorMessage
@@ -198,7 +227,7 @@ const ForgotPassword = () => {
           )}
 
           {/* ================= RESET PASSWORD ================= */}
-          {step === "reset" && (
+          {step === "reset" && otp && (
             <Formik
               initialValues={{ newPassword: "", confirmPassword: "" }}
               validationSchema={passwordSchema}
@@ -207,12 +236,23 @@ const ForgotPassword = () => {
               {({ isSubmitting, values }) => (
                 <Form className="space-y-4">
                   <div>
-                    <Field
-                      name="newPassword"
-                      type="password"
-                      placeholder="Enter new password"
-                      className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-system-primary"
-                    />
+                    <div className="relative">
+                      <Field
+                        name="newPassword"
+                        type={showNewPassword ? "text" : "password"}
+                        placeholder="Enter new password"
+                        className="w-full px-4 py-3 pr-11 border rounded-xl focus:outline-none focus:ring-2 focus:ring-system-primary"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword((prev) => !prev)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                        aria-label={showNewPassword ? "Hide password" : "Show password"}
+                        title={showNewPassword ? "Hide password" : "Show password"}
+                      >
+                        {showNewPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                      </button>
+                    </div>
                     <ErrorMessage
                       name="newPassword"
                       component="p"
@@ -221,12 +261,27 @@ const ForgotPassword = () => {
                   </div>
 
                   <div>
-                    <Field
-                      name="confirmPassword"
-                      type="password"
-                      placeholder="Confirm new password"
-                      className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-system-primary"
-                    />
+                    <div className="relative">
+                      <Field
+                        name="confirmPassword"
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="Confirm new password"
+                        className="w-full px-4 py-3 pr-11 border rounded-xl focus:outline-none focus:ring-2 focus:ring-system-primary"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword((prev) => !prev)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                        aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                        title={showConfirmPassword ? "Hide password" : "Show password"}
+                      >
+                        {showConfirmPassword ? (
+                          <FiEyeOff size={18} />
+                        ) : (
+                          <FiEye size={18} />
+                        )}
+                      </button>
+                    </div>
                     <ErrorMessage
                       name="confirmPassword"
                       component="p"

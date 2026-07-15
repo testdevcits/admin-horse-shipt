@@ -21,10 +21,12 @@ const PAGE_SIZE = 10;
 const StripePayments = () => {
   const {
     balance,
+    transferAvailability,
     transactions,
     transactionPagination,
     loading,
     fetchStripeBalance,
+    fetchTransferAvailability,
     fetchStripeTransactions,
   } = useStripeAdmin();
 
@@ -39,8 +41,15 @@ const StripePayments = () => {
 
   useEffect(() => {
     fetchStripeBalance();
+    fetchTransferAvailability();
     fetchStripeTransactions(range, { page, limit: PAGE_SIZE });
-  }, [fetchStripeBalance, fetchStripeTransactions, page, range]);
+  }, [
+    fetchStripeBalance,
+    fetchStripeTransactions,
+    fetchTransferAvailability,
+    page,
+    range,
+  ]);
 
   useEffect(() => {
     setPage(1);
@@ -94,6 +103,13 @@ const StripePayments = () => {
   }, [transactions]);
 
   const totalPages = transactionPagination?.totalPages || 1;
+  const ledger = transferAvailability?.ledger || {};
+  const stripeReport = transferAvailability?.stripe || {};
+  const reportCurrency = (
+    transferAvailability?.currency ||
+    balance?.currency ||
+    "usd"
+  ).toUpperCase();
 
   return (
     <div className="space-y-6 w-full">
@@ -135,6 +151,76 @@ const StripePayments = () => {
         </div>
       </div>
 
+      <div className="bg-white dark:bg-dark shadow rounded-xl p-5">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+              Client Bank Transfer Report
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Currency: {reportCurrency}
+            </p>
+          </div>
+          <button
+            onClick={fetchTransferAvailability}
+            className="self-start rounded-md border border-[#BF9B53] px-3 py-2 text-sm font-medium text-[#BF9B53] transition hover:bg-[#BF9B53] hover:text-white"
+          >
+            Refresh
+          </button>
+        </div>
+
+        <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+            <p className="text-xs text-gray-500">Recommended Transfer</p>
+            <h3 className="mt-1 text-xl font-bold text-green-600">
+              $
+              {Number(
+                transferAvailability?.recommendedTransferToClientBank || 0
+              ).toFixed(2)}
+            </h3>
+          </div>
+          <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+            <p className="text-xs text-gray-500">Live Stripe Available</p>
+            <h3 className="mt-1 text-xl font-bold text-accent">
+              ${Number(stripeReport.available || 0).toFixed(2)}
+            </h3>
+          </div>
+          <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+            <p className="text-xs text-gray-500">Subscription Fees</p>
+            <h3 className="mt-1 text-xl font-bold text-primary">
+              ${Number(ledger.subscriptionFees || 0).toFixed(2)}
+            </h3>
+          </div>
+          <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+            <p className="text-xs text-gray-500">Completed Shipment Fees</p>
+            <h3 className="mt-1 text-xl font-bold text-primary">
+              ${Number(ledger.shipmentPlatformFees || 0).toFixed(2)}
+            </h3>
+          </div>
+        </div>
+
+        <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="rounded-lg bg-slate-50 p-4 dark:bg-gray-800">
+            <p className="text-xs text-gray-500">Stripe Pending</p>
+            <p className="mt-1 font-semibold dark:text-white">
+              ${Number(stripeReport.pending || 0).toFixed(2)}
+            </p>
+          </div>
+          <div className="rounded-lg bg-slate-50 p-4 dark:bg-gray-800">
+            <p className="text-xs text-gray-500">Pending Shipper Transfers</p>
+            <p className="mt-1 font-semibold dark:text-white">
+              ${Number(ledger.pendingShipperTransfers || 0).toFixed(2)}
+            </p>
+          </div>
+          <div className="rounded-lg bg-slate-50 p-4 dark:bg-gray-800">
+            <p className="text-xs text-gray-500">Paid Out Shipments</p>
+            <p className="mt-1 font-semibold dark:text-white">
+              {ledger.completedPaidTransferredShipments || 0}
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* LINE CHART */}
       <p className="text-sm font-semibold mb-3 dark:text-white">
         Revenue Analytics
@@ -167,6 +253,64 @@ const StripePayments = () => {
             />
           </LineChart>
         </ResponsiveContainer>
+      </div>
+
+      <div className="bg-white dark:bg-dark shadow rounded-xl overflow-x-auto">
+        <div className="border-b border-gray-200 bg-slate-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
+          <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+            Recent Completed Shipment Platform Fees
+          </p>
+        </div>
+        <table className="min-w-[760px] w-full text-sm">
+          <thead className="border-b bg-light dark:bg-gray-800">
+            <tr className="text-left text-gray-600 dark:text-gray-300">
+              <th className="p-3">Quote</th>
+              <th className="p-3">Shipper</th>
+              <th className="p-3">Customer Paid</th>
+              <th className="p-3">Platform Fee</th>
+              <th className="p-3">Transfer</th>
+              <th className="p-3">Released</th>
+            </tr>
+          </thead>
+          <tbody>
+            {transferAvailability?.recentCompletedShipmentFees?.length ? (
+              transferAvailability.recentCompletedShipmentFees.map((item) => (
+                <tr
+                  key={item.quoteId}
+                  className="border-b hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
+                  <td className="p-3 font-mono text-xs">{item.quoteId}</td>
+                  <td className="p-3">
+                    {item.shipper?.companyName ||
+                      item.shipper?.name ||
+                      item.shipper?.email ||
+                      "Shipper"}
+                  </td>
+                  <td className="p-3">
+                    ${Number(item.totalPrice || 0).toFixed(2)}
+                  </td>
+                  <td className="p-3 font-semibold text-primary">
+                    ${Number(item.platformFee || 0).toFixed(2)}
+                  </td>
+                  <td className="p-3 font-mono text-xs">
+                    {item.stripeTransferId || "N/A"}
+                  </td>
+                  <td className="p-3 whitespace-nowrap">
+                    {item.paymentReleasedAt
+                      ? new Date(item.paymentReleasedAt).toLocaleDateString()
+                      : "N/A"}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={6} className="p-6 text-center text-gray-500">
+                  No completed paid shipment fees found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
 
       {/* FILTER */}

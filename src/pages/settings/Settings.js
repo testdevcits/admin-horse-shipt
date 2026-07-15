@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
+  FiBell,
   FiCheckCircle,
   FiLock,
   FiMail,
@@ -71,6 +72,12 @@ const Settings = () => {
   const [saving, setSaving] = useState(false);
   const [socialLoading, setSocialLoading] = useState(false);
   const [socialSaving, setSocialSaving] = useState(false);
+  const [notificationLoading, setNotificationLoading] = useState(false);
+  const [notificationSaving, setNotificationSaving] = useState(false);
+  const [notificationSettings, setNotificationSettings] = useState({
+    inApp: true,
+    email: true,
+  });
   const [socialErrors, setSocialErrors] = useState({});
   const [socialLinks, setSocialLinks] = useState(emptySocialSettings);
   const [savedSocialLinks, setSavedSocialLinks] = useState(emptySocialSettings);
@@ -86,29 +93,43 @@ const Settings = () => {
   useEffect(() => {
     let mounted = true;
 
-    const fetchSocialSettings = async () => {
+    const fetchSettings = async () => {
       setSocialLoading(true);
+      setNotificationLoading(true);
       try {
-        const res = await API.get("/admin/social-media-settings");
-        const data = { ...emptySocialSettings, ...(res.data?.data || {}) };
+        const [socialRes, notificationRes] = await Promise.all([
+          API.get("/admin/social-media-settings"),
+          API.get("/admin/notifications/settings"),
+        ]);
         if (!mounted) return;
+        const data = { ...emptySocialSettings, ...(socialRes.data?.data || {}) };
         setSocialLinks(data);
         setSavedSocialLinks(data);
-        setSocialSettingsId(res.data?.data?._id || "");
+        setSocialSettingsId(socialRes.data?.data?._id || "");
+        const notificationData = notificationRes.data?.data || {};
+        setNotificationSettings({
+          inApp:
+            notificationData.notifications?.inApp ??
+            notificationData.notificationEnabled !== false,
+          email: notificationData.notifications?.email !== false,
+        });
       } catch (error) {
         if (!mounted) return;
         setToast({
           type: "error",
           message:
             error?.response?.data?.message ||
-            "Failed to fetch social media settings",
+            "Failed to fetch settings",
         });
       } finally {
-        if (mounted) setSocialLoading(false);
+        if (mounted) {
+          setSocialLoading(false);
+          setNotificationLoading(false);
+        }
       }
     };
 
-    fetchSocialSettings();
+    fetchSettings();
 
     return () => {
       mounted = false;
@@ -218,6 +239,39 @@ const Settings = () => {
     }
   };
 
+  const handleNotificationToggle = async (key) => {
+    const nextSettings = {
+      ...notificationSettings,
+      [key]: !notificationSettings[key],
+    };
+    setNotificationSaving(true);
+    try {
+      const res = await API.put("/admin/notifications/settings", {
+        notifications: nextSettings,
+      });
+      const notificationData = res.data?.data || {};
+      setNotificationSettings({
+        inApp:
+          notificationData.notifications?.inApp ??
+          notificationData.notificationEnabled !== false,
+        email: notificationData.notifications?.email !== false,
+      });
+      setToast({
+        type: "success",
+        message: "Admin notification settings updated",
+      });
+    } catch (error) {
+      setToast({
+        type: "error",
+        message:
+          error?.response?.data?.message ||
+          "Failed to update notification settings",
+      });
+    } finally {
+      setNotificationSaving(false);
+    }
+  };
+
   const handlePasswordSubmit = async (event) => {
     event.preventDefault();
 
@@ -321,6 +375,69 @@ const Settings = () => {
         </SettingsCard>
 
         <SettingsCard
+          title="Notifications"
+          description="Control admin panel notifications and admin email alerts."
+          icon={<FiBell size={18} />}
+        >
+          <div className="flex flex-col gap-4">
+            {[
+              {
+                key: "inApp",
+                title: "Admin notification table",
+                description: "Show or hide notification activity in admin panel.",
+              },
+              {
+                key: "email",
+                title: "Mail notifications",
+                description: "Control admin notification emails. Password reset OTP emails always send.",
+              },
+            ].map((item) => (
+              <div
+                key={item.key}
+                className="flex items-center justify-between gap-4 rounded-md border border-gray-100 bg-slate-50 p-4 dark:border-gray-800 dark:bg-gray-950"
+              >
+                <div>
+                  <p className="text-sm font-bold text-gray-900 dark:text-white">
+                    {item.title}
+                  </p>
+                  <p className="text-xs text-gray-500">{item.description}</p>
+                  <p className="mt-1 text-xs font-semibold text-gray-500">
+                    Status: {notificationSettings[item.key] ? "On" : "Off"}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleNotificationToggle(item.key)}
+                  disabled={notificationLoading || notificationSaving}
+                  className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition disabled:cursor-not-allowed disabled:opacity-60 ${
+                    notificationSettings[item.key]
+                      ? "bg-[#BF9B53]"
+                      : "bg-gray-300"
+                  }`}
+                  aria-pressed={notificationSettings[item.key]}
+                  aria-label={`Toggle ${item.title}`}
+                >
+                  <span
+                    className={`inline-block h-5 w-5 rounded-full bg-white shadow transition ${
+                      notificationSettings[item.key]
+                        ? "translate-x-6"
+                        : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </div>
+            ))}
+            <a
+              href="/notifications"
+              className="inline-flex w-fit items-center gap-2 rounded-md border border-[#BF9B53]/30 px-4 py-2 text-sm font-bold text-[#997C42] transition hover:bg-[#BF9B53]/10 dark:text-[#E8D7AD]"
+            >
+              <FiBell />
+              View Notifications
+            </a>
+          </div>
+        </SettingsCard>
+
+        <SettingsCard
           title="Security"
           description="Update your admin password. Keep it unique and private."
           icon={<FiLock size={18} />}
@@ -373,9 +490,9 @@ const Settings = () => {
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {[
               ["Platform Settings", "/platform-settings", FiCheckCircle],
-              ["Stripe Payments", "/stripe-payments", FiCheckCircle],
               ["Legal Content", "/privacy-policy", FiCheckCircle],
               ["Newsletter", "/newsletter-subscribers", FiMail],
+              ["Notifications", "/notifications", FiBell],
             ].map(([label, href, Icon]) => (
               <a
                 key={label}
