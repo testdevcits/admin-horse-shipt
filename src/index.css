@@ -116,6 +116,63 @@ body {
   border: none;
 }
 
+/* ===============================
+   LEGAL RICH TEXT EDITOR
+================================= */
+.legal-rich-editor {
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+}
+
+.legal-rich-editor .ck.ck-toolbar,
+.legal-rich-editor .ck.ck-editor__main > .ck-editor__editable {
+  border-color: #d1d5db;
+}
+
+.legal-rich-editor .ck.ck-editor__main > .ck-editor__editable {
+  min-height: 360px;
+  max-height: 58vh;
+  overflow-y: auto;
+  padding: 16px 18px;
+}
+
+.legal-rich-editor .ck-content h2,
+.legal-rich-editor .ck-content h3 {
+  font-weight: 700;
+}
+
+.legal-rich-editor .ck-content ul,
+.legal-rich-editor .ck-content ol {
+  padding-left: 24px;
+}
+
+.legal-rich-editor .ck-content p,
+.legal-rich-editor .ck-content li {
+  line-height: 1.7;
+}
+
+.dark .legal-rich-editor,
+.dark .legal-rich-editor .ck.ck-toolbar,
+.dark .legal-rich-editor .ck.ck-editor__main > .ck-editor__editable {
+  border-color: #374151;
+}
+
+.dark .legal-rich-editor .ck.ck-toolbar,
+.dark .legal-rich-editor .ck.ck-button,
+.dark .legal-rich-editor .ck.ck-dropdown__button {
+  background: #111827;
+  color: #f9fafb;
+}
+
+.dark .legal-rich-editor .ck.ck-editor__main > .ck-editor__editable {
+  background: #1f2937;
+  color: #f9fafb;
+}
+
+.dark .legal-rich-editor .ck.ck-editor__main > .ck-editor__editable.ck-focused {
+  border-color: #bf9b53;
+}
+
 
 /* ===============================
    REMOVE CRA DEFAULT STYLES

@@ -7,6 +7,7 @@ import Button from "../../components/common/Button";
 import ConfirmModal from "../../components/common/ConfirmModal";
 import Pagination from "../../components/common/Pagination";
 import Toast from "../../components/common/Toast";
+import RichTextEditor from "../../components/common/RichTextEditor";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
@@ -197,6 +198,7 @@ const TermsConditionList = () => {
         </h2>
 
         <Formik
+          enableReinitialize
           initialValues={{
             title: editingTerm?.title || "",
             content: editingTerm?.content || "",
@@ -224,7 +226,7 @@ const TermsConditionList = () => {
             }
           }}
         >
-          {({ isSubmitting }) => (
+          {({ isSubmitting, setFieldValue, values }) => (
             <Form className="space-y-4">
               <div>
                 <label className="block mb-1 dark:text-white">Title</label>
@@ -242,11 +244,10 @@ const TermsConditionList = () => {
 
               <div>
                 <label className="block mb-1 dark:text-white">Content</label>
-                <Field
-                  name="content"
-                  as="textarea"
-                  rows="6"
-                  className="w-full p-2 border rounded dark:bg-gray-800 dark:text-white"
+                <RichTextEditor
+                  value={values.content}
+                  disabled={isSubmitting}
+                  onChange={(content) => setFieldValue("content", content)}
                 />
                 <ErrorMessage
                   name="content"
