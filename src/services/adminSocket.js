@@ -2,6 +2,13 @@ import { io } from "socket.io-client";
 import { BACKEND_BASE_URL } from "../config/api";
 
 let adminSocket = null;
+const SOCKET_PATH = process.env.REACT_APP_SOCKET_PATH || "/socket.io";
+const SOCKET_TRANSPORTS = (
+  process.env.REACT_APP_SOCKET_TRANSPORTS || "polling,websocket"
+)
+  .split(",")
+  .map((item) => item.trim())
+  .filter(Boolean);
 
 export const getAdminSocket = ({ user, token } = {}) => {
   if (!token || !user) return null;
@@ -14,8 +21,8 @@ export const getAdminSocket = ({ user, token } = {}) => {
   if (!adminSocket) {
     adminSocket = io(process.env.REACT_APP_SOCKET_URL || BACKEND_BASE_URL, {
       autoConnect: false,
-      path: "/socket.io",
-      transports: ["websocket", "polling"],
+      path: SOCKET_PATH,
+      transports: SOCKET_TRANSPORTS,
       reconnection: true,
       reconnectionAttempts: Infinity,
       reconnectionDelay: 1000,
