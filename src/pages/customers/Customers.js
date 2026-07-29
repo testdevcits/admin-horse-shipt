@@ -146,7 +146,7 @@ const Customers = () => {
             setPage(1);
           }}
           placeholder="Search customers"
-          className="w-full sm:w-72 border border-gray-300 rounded-md px-3 py-2 text-sm outline-none transition focus:border-gray-300 focus:ring-0 dark:bg-gray-900 dark:text-white dark:border-gray-700 dark:focus:border-gray-700"
+          className="w-full sm:w-72 border border-gray-300 rounded-md px-3 py-2 text-sm outline-none transition focus:border-[#BF9B53] focus:ring-2 focus:ring-[#BF9B53]/15 dark:bg-gray-900 dark:text-white dark:border-gray-700 dark:focus:border-[#BF9B53] dark:focus:ring-[#BF9B53]/20"
         />
       </div>
 
