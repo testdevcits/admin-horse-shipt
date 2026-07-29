@@ -197,6 +197,7 @@ export const NewsletterAdminProvider = ({ children }) => {
         login,
         logout,
         fetchSubscribers,
+        clearSubscribersCache,
         deleteSubscriber,
         sendNewsletter,
       }}

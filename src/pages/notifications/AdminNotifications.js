@@ -4,7 +4,9 @@ import API from "../../api/axios";
 import ConfirmModal from "../../components/common/ConfirmModal";
 import Pagination from "../../components/common/Pagination";
 import Toast from "../../components/common/Toast";
+import { useAuth } from "../../context/AuthContext";
 import useDebouncedValue from "../../hooks/useDebouncedValue";
+import { getAdminSocket } from "../../services/adminSocket";
 
 const roleOptions = [
   { label: "All Roles", value: "" },
@@ -32,6 +34,7 @@ const formatDate = (value) => {
 };
 
 const AdminNotifications = () => {
+  const { user } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [summary, setSummary] = useState({ total: 0, unread: 0, enabled: true });
   const [pagination, setPagination] = useState({
@@ -92,6 +95,25 @@ const AdminNotifications = () => {
   useEffect(() => {
     loadNotifications();
   }, [loadNotifications]);
+
+  useEffect(() => {
+    const socket = getAdminSocket({
+      user,
+      token: localStorage.getItem("adminToken"),
+    });
+
+    if (!socket) return undefined;
+
+    const handleAdminNotification = () => {
+      loadNotifications();
+    };
+
+    socket.on("horse_shipt:admin_notification", handleAdminNotification);
+
+    return () => {
+      socket.off("horse_shipt:admin_notification", handleAdminNotification);
+    };
+  }, [loadNotifications, user]);
 
   const enabled = summary.enabled !== false;
   const allSelected =
