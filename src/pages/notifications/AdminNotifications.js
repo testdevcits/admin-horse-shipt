@@ -72,11 +72,16 @@ const AdminNotifications = () => {
           status,
         },
       });
-      setNotifications(Array.isArray(res.data?.data) ? res.data.data : []);
+      const list = Array.isArray(res.data?.data) ? res.data.data : [];
+      const unreadIds = list
+        .filter((notification) => !notification.read)
+        .map((notification) => notification._id);
+
+      setNotifications(list);
       setSummary(res.data?.summary || { total: 0, unread: 0, enabled: true });
       applyNotificationSnapshot({
         summary: res.data?.summary || { total: 0, unread: 0, enabled: true },
-        notifications: Array.isArray(res.data?.data) ? res.data.data : [],
+        notifications: list,
       });
       setPagination(
         res.data?.pagination || {
@@ -87,6 +92,22 @@ const AdminNotifications = () => {
         }
       );
       setSelectedIds(new Set());
+
+      if (unreadIds.length) {
+        await API.patch("/admin/notifications/read", { ids: unreadIds });
+        setNotifications((prev) =>
+          prev.map((notification) =>
+            unreadIds.includes(notification._id)
+              ? { ...notification, read: true }
+              : notification
+          )
+        );
+        setSummary((prev) => ({
+          ...prev,
+          unread: Math.max(0, (prev.unread || 0) - unreadIds.length),
+        }));
+        await refreshSummary();
+      }
     } catch (error) {
       setToast({
         type: "error",
@@ -97,7 +118,14 @@ const AdminNotifications = () => {
     } finally {
       setLoading(false);
     }
-  }, [applyNotificationSnapshot, debouncedSearch, page, role, status]);
+  }, [
+    applyNotificationSnapshot,
+    debouncedSearch,
+    page,
+    refreshSummary,
+    role,
+    status,
+  ]);
 
   useEffect(() => {
     loadNotifications();

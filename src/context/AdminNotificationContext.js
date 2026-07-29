@@ -15,7 +15,7 @@ const AdminNotificationContext = createContext(null);
 
 const defaultSummary = { total: 0, unread: 0, enabled: true };
 const notificationPollMs = Number(
-  process.env.REACT_APP_ADMIN_NOTIFICATION_POLL_MS || 15000
+  process.env.REACT_APP_ADMIN_NOTIFICATION_POLL_MS || 0
 );
 
 export const AdminNotificationProvider = ({ children }) => {
