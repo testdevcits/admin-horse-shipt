@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
-import { HiPlus, HiPencil, HiTrash } from "react-icons/hi";
+import { HiPencil, HiTrash } from "react-icons/hi";
 import { usePrivacyPolicies } from "../../context/PrivacyPolicyContext";
 import { useTheme } from "../../context/ThemeContext";
 import Button from "../../components/common/Button";
@@ -41,11 +41,6 @@ const PrivacyPolicyList = () => {
 
   const showToast = (message, type = "info") => setToast({ message, type });
 
-  const handleAdd = () => {
-    setEditingPolicy(null);
-    setModalOpen(true);
-  };
-
   const handleEdit = (policy) => {
     setEditingPolicy(policy);
     setModalOpen(true);
@@ -82,13 +77,6 @@ const PrivacyPolicyList = () => {
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
           Privacy Policy
         </h1>
-        <Button
-          onClick={handleAdd}
-          icon={<HiPlus size={18} />}
-          variant="primary"
-        >
-          Add Policy
-        </Button>
       </div>
 
       {/* TABLE */}

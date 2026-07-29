@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DataTable from "../../components/common/DataTable";
 import Button from "../../components/common/Button";
-import { FaTrash, FaEye, FaPlus } from "react-icons/fa";
+import { FaTrash, FaEye } from "react-icons/fa";
 import { useShippers } from "../../context/ShipperContext";
 import ConfirmModal from "../../components/common/ConfirmModal";
 import useDebouncedValue from "../../hooks/useDebouncedValue";
@@ -107,11 +107,8 @@ const Shippers = () => {
               setPage(1);
             }}
             placeholder="Search shippers"
-            className="min-w-0 flex-1 sm:w-72 border rounded-md px-3 py-2 text-sm dark:bg-gray-900 dark:text-white dark:border-gray-700"
+            className="min-w-0 flex-1 sm:w-72 border border-gray-300 rounded-md px-3 py-2 text-sm outline-none transition focus:border-gray-300 focus:ring-0 dark:bg-gray-900 dark:text-white dark:border-gray-700 dark:focus:border-gray-700"
           />
-          <Button icon={<FaPlus size={14} />} iconOnly title="Add shipper" disabled>
-            Add Shipper
-          </Button>
         </div>
       </div>
 

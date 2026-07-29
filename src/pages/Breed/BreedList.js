@@ -140,21 +140,12 @@ const BreedList = () => {
         <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
           Breed List
         </h1>
-        <button
-          onClick={() => {
-            setEditBreed(null);
-            setModalOpen(true);
-          }}
-          className="px-5 py-2 rounded-xl bg-system-primary text-white hover:opacity-90 transition"
-        >
-          + Add New Breed
-        </button>
       </div>
 
       {breeds.length === 0 ? (
         <NoData
           title="No Breeds Found"
-          description="There are currently no breeds added. Please add a breed to get started."
+          description="There are currently no breeds available."
         />
       ) : (
         <>

@@ -73,7 +73,7 @@ const Shipments = () => {
               setPage(1);
             }}
             placeholder="Search shipments"
-            className="border rounded-md px-3 py-2 text-sm dark:bg-gray-900 dark:text-white dark:border-gray-700"
+            className="border border-gray-300 rounded-md px-3 py-2 text-sm outline-none transition focus:border-gray-300 focus:ring-0 dark:bg-gray-900 dark:text-white dark:border-gray-700 dark:focus:border-gray-700"
           />
           <select
             value={status}
@@ -81,7 +81,7 @@ const Shipments = () => {
               setStatus(e.target.value);
               setPage(1);
             }}
-            className="border rounded-md px-3 py-2 text-sm dark:bg-gray-900 dark:text-white dark:border-gray-700"
+            className="border border-gray-300 rounded-md px-3 py-2 text-sm outline-none transition focus:border-gray-300 focus:ring-0 dark:bg-gray-900 dark:text-white dark:border-gray-700 dark:focus:border-gray-700"
           >
             <option value="">All statuses</option>
             <option value="pending">Pending</option>

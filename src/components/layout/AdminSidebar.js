@@ -194,7 +194,7 @@ const AdminSidebar = ({
                     ${
                       isActive
                         ? "bg-gray-100 dark:bg-gray-800 text-system-primary"
-                        : "text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
+                        : "text-black dark:text-white hover:bg-gray-100 hover:text-system-primary dark:hover:bg-gray-800 dark:hover:text-[#E8D7AD]"
                     }`
                   }
                 >
@@ -210,8 +210,8 @@ const AdminSidebar = ({
                 <>
                   <button
                     onClick={() => toggleDropdown(item.name)}
-                    className="w-full flex items-center gap-3 px-3 py-2 rounded
-                      text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
+                    className="w-full flex items-center gap-3 px-3 py-2 rounded transition
+                      text-black dark:text-white hover:bg-gray-100 hover:text-system-primary dark:hover:bg-gray-800 dark:hover:text-[#E8D7AD]"
                   >
                     <span className="flex h-5 w-5 shrink-0 items-center justify-center">
                       {item.icon}
@@ -235,11 +235,11 @@ const AdminSidebar = ({
                           to={sub.path}
                           onClick={() => !isDesktop && setMobileOpen(false)}
                           className={({ isActive }) =>
-                            `block px-2 py-1 rounded text-sm
+                            `block px-2 py-1 rounded text-sm transition
                             ${
                               isActive
-                                ? "bg-gray-100 dark:bg-gray-800 text-system-primary font-bold"
-                                : "text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 hover:font-bold"
+                                ? "bg-gray-100 dark:bg-gray-800 text-system-primary font-medium"
+                                : "text-black dark:text-white hover:bg-gray-100 hover:text-system-primary dark:hover:bg-gray-800 dark:hover:text-[#E8D7AD]"
                             }`
                           }
                         >

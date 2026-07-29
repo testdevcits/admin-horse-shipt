@@ -220,7 +220,7 @@ const AdminNotifications = () => {
 
       <div className="mb-5 border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_180px_180px]">
-          <div className="flex items-center gap-3 border border-gray-200 bg-slate-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
+          <div className="flex items-center gap-3 border border-gray-200 bg-slate-50 px-4 py-3 transition focus-within:border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:focus-within:border-gray-700">
             <FiSearch className="text-gray-400" size={20} />
             <input
               type="text"

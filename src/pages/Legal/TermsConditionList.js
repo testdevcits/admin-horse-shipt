@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
-import { HiPlus, HiPencil, HiTrash } from "react-icons/hi";
+import { HiPencil, HiTrash } from "react-icons/hi";
 import { useTerms } from "../../context/TermsContext";
 import { useTheme } from "../../context/ThemeContext";
 import Button from "../../components/common/Button";
@@ -41,11 +41,6 @@ const TermsConditionList = () => {
     fetchTerms(page, 10);
   }, [fetchTerms, page]);
 
-  const handleAdd = () => {
-    setEditingTerm(null);
-    setModalOpen(true);
-  };
-
   const handleEdit = (term) => {
     setEditingTerm(term);
     setModalOpen(true);
@@ -85,13 +80,6 @@ const TermsConditionList = () => {
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
           Terms & Conditions
         </h1>
-        <Button
-          onClick={handleAdd}
-          icon={<HiPlus size={18} />}
-          variant="primary"
-        >
-          Add Term
-        </Button>
       </div>
 
       {/* TABLE */}
