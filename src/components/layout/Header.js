@@ -7,6 +7,50 @@ import { Link } from "react-router-dom";
 import comingSoonImg from "../../assets/images/defultlogo.png";
 import { useAdminNotifications } from "../../context/AdminNotificationContext";
 
+const getNotificationTarget = (notification = {}) => {
+  const event = notification.event || "";
+  const type = notification.type || "";
+  const data = notification.data || {};
+
+  if (event.includes("newsletter") || type === "newsletter") {
+    return "/newsletter-subscribers";
+  }
+
+  if (data.shipmentId) {
+    return `/shipments/${data.shipmentId}`;
+  }
+
+  if (event.includes("shipment")) {
+    return "/shipments";
+  }
+
+  if (data.shipperId) {
+    return `/shippers/${data.shipperId}`;
+  }
+
+  if (event.includes("shipper")) {
+    return "/shippers";
+  }
+
+  if (data.customerId) {
+    return `/customers/${data.customerId}`;
+  }
+
+  if (event.includes("customer")) {
+    return "/customers";
+  }
+
+  if (event.includes("payment") || type.includes("payment")) {
+    return "/stripe-payments";
+  }
+
+  if (event.includes("quote") || type.includes("quote")) {
+    return "/shipments";
+  }
+
+  return "/notifications";
+};
+
 const Header = ({ sidebarOpen, setSidebarOpen, isDesktop }) => {
   const { logout, user } = useAuth();
   const { darkMode } = useTheme();
@@ -115,9 +159,11 @@ const Header = ({ sidebarOpen, setSidebarOpen, isDesktop }) => {
                   </p>
                 ) : (
                   recentNotifications.map((notification) => (
-                    <div
+                    <Link
                       key={notification._id}
-                      className="border-b border-gray-100 px-4 py-3 last:border-b-0 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
+                      to={getNotificationTarget(notification)}
+                      onClick={() => setNotificationOpen(false)}
+                      className="block border-b border-gray-100 px-4 py-3 text-left last:border-b-0 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
                     >
                       <p className="text-sm font-semibold">
                         {notification.title || "Notification"}
@@ -125,7 +171,7 @@ const Header = ({ sidebarOpen, setSidebarOpen, isDesktop }) => {
                       <p className="mt-1 line-clamp-2 text-xs text-gray-500 dark:text-gray-300">
                         {notification.message || "New update received"}
                       </p>
-                    </div>
+                    </Link>
                   ))
                 )}
               </div>
