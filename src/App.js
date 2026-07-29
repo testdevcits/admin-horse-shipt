@@ -14,6 +14,7 @@ import { PrivacyPolicyProvider } from "./context/PrivacyPolicyContext";
 
 // Newsletter Admin context
 import { NewsletterAdminProvider } from "./context/NewsletterAdminContext";
+import { AdminNotificationProvider } from "./context/AdminNotificationContext";
 import AdminRealtimeBridge from "./components/realtime/AdminRealtimeBridge";
 
 import AppRoutes from "./routes/AppRoutes";
@@ -32,8 +33,10 @@ function App() {
                       <TermsProvider>
                         <PrivacyPolicyProvider>
                           <NewsletterAdminProvider>
-                            <AdminRealtimeBridge />
-                            <AppRoutes />
+                            <AdminNotificationProvider>
+                              <AdminRealtimeBridge />
+                              <AppRoutes />
+                            </AdminNotificationProvider>
                           </NewsletterAdminProvider>
                         </PrivacyPolicyProvider>
                       </TermsProvider>

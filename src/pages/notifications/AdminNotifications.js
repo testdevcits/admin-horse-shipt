@@ -4,9 +4,8 @@ import API from "../../api/axios";
 import ConfirmModal from "../../components/common/ConfirmModal";
 import Pagination from "../../components/common/Pagination";
 import Toast from "../../components/common/Toast";
-import { useAuth } from "../../context/AuthContext";
+import { useAdminNotifications } from "../../context/AdminNotificationContext";
 import useDebouncedValue from "../../hooks/useDebouncedValue";
-import { getAdminSocket } from "../../services/adminSocket";
 
 const roleOptions = [
   { label: "All Roles", value: "" },
@@ -34,7 +33,11 @@ const formatDate = (value) => {
 };
 
 const AdminNotifications = () => {
-  const { user } = useAuth();
+  const {
+    refreshVersion,
+    refreshSummary,
+    applyNotificationSnapshot,
+  } = useAdminNotifications();
   const [notifications, setNotifications] = useState([]);
   const [summary, setSummary] = useState({ total: 0, unread: 0, enabled: true });
   const [pagination, setPagination] = useState({
@@ -71,6 +74,10 @@ const AdminNotifications = () => {
       });
       setNotifications(Array.isArray(res.data?.data) ? res.data.data : []);
       setSummary(res.data?.summary || { total: 0, unread: 0, enabled: true });
+      applyNotificationSnapshot({
+        summary: res.data?.summary || { total: 0, unread: 0, enabled: true },
+        notifications: Array.isArray(res.data?.data) ? res.data.data : [],
+      });
       setPagination(
         res.data?.pagination || {
           page,
@@ -90,30 +97,17 @@ const AdminNotifications = () => {
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearch, page, role, status]);
+  }, [applyNotificationSnapshot, debouncedSearch, page, role, status]);
 
   useEffect(() => {
     loadNotifications();
   }, [loadNotifications]);
 
   useEffect(() => {
-    const socket = getAdminSocket({
-      user,
-      token: localStorage.getItem("adminToken"),
-    });
-
-    if (!socket) return undefined;
-
-    const handleAdminNotification = () => {
+    if (refreshVersion > 0) {
       loadNotifications();
-    };
-
-    socket.on("horse_shipt:admin_notification", handleAdminNotification);
-
-    return () => {
-      socket.off("horse_shipt:admin_notification", handleAdminNotification);
-    };
-  }, [loadNotifications, user]);
+    }
+  }, [loadNotifications, refreshVersion]);
 
   const enabled = summary.enabled !== false;
   const allSelected =
@@ -162,6 +156,7 @@ const AdminNotifications = () => {
       });
       setDeleteConfirm({ open: false, ids: [] });
       await loadNotifications();
+      await refreshSummary();
     } catch (error) {
       setToast({
         type: "error",
