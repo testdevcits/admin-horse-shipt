@@ -1,15 +1,18 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import toast from "react-hot-toast";
 import { NewsletterAdminContext } from "../../context/NewsletterAdminContext";
-import { useAuth } from "../../context/AuthContext";
 import { FiTrash2, FiMail, FiSearch, FiX } from "react-icons/fi";
 import { AiOutlineCheckCircle, AiOutlineCloseCircle } from "react-icons/ai";
 import Pagination from "../../components/common/Pagination";
 import useDebouncedValue from "../../hooks/useDebouncedValue";
-import { getAdminSocket } from "../../services/adminSocket";
 
 const NewsletterSubscribers = () => {
-  const { user } = useAuth();
   const context = useContext(NewsletterAdminContext);
 
   if (!context) {
@@ -22,10 +25,11 @@ const NewsletterSubscribers = () => {
     fetchSubscribers,
     deleteSubscriber,
     sendNewsletter,
-    clearSubscribersCache,
     loading,
     pagination,
     summary,
+    newsletterRefreshVersion,
+    latestNewsletterUpdate,
   } = context;
 
   // State management
@@ -39,6 +43,7 @@ const NewsletterSubscribers = () => {
   const [isLoadingSubscribers, setIsLoadingSubscribers] = useState(true);
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [selectAll, setSelectAll] = useState(false);
+  const handledRefreshVersionRef = useRef(newsletterRefreshVersion);
 
   // Confirmation modal state
   const [confirmModal, setConfirmModal] = useState({
@@ -87,28 +92,17 @@ const NewsletterSubscribers = () => {
   }, [loadSubscribers]);
 
   useEffect(() => {
-    const socket = getAdminSocket({
-      user,
-      token: localStorage.getItem("adminToken"),
-    });
-
-    if (!socket) return undefined;
-
-    const handleNewsletterUpdate = (payload) => {
-      clearSubscribersCache();
+    if (newsletterRefreshVersion > handledRefreshVersionRef.current) {
+      handledRefreshVersionRef.current = newsletterRefreshVersion;
       loadSubscribers();
-
-      if (payload?.action === "subscribed" || payload?.action === "verified") {
+      if (
+        latestNewsletterUpdate?.action === "subscribed" ||
+        latestNewsletterUpdate?.action === "verified"
+      ) {
         toast.success("Newsletter list updated");
       }
-    };
-
-    socket.on("horse_shipt:newsletter_updated", handleNewsletterUpdate);
-
-    return () => {
-      socket.off("horse_shipt:newsletter_updated", handleNewsletterUpdate);
-    };
-  }, [clearSubscribersCache, loadSubscribers, user]);
+    }
+  }, [latestNewsletterUpdate, loadSubscribers, newsletterRefreshVersion]);
 
   // Handle individual checkbox
   const handleCheckboxChange = (id) => {

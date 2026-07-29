@@ -6,15 +6,20 @@ import React, {
   useState,
 } from "react";
 import axios from "../api/axios"; // your Axios instance
+import { useAuth } from "./AuthContext";
+import { getAdminSocket } from "../services/adminSocket";
 
 // Create context
 export const NewsletterAdminContext = createContext();
 
 // Provider component
 export const NewsletterAdminProvider = ({ children }) => {
+  const { user } = useAuth();
   const [admin, setAdmin] = useState(null); // {id, role}
   const [token, setToken] = useState(localStorage.getItem("adminToken") || "");
   const [loading, setLoading] = useState(false);
+  const [newsletterRefreshVersion, setNewsletterRefreshVersion] = useState(0);
+  const [latestNewsletterUpdate, setLatestNewsletterUpdate] = useState(null);
   const [subscribers, setSubscribers] = useState([]);
   const [pagination, setPagination] = useState({
     page: 1,
@@ -58,6 +63,27 @@ export const NewsletterAdminProvider = ({ children }) => {
     cacheRef.current.clear();
     inFlightRef.current.clear();
   }, []);
+
+  useEffect(() => {
+    const socket = getAdminSocket({
+      user,
+      token: localStorage.getItem("adminToken"),
+    });
+
+    if (!socket) return undefined;
+
+    const handleNewsletterUpdate = (payload) => {
+      clearSubscribersCache();
+      setLatestNewsletterUpdate(payload || null);
+      setNewsletterRefreshVersion((version) => version + 1);
+    };
+
+    socket.on("horse_shipt:newsletter_updated", handleNewsletterUpdate);
+
+    return () => {
+      socket.off("horse_shipt:newsletter_updated", handleNewsletterUpdate);
+    };
+  }, [clearSubscribersCache, user]);
 
   const fetchSubscribers = useCallback(async (filters = {}) => {
     const params = {
@@ -191,6 +217,8 @@ export const NewsletterAdminProvider = ({ children }) => {
         admin,
         token,
         loading,
+        newsletterRefreshVersion,
+        latestNewsletterUpdate,
         subscribers,
         pagination,
         summary,
