@@ -1,5 +1,5 @@
 import { io } from "socket.io-client";
-import { BACKEND_BASE_URL } from "../config/api";
+import { SOCKET_BASE_URL } from "../config/api";
 
 let adminSocket = null;
 const SOCKET_PATH = process.env.REACT_APP_SOCKET_PATH || "/socket.io";
@@ -19,7 +19,7 @@ export const getAdminSocket = ({ user, token } = {}) => {
   if (!userId) return null;
 
   if (!adminSocket) {
-    adminSocket = io(process.env.REACT_APP_SOCKET_URL || BACKEND_BASE_URL, {
+    adminSocket = io(SOCKET_BASE_URL, {
       autoConnect: false,
       path: SOCKET_PATH,
       transports: SOCKET_TRANSPORTS,
