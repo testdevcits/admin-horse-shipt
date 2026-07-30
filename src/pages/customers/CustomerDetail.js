@@ -8,6 +8,26 @@ import { FaEye } from "react-icons/fa";
 
 const formatDate = (value) => (value ? new Date(value).toLocaleString() : "N/A");
 
+const formatMoney = (value = 0, currency = "USD") =>
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency || "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Number(value) || 0);
+
+const getShipperPayoutAmount = (row) => {
+  const storedPayout = Number(row.shipperPayoutAmount || 0);
+  if (storedPayout > 0) return storedPayout;
+
+  return Math.max(
+    Number(row.totalPrice || 0) -
+      Number(row.stripeFee || 0) -
+      Number(row.platformFee || 0),
+    0
+  );
+};
+
 const CustomerDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -212,6 +232,12 @@ const CustomerDetail = () => {
           </h3>
           <DataTable
             columns={[
+              {
+                key: "shipment",
+                label: "Shipment",
+                render: (row) =>
+                  row.shipment?.shipmentCode || row.shipment?._id || "N/A",
+              },
               { key: "contractId", label: "Contract" },
               {
                 key: "shipper",
@@ -220,10 +246,43 @@ const CustomerDetail = () => {
               },
               {
                 key: "totalPrice",
-                label: "Total",
-                render: (row) => `$${Number(row.totalPrice || 0).toFixed(2)}`,
+                label: "Customer Paid",
+                render: (row) => formatMoney(row.totalPrice, row.currency || "USD"),
+              },
+              {
+                key: "stripeFee",
+                label: "Stripe Fee",
+                render: (row) =>
+                  Number(row.stripeFee || 0) > 0
+                    ? formatMoney(row.stripeFee, row.payoutCurrency || row.currency || "USD")
+                    : "N/A",
+              },
+              {
+                key: "platformFee",
+                label: "Platform Fee",
+                render: (row) => formatMoney(row.platformFee, row.currency || "USD"),
+              },
+              {
+                key: "shipperPayoutAmount",
+                label: "Shipper Payout",
+                render: (row) =>
+                  formatMoney(
+                    getShipperPayoutAmount(row),
+                    row.payoutCurrency || row.currency || "USD"
+                  ),
               },
               { key: "paymentStatus", label: "Payment" },
+              { key: "payoutStatus", label: "Payout" },
+              {
+                key: "paidAt",
+                label: "Paid At",
+                render: (row) => formatDate(row.paidAt || row.updatedAt),
+              },
+              {
+                key: "stripePaymentIntentId",
+                label: "Payment Intent",
+                render: (row) => row.stripePaymentIntentId || "N/A",
+              },
             ]}
             data={quotes}
             currentPage={tablePagination.quotes?.page || quotePage}
@@ -234,6 +293,23 @@ const CustomerDetail = () => {
               0
             }
             onPageChange={setQuotePage}
+            actions={[
+              {
+                render: (row) =>
+                  row.shipment?._id ? (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      icon={<FaEye size={12} />}
+                      iconOnly
+                      title="View shipment"
+                      onClick={() => navigate(`/shipments/${row.shipment._id}`)}
+                    >
+                      View
+                    </Button>
+                  ) : null,
+              },
+            ]}
           />
         </div>
       </div>
