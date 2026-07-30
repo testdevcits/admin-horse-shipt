@@ -6,6 +6,28 @@ import DataTable from "../../components/common/DataTable";
 import Pagination from "../../components/common/Pagination";
 import { FaEye } from "react-icons/fa";
 
+const formatMoney = (value = 0, currency = "USD") =>
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency || "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(Number(value) || 0);
+
+const formatDate = (value) => (value ? new Date(value).toLocaleString() : "N/A");
+
+const getShipperPayoutAmount = (row) => {
+  const storedPayout = Number(row.shipperPayoutAmount || 0);
+  if (storedPayout > 0) return storedPayout;
+
+  return Math.max(
+    Number(row.totalPrice || 0) -
+      Number(row.stripeFee || 0) -
+      Number(row.platformFee || 0),
+    0
+  );
+};
+
 const ShipperDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -19,6 +41,7 @@ const ShipperDetail = () => {
   const [shipmentPage, setShipmentPage] = useState(1);
   const [vehiclePage, setVehiclePage] = useState(1);
   const [driverPage, setDriverPage] = useState(1);
+  const [payoutPage, setPayoutPage] = useState(1);
   const loginPerPage = 5;
 
   useEffect(() => {
@@ -30,13 +53,15 @@ const ShipperDetail = () => {
         vehicleLimit: 5,
         driverPage,
         driverLimit: 5,
+        payoutPage,
+        payoutLimit: 5,
       });
       setShipper(data?.shipper || data);
       setShipperData(data || {});
       setTablePagination(data?.pagination || {});
     };
     fetchShipper();
-  }, [driverPage, getShipperById, id, shipmentPage, vehiclePage]);
+  }, [driverPage, getShipperById, id, payoutPage, shipmentPage, vehiclePage]);
 
   if (loading || !shipper) {
     return <div className="text-center py-10">Loading...</div>;
@@ -69,6 +94,73 @@ const ShipperDetail = () => {
       label: "Created",
       render: (row) =>
         row.createdAt ? new Date(row.createdAt).toLocaleDateString() : "N/A",
+    },
+  ];
+  const payoutSummary = shipperData.payoutSummary || {};
+  const payoutColumns = [
+    {
+      key: "shipment",
+      label: "Shipment",
+      render: (row) =>
+        row.shipment?.shipmentCode || row.shipment?._id || row.shipment || "N/A",
+    },
+    {
+      key: "customer",
+      label: "Customer",
+      render: (row) =>
+        row.shipment?.customer?.name || row.shipment?.customer?.email || "N/A",
+    },
+    {
+      key: "totalPrice",
+      label: "Customer Paid",
+      render: (row) => formatMoney(row.totalPrice, row.currency || "USD"),
+    },
+    {
+      key: "stripeFee",
+      label: "Stripe Fee",
+      render: (row) =>
+        row.stripeFee
+          ? formatMoney(row.stripeFee, row.payoutCurrency || row.currency || "USD")
+          : "N/A",
+    },
+    {
+      key: "platformFee",
+      label: "Platform Fee",
+      render: (row) => formatMoney(row.platformFee, row.currency || "USD"),
+    },
+    {
+      key: "shipperPayoutAmount",
+      label: "Shipper Payout",
+      render: (row) =>
+        formatMoney(
+          getShipperPayoutAmount(row),
+          row.payoutCurrency || row.currency || "USD"
+        ),
+    },
+    {
+      key: "payoutStatus",
+      label: "Payout Status",
+      render: (row) => (
+        <span
+          className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
+            row.payoutStatus === "transferred"
+              ? "bg-green-100 text-green-700"
+              : "bg-amber-100 text-amber-700"
+          }`}
+        >
+          {row.payoutStatus || "pending"}
+        </span>
+      ),
+    },
+    {
+      key: "paymentReleasedAt",
+      label: "Released At",
+      render: (row) => formatDate(row.paymentReleasedAt),
+    },
+    {
+      key: "stripeTransferId",
+      label: "Transfer ID",
+      render: (row) => row.stripeTransferId || row.payoutError || "N/A",
     },
   ];
 
@@ -179,66 +271,82 @@ const ShipperDetail = () => {
         </div>
       </div>
 
-      {/* Login History */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
-          Login History
-        </h3>
+        <div className="mb-4 flex flex-col gap-1">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+            Payout Details
+          </h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Completed paid shipments and the payout amount sent to this shipper.
+          </p>
+        </div>
 
-        {shipper.loginHistory && shipper.loginHistory.length > 0 ? (
-          <>
-            <div className="border-b border-gray-200 bg-slate-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
-              <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-                Total login history:{" "}
-                <span className="text-[#BF9B53]">
-                  {shipper.loginHistory.length}
-                </span>
+        <div className="mb-4 grid gap-3 md:grid-cols-4">
+          {[
+            {
+              label: "Completed Paid Shipments",
+              value: payoutSummary.totalShipments || 0,
+            },
+            {
+              label: "Transferred",
+              value: payoutSummary.transferredShipments || 0,
+            },
+            {
+              label: "Platform Fees",
+              value: formatMoney(payoutSummary.platformFees || 0),
+            },
+            {
+              label: "Shipper Payouts",
+              value: formatMoney(payoutSummary.shipperPayouts || 0),
+            },
+          ].map((item) => (
+            <div
+              key={item.label}
+              className="border border-gray-100 bg-slate-50 p-4 dark:border-gray-700 dark:bg-gray-900"
+            >
+              <p className="text-xs font-semibold text-gray-500">
+                {item.label}
+              </p>
+              <p className="mt-2 text-lg font-bold text-gray-900 dark:text-white">
+                {item.value}
               </p>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm border rounded">
-                <thead>
-                  <tr className="bg-gray-100 dark:bg-gray-700 text-left">
-                    <th className="p-2 border">#</th>
-                    <th className="p-2 border">Date</th>
-                    <th className="p-2 border">Time</th>
-                  </tr>
-                </thead>
+          ))}
+        </div>
 
-                <tbody>
-                  {paginatedLoginHistory.map((login, index) => {
-                    const date = new Date(login.loginAt);
-
-                    return (
-                      <tr key={login._id} className="border-t">
-                        <td className="p-2 border">
-                          {(loginPage - 1) * loginPerPage + index + 1}
-                        </td>
-
-                        <td className="p-2 border">
-                          {date.toLocaleDateString("en-IN")}
-                        </td>
-
-                        <td className="p-2 border">
-                          {date.toLocaleTimeString("en-IN")}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            <Pagination
-              currentPage={loginPage}
-              totalPages={totalLoginPages || 1}
-              onPageChange={setLoginPage}
-            />
-          </>
-        ) : (
-          <p className="text-sm text-gray-500">No login history available.</p>
-        )}
+        <DataTable
+          columns={payoutColumns}
+          data={shipperData.payoutHistory || []}
+          currentPage={tablePagination.payoutHistory?.page || payoutPage}
+          totalPages={tablePagination.payoutHistory?.totalPages || 1}
+          totalRecords={
+            tablePagination.payoutHistory?.totalRecords ||
+            tablePagination.payoutHistory?.total ||
+            0
+          }
+          totalLabel="Total payout records"
+          onPageChange={setPayoutPage}
+          actions={[
+            {
+              render: (row) =>
+                row.shipment?._id ? (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    icon={<FaEye size={12} />}
+                    iconOnly
+                    title="View shipment"
+                    onClick={() => navigate(`/shipments/${row.shipment._id}`)}
+                  >
+                    View
+                  </Button>
+                ) : null,
+            },
+          ]}
+        />
       </div>
+
+
 
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
@@ -320,6 +428,67 @@ const ShipperDetail = () => {
             onPageChange={setDriverPage}
           />
         </div>
+      </div>
+
+            {/* Login History */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
+          Login History
+        </h3>
+
+        {shipper.loginHistory && shipper.loginHistory.length > 0 ? (
+          <>
+            <div className="border-b border-gray-200 bg-slate-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
+              <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                Total login history:{" "}
+                <span className="text-[#BF9B53]">
+                  {shipper.loginHistory.length}
+                </span>
+              </p>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm border rounded">
+                <thead>
+                  <tr className="bg-gray-100 dark:bg-gray-700 text-left">
+                    <th className="p-2 border">#</th>
+                    <th className="p-2 border">Date</th>
+                    <th className="p-2 border">Time</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {paginatedLoginHistory.map((login, index) => {
+                    const date = new Date(login.loginAt);
+
+                    return (
+                      <tr key={login._id} className="border-t">
+                        <td className="p-2 border">
+                          {(loginPage - 1) * loginPerPage + index + 1}
+                        </td>
+
+                        <td className="p-2 border">
+                          {date.toLocaleDateString("en-IN")}
+                        </td>
+
+                        <td className="p-2 border">
+                          {date.toLocaleTimeString("en-IN")}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <Pagination
+              currentPage={loginPage}
+              totalPages={totalLoginPages || 1}
+              onPageChange={setLoginPage}
+            />
+          </>
+        ) : (
+          <p className="text-sm text-gray-500">No login history available.</p>
+        )}
       </div>
     </div>
   );

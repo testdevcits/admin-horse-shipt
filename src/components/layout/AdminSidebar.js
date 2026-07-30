@@ -23,7 +23,12 @@ import comingSoonImg from "../../assets/images/defultlogo.png";
 
 // inside navItems array
 const navItems = [
-  { name: "Dashboard", path: "/dashboard", icon: <Home size={20} /> },
+  {
+    name: "Dashboard",
+    path: "/dashboard",
+    icon: <Home size={20} />,
+    highlight: true,
+  },
 
   {
     name: "Shippers",
@@ -184,8 +189,42 @@ const AdminSidebar = ({
         <nav className="flex-1 overflow-y-auto p-2 space-y-1 app-sidebar-scrollbar">
           {navItems.map((item) => (
             <div key={item.name}>
-              {/* 🔹 NORMAL LINK */}
-              {!item.subPaths && (
+              {/* Highlighted dashboard link */}
+              {item.highlight && (
+                <NavLink
+                  to={item.path}
+                  onClick={() => !isDesktop && setMobileOpen(false)}
+                  className={({ isActive }) =>
+                    `relative flex items-center gap-3 overflow-hidden rounded-lg border px-2 py-2 transition
+                    ${
+                      sidebarOpen ? "mb-3" : "mb-2 justify-center px-2"
+                    }
+                    ${
+                      isActive
+                        ? "border-system-primary/30 bg-system-primary/10 text-system-primary shadow-sm dark:border-[#E8D7AD]/30 dark:bg-[#E8D7AD]/10 dark:text-[#E8D7AD]"
+                        : "border-gray-200 bg-gray-50 text-gray-900 hover:border-system-primary/30 hover:bg-system-primary/10 hover:text-system-primary dark:border-gray-700 dark:bg-gray-800/70 dark:text-white dark:hover:border-[#E8D7AD]/30 dark:hover:bg-[#E8D7AD]/10 dark:hover:text-[#E8D7AD]"
+                    }`
+                  }
+                >
+                  <span className="absolute inset-y-2 left-0 w-1 rounded-r-full bg-system-primary dark:bg-[#E8D7AD]" />
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white shadow-sm dark:bg-gray-900">
+                    {item.icon}
+                  </span>
+                  {sidebarOpen && (
+                    <span className="flex min-w-0 flex-col">
+                      <span className="text-sm font-semibold leading-5">
+                        {item.name}
+                      </span>
+                      <span className="text-xs leading-4 text-gray-500 dark:text-gray-400">
+                        Admin overview
+                      </span>
+                    </span>
+                  )}
+                </NavLink>
+              )}
+
+              {/* Normal link */}
+              {!item.highlight && !item.subPaths && (
                 <NavLink
                   to={item.path}
                   onClick={() => !isDesktop && setMobileOpen(false)}
@@ -205,7 +244,7 @@ const AdminSidebar = ({
                 </NavLink>
               )}
 
-              {/* 🔹 DROPDOWN */}
+              {/* Dropdown */}
               {item.subPaths && (
                 <>
                   <button
@@ -213,7 +252,7 @@ const AdminSidebar = ({
                     className="w-full flex items-center gap-3 px-3 py-2 rounded transition
                       text-black dark:text-white hover:bg-gray-100 hover:text-system-primary dark:hover:bg-gray-800 dark:hover:text-[#E8D7AD]"
                   >
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center">
+                    <span className="flex h-4 w-4 shrink-0 items-center justify-center">
                       {item.icon}
                     </span>
                     {sidebarOpen && (
@@ -238,8 +277,8 @@ const AdminSidebar = ({
                             `block px-2 py-1 rounded text-sm transition
                             ${
                               isActive
-                                ? "bg-gray-100 dark:bg-gray-800 text-system-primary font-medium"
-                                : "text-black dark:text-white hover:bg-gray-100 hover:text-system-primary dark:hover:bg-gray-800 dark:hover:text-[#E8D7AD]"
+                                ? "bg-gray-100 dark:bg-gray-800 text-system-primary font-medium ml-2"
+                                : "text-black dark:text-white hover:bg-gray-100 hover:text-system-primary dark:hover:bg-gray-800 dark:hover:text-[#E8D7AD] ml-2"
                             }`
                           }
                         >

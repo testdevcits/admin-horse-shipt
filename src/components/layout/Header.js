@@ -51,6 +51,36 @@ const getNotificationTarget = (notification = {}) => {
   return "/notifications";
 };
 
+const formatNotificationTime = (value) => {
+  if (!value) return "";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+
+  const diffMs = Date.now() - date.getTime();
+  if (diffMs < 0) return "Just now";
+
+  const minuteMs = 60 * 1000;
+  const hourMs = 60 * minuteMs;
+  const dayMs = 24 * hourMs;
+
+  if (diffMs < minuteMs) return "Just now";
+  if (diffMs < hourMs) {
+    const minutes = Math.floor(diffMs / minuteMs);
+    return `${minutes} min ago`;
+  }
+  if (diffMs < dayMs) {
+    const hours = Math.floor(diffMs / hourMs);
+    return `${hours} hr ago`;
+  }
+
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
+
 const Header = ({ sidebarOpen, setSidebarOpen, isDesktop }) => {
   const { logout, user } = useAuth();
   const { darkMode } = useTheme();
@@ -133,7 +163,7 @@ const Header = ({ sidebarOpen, setSidebarOpen, isDesktop }) => {
           >
             <FiBell size={18} />
             {unreadCount > 0 && (
-              <span className="absolute -right-1 -top-1 min-w-[18px] rounded-full bg-red-600 px-1.5 py-0.5 text-center text-[10px] font-bold leading-none text-white">
+              <span className="absolute -right-1 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold leading-none text-white shadow-sm">
                 {displayCount}
               </span>
             )}
@@ -165,9 +195,14 @@ const Header = ({ sidebarOpen, setSidebarOpen, isDesktop }) => {
                       onClick={() => setNotificationOpen(false)}
                       className="block border-b border-gray-100 px-4 py-3 text-left last:border-b-0 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
                     >
-                      <p className="text-sm font-semibold">
-                        {notification.title || "Notification"}
-                      </p>
+                      <div className="flex items-start justify-between gap-3">
+                        <p className="min-w-0 flex-1 truncate text-sm font-semibold">
+                          {notification.title || "Notification"}
+                        </p>
+                        <span className="shrink-0 text-[10px] font-semibold text-gray-400">
+                          {formatNotificationTime(notification.createdAt)}
+                        </span>
+                      </div>
                       <p className="mt-1 line-clamp-2 text-xs text-gray-500 dark:text-gray-300">
                         {notification.message || "New update received"}
                       </p>

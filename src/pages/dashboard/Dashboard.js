@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Area,
   AreaChart,
@@ -95,6 +95,72 @@ const formatRangeLabel = (rangeValue) =>
   rangeValue.startDate && rangeValue.endDate
     ? `${rangeValue.startDate} - ${rangeValue.endDate}`
     : "Select Date Range";
+
+const getPresetDateWindow = (range) => {
+  const end = new Date();
+  const start = new Date(end);
+
+  if (range === "day") {
+    start.setHours(0, 0, 0, 0);
+  } else if (range === "week") {
+    start.setDate(end.getDate() - 7);
+  } else {
+    start.setMonth(end.getMonth() - 1);
+  }
+
+  return { start, end };
+};
+
+const formatChartDate = (date) =>
+  date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+
+const buildStripeChartData = (items = [], dateRange, range) => {
+  const customStart = parseDateKey(dateRange.startDate);
+  const customEnd = parseDateKey(dateRange.endDate);
+  const hasCustomRange = Boolean(customStart && customEnd);
+  const { start, end } = hasCustomRange
+    ? { start: customStart, end: customEnd }
+    : getPresetDateWindow(range);
+
+  start.setHours(0, 0, 0, 0);
+  end.setHours(23, 59, 59, 999);
+
+  const buckets = new Map();
+  const cursor = new Date(start);
+  const maxDays = 92;
+  let dayCount = 0;
+
+  while (cursor <= end && dayCount < maxDays) {
+    const key = toDateKey(cursor);
+    buckets.set(key, {
+      date: formatChartDate(cursor),
+      paid: 0,
+      stripeFee: 0,
+      platformFee: 0,
+    });
+    cursor.setDate(cursor.getDate() + 1);
+    dayCount += 1;
+  }
+
+  items.forEach((item) => {
+    const createdDate = item.created ? new Date(item.created) : null;
+    if (!createdDate || Number.isNaN(createdDate.getTime())) return;
+    if (createdDate < start || createdDate > end) return;
+
+    const key = toDateKey(createdDate);
+    const bucket = buckets.get(key);
+    if (!bucket) return;
+
+    bucket.paid += Number(item.amount || 0);
+    bucket.stripeFee += Number(item.fee || 0);
+    bucket.platformFee += Number(item.platformFee || 0);
+  });
+
+  return Array.from(buckets.values());
+};
 
 const DashboardSkeleton = () => (
   <div className="min-h-screen bg-slate-100 dark:bg-gray-950 -m-4 sm:-m-6 p-4 sm:p-6 font-montserrat">
@@ -207,6 +273,7 @@ const Dashboard = () => {
   });
   const [calendarMonth, setCalendarMonth] = useState(() => new Date());
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const calendarRef = useRef(null);
   const [pendingPage, setPendingPage] = useState(1);
   const pendingPageSize = 5;
   const {
@@ -245,7 +312,7 @@ const Dashboard = () => {
           fetchStripeTransactions(stripeRange, {
             ...filterParams,
             page: 1,
-            limit: 10,
+            limit: 100,
           }),
         ]);
 
@@ -327,16 +394,10 @@ const Dashboard = () => {
       note: "Not available for transfer",
     },
   ];
-  const stripeChartData = (transactions || [])
-    .map((item) => ({
-      date: item.created ? new Date(item.created).toLocaleDateString() : "N/A",
-      paid: Number(item.amount || 0),
-      stripeFee: Number(item.fee || 0),
-      platformFee: Number(item.platformFee || 0),
-      rawDate: item.created ? new Date(item.created) : new Date(0),
-    }))
-    .sort((a, b) => a.rawDate - b.rawDate)
-    .map(({ rawDate, ...item }) => item);
+  const stripeChartData = useMemo(
+    () => buildStripeChartData(transactions, dateRange, range),
+    [dateRange, range, transactions]
+  );
   const recentPlatformFees =
     transferAvailability?.recentCompletedShipmentFees || [];
   const refreshStripeSummary = async () => {
@@ -348,7 +409,7 @@ const Dashboard = () => {
         fetchStripeTransactions(stripeRange, {
           ...filterParams,
           page: 1,
-          limit: 10,
+          limit: 100,
         }),
       ]);
     } finally {
@@ -373,6 +434,23 @@ const Dashboard = () => {
     setCalendarOpen(false);
     setDraftDateRange(dateRange);
   };
+
+  useEffect(() => {
+    if (!calendarOpen) return;
+
+    const handleClickOutside = (event) => {
+      if (
+        calendarRef.current &&
+        !calendarRef.current.contains(event.target)
+      ) {
+        setCalendarOpen(false);
+        setDraftDateRange(dateRange);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [calendarOpen, dateRange]);
 
   const moveCalendarMonth = (direction) => {
     setCalendarMonth((current) => {
@@ -446,9 +524,9 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-gray-950 -m-4 sm:-m-6 p-4 sm:p-6 font-montserrat">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <h1 className="text-base font-bold text-[#17184b] dark:text-white">
+        <p className="text-xs font-bold uppercase tracking-widest text-[#BF9B53]">
           Dashboard
-        </h1>
+        </p>
 
         <div className="flex flex-wrap items-center gap-2 self-start sm:justify-end sm:self-auto">
           <div className="flex items-center gap-1 rounded-sm border border-gray-100 bg-white p-1 dark:border-gray-700 dark:bg-gray-800">
@@ -467,7 +545,7 @@ const Dashboard = () => {
             ))}
           </div>
 
-          <div className="relative">
+          <div ref={calendarRef} className="relative">
             <button
               onClick={openCalendar}
               className={`inline-flex h-10 min-w-[220px] items-center justify-between gap-3 rounded-sm border px-3 text-xs font-semibold transition ${
