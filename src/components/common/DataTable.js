@@ -12,6 +12,8 @@ const DataTable = ({
   totalLabel = "Total records",
   onPageChange,
   loading = false,
+  tableMinWidth = "760px",
+  noWrap = false,
 }) => {
   const resolvedTotalRecords =
     totalRecords === undefined || totalRecords === null
@@ -19,7 +21,7 @@ const DataTable = ({
       : totalRecords;
 
   return (
-    <div className="bg-white dark:bg-gray-900 shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
+    <div className="max-w-full overflow-hidden bg-white dark:bg-gray-900 shadow-sm border border-gray-200 dark:border-gray-800">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 bg-slate-50 px-4 py-3 dark:border-gray-800 dark:bg-gray-900">
         <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
           {totalLabel}:{" "}
@@ -28,20 +30,29 @@ const DataTable = ({
       </div>
 
       {/* ================= DESKTOP TABLE ================= */}
-      <div className="hidden md:block overflow-x-auto">
-        <table className="w-full min-w-[760px] border-collapse">
+      <div className="customscroll hidden max-w-full md:block overflow-x-scroll">
+        <table
+          className="w-full border-collapse"
+          style={{ minWidth: tableMinWidth }}
+        >
           <thead className="bg-slate-50 dark:bg-gray-800">
             <tr>
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700"
+                  className={`px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 ${
+                    noWrap ? "whitespace-nowrap" : ""
+                  }`}
                 >
                   {col.label}
                 </th>
               ))}
               {actions.length > 0 && (
-                <th className="px-4 py-3 text-center text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
+                <th
+                  className={`px-4 py-3 text-center text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 ${
+                    noWrap ? "whitespace-nowrap" : ""
+                  }`}
+                >
                   Actions
                 </th>
               )}
@@ -72,14 +83,20 @@ const DataTable = ({
                   {columns.map((col) => (
                     <td
                       key={col.key}
-                      className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200 border-b border-gray-100 dark:border-gray-800 align-middle"
+                      className={`px-4 py-3 text-sm text-gray-700 dark:text-gray-200 border-b border-gray-100 dark:border-gray-800 align-middle ${
+                        noWrap ? "whitespace-nowrap" : ""
+                      }`}
                     >
                       {col.render ? col.render(row) : row[col.key]}
                     </td>
                   ))}
 
                   {actions.length > 0 && (
-                    <td className="px-4 py-3 text-center border-b border-gray-100 dark:border-gray-800">
+                    <td
+                      className={`px-4 py-3 text-center border-b border-gray-100 dark:border-gray-800 ${
+                        noWrap ? "whitespace-nowrap" : ""
+                      }`}
+                    >
                       <div className="flex justify-center gap-1.5">
                         {actions.map((action, i) => (
                           <div key={i}>

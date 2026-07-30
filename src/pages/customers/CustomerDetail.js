@@ -190,8 +190,8 @@ const CustomerDetail = () => {
         />
       </div>
 
-      <div className="grid xl:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+      <div className="space-y-6">
+        <div className="min-w-0 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
             Payment Settings
           </h3>
@@ -226,7 +226,7 @@ const CustomerDetail = () => {
           />
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div className="min-w-0 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
             Payment Transactions
           </h3>
@@ -293,6 +293,8 @@ const CustomerDetail = () => {
               0
             }
             onPageChange={setQuotePage}
+            tableMinWidth="1500px"
+            noWrap
             actions={[
               {
                 render: (row) =>
