@@ -252,31 +252,66 @@ export const StripeAdminProvider = ({ children }) => {
     [fetchSubscriptionProduct]
   );
 
+
+  const deactivateSubscriptionPrice = useCallback(async (priceId) => {
+  try {
+    const res = await API.patch(
+      `/admin/stripe/subscription-price/${priceId}/deactivate`
+    );
+
+    setToast({
+      type: "success",
+      message: res.data.message,
+    });
+
+    await fetchSubscriptionProduct();
+
+    return {
+      success: true,
+    };
+  } catch (err) {
+    const message =
+      err.response?.data?.message ||
+      "Failed to deactivate price.";
+
+    setToast({
+      type: "error",
+      message,
+    });
+
+    return {
+      success: false,
+      message,
+    };
+  }
+}, [fetchSubscriptionProduct]);
+
   return (
     <StripeAdminContext.Provider
       value={{
-        // Data
-        balance,
-        transferAvailability,
-        transactions,
-        subscriptionProduct,
-        transactionPagination,
+  // Data
+  balance,
+  transferAvailability,
+  transactions,
+  subscriptionProduct,
+  transactionPagination,
 
-        // Loading States
-        loading,
-        creatingPrice,
-        updatingPrice,
+  // Loading
+  loading,
+  creatingPrice,
+  updatingPrice,
 
-        // Stripe
-        fetchStripeBalance,
-        fetchTransferAvailability,
-        fetchStripeTransactions,
+  // Stripe
+  fetchStripeBalance,
+  fetchTransferAvailability,
+  fetchStripeTransactions,
 
-        // Subscription
-        fetchSubscriptionProduct,
-        createSubscriptionPrice,
-        updateSubscriptionPrice,
-      }}
+  // Subscription
+  fetchSubscriptionProduct,
+  createSubscriptionPrice,
+  updateSubscriptionPrice,
+  deactivateSubscriptionPrice,
+}}
     >
       {children}
 
