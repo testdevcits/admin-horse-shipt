@@ -77,7 +77,9 @@ const Settings = () => {
   const [notificationSettings, setNotificationSettings] = useState({
     inApp: true,
     email: true,
+    emailRecipient: "",
   });
+  const [notificationErrors, setNotificationErrors] = useState({});
   const [socialErrors, setSocialErrors] = useState({});
   const [socialLinks, setSocialLinks] = useState(emptySocialSettings);
   const [savedSocialLinks, setSavedSocialLinks] = useState(emptySocialSettings);
@@ -112,6 +114,7 @@ const Settings = () => {
             notificationData.notifications?.inApp ??
             notificationData.notificationEnabled !== false,
           email: notificationData.notifications?.email !== false,
+          emailRecipient: notificationData.notifications?.emailRecipient || "",
         });
       } catch (error) {
         if (!mounted) return;
@@ -255,6 +258,7 @@ const Settings = () => {
           notificationData.notifications?.inApp ??
           notificationData.notificationEnabled !== false,
         email: notificationData.notifications?.email !== false,
+        emailRecipient: notificationData.notifications?.emailRecipient || "",
       });
       setToast({
         type: "success",
@@ -266,6 +270,62 @@ const Settings = () => {
         message:
           error?.response?.data?.message ||
           "Failed to update notification settings",
+      });
+    } finally {
+      setNotificationSaving(false);
+    }
+  };
+
+  const handleNotificationEmailChange = (event) => {
+    setNotificationSettings((prev) => ({
+      ...prev,
+      emailRecipient: event.target.value,
+    }));
+    setNotificationErrors((prev) => ({ ...prev, emailRecipient: "" }));
+  };
+
+  const handleNotificationEmailSave = async (event) => {
+    event.preventDefault();
+    const emailRecipient = (notificationSettings.emailRecipient || "").trim();
+
+    if (
+      emailRecipient &&
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailRecipient)
+    ) {
+      setNotificationErrors({
+        emailRecipient: "Enter a valid email address",
+      });
+      return;
+    }
+
+    setNotificationSaving(true);
+    try {
+      const res = await API.put("/admin/notifications/settings", {
+        notifications: {
+          ...notificationSettings,
+          emailRecipient,
+        },
+      });
+      const notificationData = res.data?.data || {};
+      setNotificationSettings({
+        inApp:
+          notificationData.notifications?.inApp ??
+          notificationData.notificationEnabled !== false,
+        email: notificationData.notifications?.email !== false,
+        emailRecipient: notificationData.notifications?.emailRecipient || "",
+      });
+      setNotificationErrors({});
+      setToast({
+        type: "success",
+        message: "Admin notification email updated",
+      });
+    } catch (error) {
+      setNotificationErrors(error?.response?.data?.errors || {});
+      setToast({
+        type: "error",
+        message:
+          error?.response?.data?.message ||
+          "Failed to update admin notification email",
       });
     } finally {
       setNotificationSaving(false);
@@ -394,7 +454,7 @@ const Settings = () => {
             ].map((item) => (
               <div
                 key={item.key}
-                className="flex items-center justify-between gap-4 rounded-md border border-gray-100 bg-slate-50 p-4 dark:border-gray-800 dark:bg-gray-950"
+                className="flex flex-col items-start justify-between gap-4 rounded-md border border-gray-100 bg-slate-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:flex-row sm:items-center"
               >
                 <div>
                   <p className="text-sm font-bold text-gray-900 dark:text-white">
@@ -427,6 +487,40 @@ const Settings = () => {
                 </button>
               </div>
             ))}
+            <form
+              onSubmit={handleNotificationEmailSave}
+              className="rounded-md border border-gray-100 bg-slate-50 p-4 dark:border-gray-800 dark:bg-gray-950"
+            >
+              <label className="text-sm font-bold text-gray-900 dark:text-white">
+                Admin email for new user alerts
+              </label>
+              <p className="mt-1 text-xs text-gray-500">
+                Customer and shipper signup emails will be sent to this address.
+                Leave empty to use active admin accounts.
+              </p>
+              <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+                <input
+                  type="email"
+                  value={notificationSettings.emailRecipient || ""}
+                  onChange={handleNotificationEmailChange}
+                  placeholder="admin@example.com"
+                  className="min-w-0 flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#BF9B53] focus:ring-2 focus:ring-[#BF9B53]/20 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                />
+                <button
+                  type="submit"
+                  disabled={notificationLoading || notificationSaving}
+                  className="inline-flex items-center justify-center gap-2 rounded-md bg-[#BF9B53] px-5 py-2 text-sm font-bold text-white transition hover:bg-[#997C42] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  <FiMail />
+                  {notificationSaving ? "Saving..." : "Save Email"}
+                </button>
+              </div>
+              {notificationErrors.emailRecipient && (
+                <p className="mt-2 text-xs font-semibold text-red-500">
+                  {notificationErrors.emailRecipient}
+                </p>
+              )}
+            </form>
             <a
               href="/notifications"
               className="inline-flex w-fit items-center gap-2 rounded-md border border-[#BF9B53]/30 px-4 py-2 text-sm font-bold text-[#997C42] transition hover:bg-[#BF9B53]/10 dark:text-[#E8D7AD]"
