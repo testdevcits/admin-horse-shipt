@@ -21,34 +21,34 @@ import AppRoutes from "./routes/AppRoutes";
 
 function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <ThemeProvider>
-          <BreedProvider>
-            <PlatformSettingsProvider>
-              <StripeAdminProvider>
-                <ShipperProvider>
-                  <CustomerProvider>
-                    <ShipmentProvider>
-                      <TermsProvider>
-                        <PrivacyPolicyProvider>
-                          <NewsletterAdminProvider>
-                            <AdminNotificationProvider>
-                              <AdminRealtimeBridge />
-                              <AppRoutes />
-                            </AdminNotificationProvider>
-                          </NewsletterAdminProvider>
-                        </PrivacyPolicyProvider>
-                      </TermsProvider>
-                    </ShipmentProvider>
-                  </CustomerProvider>
-                </ShipperProvider>
-              </StripeAdminProvider>
-            </PlatformSettingsProvider>
-          </BreedProvider>
-        </ThemeProvider>
-      </AuthProvider>
-    </BrowserRouter>
+   <BrowserRouter>
+  <AuthProvider>
+    <ThemeProvider>
+      <BreedProvider>
+        <PlatformSettingsProvider>
+          <StripeAdminProvider>
+            <ShipperProvider>
+              <CustomerProvider>
+                <ShipmentProvider>
+                  <TermsProvider>
+                    <PrivacyPolicyProvider>
+                      <NewsletterAdminProvider>
+                        <AdminNotificationProvider>
+                          <AdminRealtimeBridge />
+                          <AppRoutes />
+                        </AdminNotificationProvider>
+                      </NewsletterAdminProvider>
+                    </PrivacyPolicyProvider>
+                  </TermsProvider>
+                </ShipmentProvider>
+              </CustomerProvider>
+            </ShipperProvider>
+          </StripeAdminProvider>
+        </PlatformSettingsProvider>
+      </BreedProvider>
+    </ThemeProvider>
+  </AuthProvider>
+</BrowserRouter>
   );
 }
 

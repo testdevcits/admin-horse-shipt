@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
 // PrivateRoute Wrapper
 import PrivateRoute from "./PrivateRoute";
+import SubscriptionSettings from "../pages/settings/SubscriptionSettings";
 // Auth Pages
 const Login = lazy(() => import("../pages/auth/Login"));
 const Signup = lazy(() => import("../pages/auth/Signup"));
@@ -41,6 +42,8 @@ const TermsConditionList = lazy(() =>
   import("../pages/Legal/TermsConditionList")
 );
 
+
+
 const AppRoutes = () => {
   return (
     <Suspense fallback={<div className="text-center p-10">Loading...</div>}>
@@ -57,6 +60,15 @@ const AppRoutes = () => {
         {/* =========================
             PRIVATE ROUTES
         ========================= */}
+
+        <Route
+  path="/subscription-settings"
+  element={
+    <PrivateRoute>
+      <SubscriptionSettings />
+    </PrivateRoute>
+  }
+/>
 
         <Route
           path="/dashboard"

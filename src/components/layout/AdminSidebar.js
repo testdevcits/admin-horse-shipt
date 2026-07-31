@@ -70,10 +70,23 @@ const navItems = [
   },
 
   {
-    name: "Platform",
-    icon: <CreditCard size={20} />,
-    subPaths: [{ name: "Platform Settings", path: "/platform-settings" }],
-  },
+  name: "Platform",
+  icon: <CreditCard size={20} />,
+  subPaths: [
+    {
+      name: "Platform Settings",
+      path: "/platform-settings",
+    },
+    {
+      name: "Stripe Payments",
+      path: "/stripe-payments",
+    },
+    {
+      name: "Subscription Settings",
+      path: "/subscription-settings",
+    },
+  ],
+},
 
   {
     name: "Legal",

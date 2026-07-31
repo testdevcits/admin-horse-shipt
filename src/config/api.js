@@ -6,10 +6,10 @@ const backendEnv = (
 ).toLowerCase();
 
 const productionBackendUrl =
-  process.env.REACT_APP_PRODUCTION_BACKEND_URL || "http://52.14.251.189:5000";
+  process.env.REACT_APP_PRODUCTION_BACKEND_URL || "https://horseshipt.com";
 
 const productionHttpsBackendUrl =
-  process.env.REACT_APP_PRODUCTION_HTTPS_BACKEND_URL || "";
+  process.env.REACT_APP_PRODUCTION_HTTPS_BACKEND_URL || "https://horseshipt.com";
 
 const developmentBackendUrl =
   process.env.REACT_APP_DEVELOPMENT_BACKEND_URL ||
