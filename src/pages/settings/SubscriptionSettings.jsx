@@ -1,6 +1,17 @@
 import React, { useEffect, useState } from "react";
+import {
+  FiPackage,
+  FiDollarSign,
+  FiPlus,
+  FiEye,
+  FiEyeOff,
+  FiCopy,
+  FiCheck,
+  FiToggleRight,
+  FiXCircle,
+  FiX,
+} from "react-icons/fi";
 import { useStripeAdmin } from "../../context/StripeAdminContext";
-import mobileLogo from "../../assets/images/mobileLogo.png";
 
 const maskId = (id) => {
   if (!id) return "";
@@ -24,25 +35,27 @@ const IdField = ({ label, value }) => {
 
   return (
     <div className="mb-4">
-      <span className="block text-[10px] font-semibold uppercase tracking-[0.12em] text-tabActive/70 mb-1.5">
+      <span className="mb-1.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">
         {label}
       </span>
-      <div className="flex items-center gap-2 rounded-custom border border-system-primary/20 bg-header/40 px-3 py-2">
-        <code className="flex-1 overflow-x-auto whitespace-nowrap font-mono text-[13px] text-dark">
+      <div className="flex items-center gap-2 rounded-md border border-gray-300 bg-slate-50 px-3 py-2 dark:border-gray-700 dark:bg-gray-950">
+        <code className="flex-1 overflow-x-auto whitespace-nowrap font-mono text-[13px] text-gray-700 dark:text-gray-300">
           {revealed ? value : maskId(value)}
         </code>
         <button
           type="button"
           onClick={() => setRevealed((r) => !r)}
-          className="flex-shrink-0 rounded-full border border-system-primary/30 bg-white px-3 py-1 text-[11px] font-medium text-tabActive transition-colors hover:bg-system-primary hover:text-white"
+          className="flex flex-shrink-0 items-center gap-1 rounded-md border border-gray-300 bg-white px-2.5 py-1 text-xs font-semibold text-gray-600 transition hover:border-[#BF9B53] hover:text-[#BF9B53] dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
         >
+          {revealed ? <FiEyeOff size={13} /> : <FiEye size={13} />}
           {revealed ? "Hide" : "Show"}
         </button>
         <button
           type="button"
           onClick={handleCopy}
-          className="flex-shrink-0 min-w-[52px] rounded-full border border-system-primary/30 bg-white px-3 py-1 text-[11px] font-medium text-tabActive transition-colors hover:bg-system-primary hover:text-white"
+          className="flex flex-shrink-0 min-w-[68px] items-center gap-1 rounded-md border border-gray-300 bg-white px-2.5 py-1 text-xs font-semibold text-gray-600 transition hover:border-[#BF9B53] hover:text-[#BF9B53] dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
         >
+          {copied ? <FiCheck size={13} /> : <FiCopy size={13} />}
           {copied ? "Copied" : "Copy"}
         </button>
       </div>
@@ -52,15 +65,15 @@ const IdField = ({ label, value }) => {
 
 const StatusPill = ({ active }) => (
   <span
-    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${
+    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${
       active
-        ? "bg-success-50 text-success-700 ring-1 ring-inset ring-success-200"
-        : "bg-danger/10 text-danger ring-1 ring-inset ring-danger/20"
+        ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
+        : "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400"
     }`}
   >
     <span
       className={`h-1.5 w-1.5 rounded-full ${
-        active ? "bg-success-600" : "bg-danger"
+        active ? "bg-emerald-500" : "bg-red-500"
       }`}
     />
     {active ? "Active" : "Inactive"}
@@ -71,17 +84,19 @@ const StatusPill = ({ active }) => (
     MODAL SHELL
 ========================= */
 const Modal = ({ title, onClose, children }) => (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-dark/60 px-4 backdrop-blur-sm">
-    <div className="w-full max-w-md animate-slide-fade-in rounded-2xl border border-system-primary/20 bg-white p-6 shadow-2xl">
-      <div className="mb-5 flex items-center justify-between border-b border-system-primary/10 pb-4">
-        <h3 className="text-base font-semibold text-dark">{title}</h3>
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+    <div className="w-full max-w-md rounded-lg border border-gray-200 bg-white p-5 shadow-lg dark:border-gray-800 dark:bg-gray-900">
+      <div className="mb-4 flex items-center justify-between border-b border-gray-100 pb-3 dark:border-gray-800">
+        <h3 className="text-base font-bold text-gray-900 dark:text-white">
+          {title}
+        </h3>
         <button
           type="button"
           onClick={onClose}
-          className="rounded-full p-1 text-gray-400 hover:bg-header hover:text-tabActive"
+          className="rounded-md p-1 text-gray-400 hover:bg-slate-50 hover:text-gray-600 dark:hover:bg-gray-800"
           aria-label="Close"
         >
-          ✕
+          <FiX size={18} />
         </button>
       </div>
       {children}
@@ -90,8 +105,9 @@ const Modal = ({ title, onClose, children }) => (
 );
 
 const inputClass =
-  "w-full rounded-custom border border-gray-200 px-3 py-2 text-sm text-dark focus:border-system-primary focus:outline-none focus:ring-1 focus:ring-system-primary";
-const labelClass = "mb-1.5 block text-xs font-medium text-gray-500";
+  "w-full rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#BF9B53] focus:ring-2 focus:ring-[#BF9B53]/20 dark:border-gray-700 dark:bg-gray-950 dark:text-white";
+const labelClass =
+  "mb-1.5 block text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400";
 
 /* =========================
     CREATE PRICE MODAL
@@ -181,16 +197,17 @@ const CreatePriceModal = ({ product, onClose }) => {
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full px-4 py-2 text-sm font-medium text-gray-500 hover:bg-light"
+            className="rounded-md px-4 py-2 text-sm font-semibold text-gray-500 hover:bg-slate-50 dark:hover:bg-gray-800"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={creatingPrice}
-            className="rounded-full bg-system-primary px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-md bg-[#BF9B53] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#997C42] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {creatingPrice ? "Creating…" : "Create price"}
+            <FiPlus size={14} />
+            {creatingPrice ? "Creating..." : "Create price"}
           </button>
         </div>
       </form>
@@ -200,7 +217,6 @@ const CreatePriceModal = ({ product, onClose }) => {
 
 /* =========================
     EDIT PRICE MODAL
-    (kept for reactivation / general status change)
 ========================= */
 const EditPriceModal = ({ plan, onClose }) => {
   const { updateSubscriptionPrice, updatingPrice } = useStripeAdmin();
@@ -215,7 +231,7 @@ const EditPriceModal = ({ plan, onClose }) => {
   return (
     <Modal title="Edit price" onClose={onClose}>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="rounded-custom bg-header/50 px-3 py-2 text-sm text-systemText">
+        <div className="rounded-md border border-gray-100 bg-slate-50 px-3 py-2 text-sm text-gray-700 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300">
           ${plan.amount} {plan.currency.toUpperCase()} / {plan.interval}
           <div className="mt-1 text-xs text-gray-400">
             Stripe prices are immutable — only status can be changed here.
@@ -229,10 +245,10 @@ const EditPriceModal = ({ plan, onClose }) => {
             <button
               type="button"
               onClick={() => setActive(true)}
-              className={`flex-1 rounded-custom border px-3 py-2 text-sm font-medium transition-colors ${
+              className={`flex-1 rounded-md border px-3 py-2 text-sm font-semibold transition ${
                 active
-                  ? "border-success-600 bg-success-50 text-success-700"
-                  : "border-gray-200 text-gray-500 hover:border-gray-300"
+                  ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
+                  : "border-gray-300 text-gray-500 hover:border-gray-400 dark:border-gray-700"
               }`}
             >
               Active
@@ -240,10 +256,10 @@ const EditPriceModal = ({ plan, onClose }) => {
             <button
               type="button"
               onClick={() => setActive(false)}
-              className={`flex-1 rounded-custom border px-3 py-2 text-sm font-medium transition-colors ${
+              className={`flex-1 rounded-md border px-3 py-2 text-sm font-semibold transition ${
                 !active
-                  ? "border-danger bg-danger/10 text-danger"
-                  : "border-gray-200 text-gray-500 hover:border-gray-300"
+                  ? "border-red-500 bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400"
+                  : "border-gray-300 text-gray-500 hover:border-gray-400 dark:border-gray-700"
               }`}
             >
               Inactive
@@ -255,16 +271,16 @@ const EditPriceModal = ({ plan, onClose }) => {
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full px-4 py-2 text-sm font-medium text-gray-500 hover:bg-light"
+            className="rounded-md px-4 py-2 text-sm font-semibold text-gray-500 hover:bg-slate-50 dark:hover:bg-gray-800"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={updatingPrice || active === plan.active}
-            className="rounded-full bg-system-primary px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="rounded-md bg-[#BF9B53] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#997C42] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {updatingPrice ? "Saving…" : "Save changes"}
+            {updatingPrice ? "Saving..." : "Save changes"}
           </button>
         </div>
       </form>
@@ -278,12 +294,12 @@ const EditPriceModal = ({ plan, onClose }) => {
 const DeactivateConfirmModal = ({ plan, onClose, onConfirm, isDeactivating }) => (
   <Modal title="Deactivate price" onClose={onClose}>
     <div className="space-y-4">
-      <div className="rounded-custom border border-danger/20 bg-danger/5 px-3 py-3 text-sm text-systemText">
-        <p className="font-medium text-dark">
+      <div className="rounded-md border border-red-100 bg-red-50 px-3 py-3 text-sm dark:border-red-500/20 dark:bg-red-500/10">
+        <p className="font-semibold text-gray-900 dark:text-white">
           Deactivate ${plan.amount} {plan.currency.toUpperCase()} /{" "}
           {plan.interval}?
         </p>
-        <p className="mt-1 text-xs text-gray-500">
+        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
           Existing subscribers keep their plan, but new customers won't be
           able to subscribe at this price. This can be reversed from Edit
           status.
@@ -294,7 +310,7 @@ const DeactivateConfirmModal = ({ plan, onClose, onConfirm, isDeactivating }) =>
         <button
           type="button"
           onClick={onClose}
-          className="rounded-full px-4 py-2 text-sm font-medium text-gray-500 hover:bg-light"
+          className="rounded-md px-4 py-2 text-sm font-semibold text-gray-500 hover:bg-slate-50 dark:hover:bg-gray-800"
         >
           Cancel
         </button>
@@ -302,9 +318,10 @@ const DeactivateConfirmModal = ({ plan, onClose, onConfirm, isDeactivating }) =>
           type="button"
           onClick={onConfirm}
           disabled={isDeactivating}
-          className="rounded-full bg-danger px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-md bg-red-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isDeactivating ? "Deactivating…" : "Deactivate"}
+          <FiXCircle size={14} />
+          {isDeactivating ? "Deactivating..." : "Deactivate"}
         </button>
       </div>
     </div>
@@ -342,36 +359,34 @@ const SubscriptionSettings = () => {
   if (loading && !subscriptionProduct?.length) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 font-montserrat text-gray-400">
-        <div className="h-7 w-7 animate-spin rounded-full border-[3px] border-gray-200 border-t-system-primary" />
-        <p className="text-sm">Loading subscription data…</p>
+        <div className="h-7 w-7 animate-spin rounded-full border-[3px] border-gray-200 border-t-[#BF9B53] dark:border-gray-700" />
+        <p className="text-sm">Loading subscription data...</p>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10 font-montserrat text-dark sm:px-6">
-      {/* Header */}
-      <div className="mb-8 flex items-center gap-4 rounded-2xl bg-header px-6 py-6 sm:px-8">
-        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-system-primary/30 bg-white shadow-sm">
-          <img src={mobileLogo} alt="" className="h-7 w-7 object-contain" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-dark">
-            Subscription Settings
-          </h1>
-          <p className="mt-1 text-sm text-systemText/70">
-            Manage Stripe products and pricing plans. IDs are masked by
-            default — use Show or Copy as needed.
-          </p>
-        </div>
+    <div className="space-y-6 font-montserrat">
+      {/* Header — matches AdminProfile eyebrow/title pattern */}
+      <div>
+        <p className="text-xs font-bold uppercase tracking-widest text-[#BF9B53]">
+          Billing
+        </p>
+        <h1 className="mt-1 text-2xl font-bold text-gray-900 dark:text-white">
+          Subscription Settings
+        </h1>
+        <p className="mt-2 max-w-3xl text-sm text-gray-500 dark:text-gray-400">
+          Manage Stripe products and pricing plans. IDs are masked by
+          default — use Show or Copy as needed.
+        </p>
       </div>
 
       {!subscriptionProduct?.length ? (
-        <div className="rounded-2xl border border-dashed border-system-primary/30 px-6 py-16 text-center text-gray-400">
-          <h3 className="text-base font-medium text-gray-500">
+        <div className="rounded-lg border border-dashed border-gray-300 bg-white px-6 py-16 text-center dark:border-gray-700 dark:bg-gray-900">
+          <h3 className="text-base font-bold text-gray-700 dark:text-gray-300">
             No subscription products found
           </h3>
-          <p className="mt-1 text-sm">
+          <p className="mt-1 text-sm text-gray-500">
             Create a product in Stripe to see it listed here.
           </p>
         </div>
@@ -379,94 +394,97 @@ const SubscriptionSettings = () => {
         subscriptionProduct.map((product) => (
           <section
             key={product.productId}
-            className="mb-6 animate-slide-fade-in overflow-hidden rounded-2xl border border-system-primary/15 bg-white shadow-sm"
+            className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900"
           >
-            {/* gold accent bar */}
-            <div className="h-1 w-full bg-gradient-to-r from-system-primary via-tabActive to-system-primary" />
-
-            <div className="p-6 sm:p-7">
-              {/* Product header */}
-              <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+            {/* Product header — icon badge, same as AdminProfile sections */}
+            <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-md bg-[#BF9B53]/10 text-[#BF9B53]">
+                  <FiPackage size={20} />
+                </div>
                 <div>
-                  <h2 className="text-lg font-semibold text-dark">
+                  <h2 className="text-base font-bold text-gray-900 dark:text-white">
                     {product.productName}
                   </h2>
-                  <p className="mt-0.5 text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     {product.description || "No description provided"}
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="rounded-full border border-system-primary/30 bg-header px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-tabActive">
-                    {product.subscriptionPlans?.length || 0} plan
-                    {product.subscriptionPlans?.length === 1 ? "" : "s"}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setCreateModalProduct(product)}
-                    className="rounded-full bg-system-primary px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
-                  >
-                    + Add price
-                  </button>
-                </div>
               </div>
 
-              <IdField label="Product ID" value={product.productId} />
+              <div className="flex items-center gap-2">
+                <span className="rounded-md border border-gray-200 bg-slate-50 px-2.5 py-1 text-xs font-bold text-gray-600 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-300">
+                  {product.subscriptionPlans?.length || 0} plan
+                  {product.subscriptionPlans?.length === 1 ? "" : "s"}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setCreateModalProduct(product)}
+                  className="inline-flex items-center gap-1.5 rounded-md bg-[#BF9B53] px-3 py-1.5 text-xs font-bold text-white transition hover:bg-[#997C42]"
+                >
+                  <FiPlus size={13} />
+                  Add price
+                </button>
+              </div>
+            </div>
 
-              {/* Plans */}
-              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {product.subscriptionPlans.map((plan) => (
-                  <div
-                    key={plan.priceId}
-                    className="relative rounded-xl border border-system-primary/20 bg-gradient-to-b from-header/30 to-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-system-primary/50 hover:shadow-lg"
-                  >
-                    <div className="mb-3 flex items-center justify-between">
-                      <span className="text-xs font-semibold capitalize text-tabActive">
-                        {plan.interval}
-                        {plan.intervalCount > 1
-                          ? ` × ${plan.intervalCount}`
-                          : ""}
-                      </span>
-                      <StatusPill active={plan.active} />
-                    </div>
+            <IdField label="Product ID" value={product.productId} />
 
-                    <div className="mb-1 flex items-baseline gap-1.5">
-                      <span className="text-[30px] font-bold leading-none tracking-tight text-dark">
-                        ${plan.amount}
-                      </span>
-                      <span className="text-xs font-medium text-gray-400">
-                        {plan.currency.toUpperCase()} / {plan.interval}
-                      </span>
-                    </div>
+            {/* Plans */}
+            <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+              {product.subscriptionPlans.map((plan) => (
+                <div
+                  key={plan.priceId}
+                  className="rounded-md border border-gray-200 bg-slate-50 p-4 dark:border-gray-800 dark:bg-gray-950"
+                >
+                  <div className="mb-3 flex items-center justify-between">
+                    <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                      <FiDollarSign size={13} className="text-[#BF9B53]" />
+                      {plan.interval}
+                      {plan.intervalCount > 1
+                        ? ` × ${plan.intervalCount}`
+                        : ""}
+                    </span>
+                    <StatusPill active={plan.active} />
+                  </div>
 
-                    <div className="mb-4 h-px w-full bg-gradient-to-r from-system-primary/40 via-system-primary/10 to-transparent" />
+                  <div className="mb-4 flex items-baseline gap-1.5">
+                    <span className="text-2xl font-bold leading-none text-gray-900 dark:text-white">
+                      ${plan.amount}
+                    </span>
+                    <span className="text-xs font-medium text-gray-400">
+                      {plan.currency.toUpperCase()} / {plan.interval}
+                    </span>
+                  </div>
 
-                    <IdField label="Price ID" value={plan.priceId} />
+                  <IdField label="Price ID" value={plan.priceId} />
 
-                    <div className="flex gap-2">
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setEditModalPlan(plan)}
+                      className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-gray-300 bg-white py-1.5 text-xs font-bold text-gray-600 transition hover:border-[#BF9B53] hover:text-[#BF9B53] dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300"
+                    >
+                      <FiToggleRight size={14} />
+                      Edit status
+                    </button>
+
+                    {plan.active && (
                       <button
                         type="button"
-                        onClick={() => setEditModalPlan(plan)}
-                        className="flex-1 rounded-custom border border-system-primary/30 py-1.5 text-xs font-semibold text-tabActive transition-colors hover:bg-system-primary hover:text-white"
+                        onClick={() => setDeactivateTarget(plan)}
+                        disabled={deactivatingId === plan.priceId}
+                        className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-red-200 bg-white py-1.5 text-xs font-bold text-red-600 transition hover:bg-red-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-500/30 dark:bg-gray-900"
                       >
-                        Edit status
+                        <FiXCircle size={14} />
+                        {deactivatingId === plan.priceId
+                          ? "Deactivating..."
+                          : "Deactivate"}
                       </button>
-
-                      {plan.active && (
-                        <button
-                          type="button"
-                          onClick={() => setDeactivateTarget(plan)}
-                          disabled={deactivatingId === plan.priceId}
-                          className="flex-1 rounded-custom border border-danger/30 py-1.5 text-xs font-semibold text-danger transition-colors hover:bg-danger hover:text-white disabled:opacity-50"
-                        >
-                          {deactivatingId === plan.priceId
-                            ? "Deactivating…"
-                            : "Deactivate"}
-                        </button>
-                      )}
-                    </div>
+                    )}
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </section>
         ))
