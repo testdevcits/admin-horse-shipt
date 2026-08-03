@@ -12,6 +12,7 @@ import {
   FiX,
 } from "react-icons/fi";
 import { useStripeAdmin } from "../../context/StripeAdminContext";
+import PageLoader from "../../components/common/PageLoader";
 
 const maskId = (id) => {
   if (!id) return "";
@@ -377,12 +378,7 @@ const SubscriptionSettings = () => {
   };
 
   if (loading && !subscriptionProduct?.length) {
-    return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 font-montserrat text-gray-400">
-        <div className="h-7 w-7 animate-spin rounded-full border-[3px] border-gray-200 border-t-[#BF9B53] dark:border-gray-700" />
-        <p className="text-sm">Loading subscription data...</p>
-      </div>
-    );
+    return <PageLoader text="Loading subscription data..." variant="spinner" />;
   }
 
   return (

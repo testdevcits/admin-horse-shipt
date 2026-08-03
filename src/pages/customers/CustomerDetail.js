@@ -4,6 +4,7 @@ import Button from "../../components/common/Button";
 import DataTable from "../../components/common/DataTable";
 import Toast from "../../components/common/Toast";
 import { useCustomers } from "../../context/CustomerContext";
+import PageLoader from "../../components/common/PageLoader";
 import { FaEye } from "react-icons/fa";
 
 const formatDate = (value) => (value ? new Date(value).toLocaleString() : "N/A");
@@ -68,7 +69,7 @@ const CustomerDetail = () => {
   }, [getCustomerById, id, paymentPage, quotePage, shipmentPage]);
 
   if (loading || !customer) {
-    return <div className="text-center py-10">Loading...</div>;
+    return <PageLoader text="Loading customer details..." variant="spinner" />;
   }
 
   const shipmentColumns = [

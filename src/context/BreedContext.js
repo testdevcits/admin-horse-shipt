@@ -72,6 +72,27 @@ export const BreedProvider = ({ children }) => {
   }, []);
 
   // =========================
+  // UPDATE BREED
+  // =========================
+  const updateBreed = useCallback(async (id, name) => {
+    try {
+      setLoading(true);
+      const res = await API.put(`/admin/breeds/${id}`, { name });
+      setBreeds((prev) =>
+        prev.map((breed) => (breed._id === id ? res.data.data : breed))
+      );
+      return { success: true, data: res.data.data };
+    } catch (err) {
+      return {
+        success: false,
+        message: err.response?.data?.message || "Failed to update breed",
+      };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // =========================
   // DELETE BREED
   // =========================
   const deleteBreed = useCallback(async (id) => {
@@ -119,6 +140,7 @@ export const BreedProvider = ({ children }) => {
         fetchingMore,
         fetchBreeds,
         createBreed,
+        updateBreed,
         deleteBreed,
         updateBreedStatus,
       }}

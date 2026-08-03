@@ -3,6 +3,7 @@ import { lazy, Suspense } from "react";
 // PrivateRoute Wrapper
 import PrivateRoute from "./PrivateRoute";
 import SubscriptionSettings from "../pages/settings/SubscriptionSettings";
+import PageLoader from "../components/common/PageLoader";
 // Auth Pages
 const Login = lazy(() => import("../pages/auth/Login"));
 const Signup = lazy(() => import("../pages/auth/Signup"));
@@ -46,7 +47,7 @@ const TermsConditionList = lazy(() =>
 
 const AppRoutes = () => {
   return (
-    <Suspense fallback={<div className="text-center p-10">Loading...</div>}>
+    <Suspense fallback={<PageLoader text="Loading, please wait..." fullScreen />}>
       <Routes>
         {/* =========================
             PUBLIC ROUTES

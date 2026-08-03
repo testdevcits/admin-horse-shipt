@@ -4,6 +4,7 @@ import { useShippers } from "../../context/ShipperContext";
 import Button from "../../components/common/Button";
 import DataTable from "../../components/common/DataTable";
 import Pagination from "../../components/common/Pagination";
+import PageLoader from "../../components/common/PageLoader";
 import { FaEye } from "react-icons/fa";
 
 const formatMoney = (value = 0, currency = "USD") =>
@@ -75,7 +76,7 @@ const ShipperDetail = () => {
   }, [driverPage, getShipperById, id, payoutPage, shipmentPage, vehiclePage]);
 
   if (loading || !shipper) {
-    return <div className="text-center py-10">Loading...</div>;
+    return <PageLoader text="Loading shipper details..." variant="spinner" />;
   }
 
   const paginatedLoginHistory = shipper.loginHistory?.slice(

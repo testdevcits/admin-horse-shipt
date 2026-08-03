@@ -4,6 +4,7 @@ import Button from "../../components/common/Button";
 import DataTable from "../../components/common/DataTable";
 import Toast from "../../components/common/Toast";
 import { useAdminShipments } from "../../context/ShipmentContext";
+import PageLoader from "../../components/common/PageLoader";
 
 const formatDate = (value) => (value ? new Date(value).toLocaleString() : "N/A");
 
@@ -70,7 +71,7 @@ const ShipmentDetail = () => {
   }, [getShipmentById, id, quotePage]);
 
   if (loading || !shipment) {
-    return <div className="text-center py-10">Loading...</div>;
+    return <PageLoader text="Loading shipment details..." variant="spinner" />;
   }
 
   const quoteColumns = [

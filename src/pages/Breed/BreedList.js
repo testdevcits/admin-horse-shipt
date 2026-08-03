@@ -7,6 +7,7 @@ import DataTable from "../../components/common/DataTable";
 import ConfirmModal from "../../components/common/ConfirmModal";
 import {
   FaEdit,
+  FaPlus,
   FaTrash,
   FaToggleOn,
   FaToggleOff,
@@ -25,6 +26,7 @@ const BreedList = () => {
     deleteBreed,
     updateBreedStatus,
     createBreed,
+    updateBreed,
   } = useBreeds();
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -44,12 +46,15 @@ const BreedList = () => {
   };
 
   const handleAddOrEdit = async (name) => {
+    let result;
     if (editBreed) {
-      await deleteBreed(editBreed._id);
-      await createBreed(name);
+      result = await updateBreed(editBreed._id, name);
     } else {
-      await createBreed(name);
+      result = await createBreed(name);
     }
+
+    if (result?.success === false) return;
+
     setModalOpen(false);
     setEditBreed(null);
     fetchBreeds(1);
@@ -140,13 +145,41 @@ const BreedList = () => {
         <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
           Breed List
         </h1>
+        <button
+          type="button"
+          onClick={() => {
+            setEditBreed(null);
+            setModalOpen(true);
+          }}
+          className="inline-flex items-center justify-center gap-2 rounded-md bg-system-primary px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+        >
+          <FaPlus size={13} />
+          Add Breed
+        </button>
       </div>
 
       {breeds.length === 0 ? (
-        <NoData
-          title="No Breeds Found"
-          description="There are currently no breeds available."
-        />
+        <div>
+          <NoData
+            title="No Breeds Found"
+            description="There are currently no breeds available."
+            showGoBack={false}
+            showReload={false}
+          />
+          <div className="mt-4 flex justify-center">
+            <button
+              type="button"
+              onClick={() => {
+                setEditBreed(null);
+                setModalOpen(true);
+              }}
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-system-primary px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+            >
+              <FaPlus size={13} />
+              Add First Breed
+            </button>
+          </div>
+        </div>
       ) : (
         <>
           <DataTable
