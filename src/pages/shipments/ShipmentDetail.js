@@ -5,6 +5,7 @@ import DataTable from "../../components/common/DataTable";
 import Toast from "../../components/common/Toast";
 import { useAdminShipments } from "../../context/ShipmentContext";
 import PageLoader from "../../components/common/PageLoader";
+import { FaFileInvoiceDollar } from "react-icons/fa";
 
 const formatDate = (value) => (value ? new Date(value).toLocaleString() : "N/A");
 
@@ -40,6 +41,10 @@ const Info = ({ label, value }) => (
     <span className="font-medium">{label}:</span> {value || "N/A"}
   </p>
 );
+
+const openPdf = (url) => {
+  if (url) window.open(url, "_blank", "noopener,noreferrer");
+};
 
 const ShipmentDetail = () => {
   const { id } = useParams();
@@ -90,6 +95,39 @@ const ShipmentDetail = () => {
     { key: "paymentStatus", label: "Payment" },
     { key: "payoutStatus", label: "Payout" },
     { key: "tripStatus", label: "Trip" },
+    {
+      key: "invoices",
+      label: "Invoices",
+      render: (row) => (
+        <div className="flex flex-wrap gap-2">
+          {row.taxInvoices?.customer?.url && (
+            <button
+              type="button"
+              onClick={() => openPdf(row.taxInvoices.customer.url)}
+              className="inline-flex items-center gap-1 rounded-sm border border-[#BF9B53] px-2 py-1 text-xs font-semibold text-[#9B7A35] hover:bg-[#BF9B53] hover:text-white"
+              title="View customer invoice"
+            >
+              <FaFileInvoiceDollar size={12} />
+              Customer
+            </button>
+          )}
+          {row.taxInvoices?.shipper?.url && (
+            <button
+              type="button"
+              onClick={() => openPdf(row.taxInvoices.shipper.url)}
+              className="inline-flex items-center gap-1 rounded-sm border border-[#BF9B53] px-2 py-1 text-xs font-semibold text-[#9B7A35] hover:bg-[#BF9B53] hover:text-white"
+              title="View shipper invoice"
+            >
+              <FaFileInvoiceDollar size={12} />
+              Shipper
+            </button>
+          )}
+          {!row.taxInvoices?.customer?.url && !row.taxInvoices?.shipper?.url && (
+            <span className="text-xs text-gray-500">N/A</span>
+          )}
+        </div>
+      ),
+    },
   ];
 
   return (

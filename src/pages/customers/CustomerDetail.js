@@ -5,7 +5,7 @@ import DataTable from "../../components/common/DataTable";
 import Toast from "../../components/common/Toast";
 import { useCustomers } from "../../context/CustomerContext";
 import PageLoader from "../../components/common/PageLoader";
-import { FaEye } from "react-icons/fa";
+import { FaEye, FaFileInvoiceDollar } from "react-icons/fa";
 
 const formatDate = (value) => (value ? new Date(value).toLocaleString() : "N/A");
 
@@ -27,6 +27,10 @@ const getShipperPayoutAmount = (row) => {
       Number(row.platformFee || 0),
     0
   );
+};
+
+const openPdf = (url) => {
+  if (url) window.open(url, "_blank", "noopener,noreferrer");
 };
 
 const CustomerDetail = () => {
@@ -300,16 +304,30 @@ const CustomerDetail = () => {
               {
                 render: (row) =>
                   row.shipment?._id ? (
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      icon={<FaEye size={12} />}
-                      iconOnly
-                      title="View shipment"
-                      onClick={() => navigate(`/shipments/${row.shipment._id}`)}
-                    >
-                      View
-                    </Button>
+                    <>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        icon={<FaEye size={12} />}
+                        iconOnly
+                        title="View shipment"
+                        onClick={() => navigate(`/shipments/${row.shipment._id}`)}
+                      >
+                        View
+                      </Button>
+                      {row.taxInvoices?.customer?.url && (
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          icon={<FaFileInvoiceDollar size={12} />}
+                          iconOnly
+                          title="View customer invoice"
+                          onClick={() => openPdf(row.taxInvoices.customer.url)}
+                        >
+                          Invoice
+                        </Button>
+                      )}
+                    </>
                   ) : null,
               },
             ]}

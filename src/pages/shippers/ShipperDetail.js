@@ -5,7 +5,7 @@ import Button from "../../components/common/Button";
 import DataTable from "../../components/common/DataTable";
 import Pagination from "../../components/common/Pagination";
 import PageLoader from "../../components/common/PageLoader";
-import { FaEye } from "react-icons/fa";
+import { FaEye, FaFileInvoiceDollar } from "react-icons/fa";
 
 const formatMoney = (value = 0, currency = "USD") =>
   new Intl.NumberFormat("en-US", {
@@ -38,6 +38,10 @@ const getShipperPayoutAmount = (row) => {
       Number(row.platformFee || 0),
     0
   );
+};
+
+const openPdf = (url) => {
+  if (url) window.open(url, "_blank", "noopener,noreferrer");
 };
 
 const ShipperDetail = () => {
@@ -411,16 +415,30 @@ const ShipperDetail = () => {
             {
               render: (row) =>
                 row.shipment?._id ? (
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    icon={<FaEye size={12} />}
-                    iconOnly
-                    title="View shipment"
-                    onClick={() => navigate(`/shipments/${row.shipment._id}`)}
-                  >
-                    View
-                  </Button>
+                  <>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      icon={<FaEye size={12} />}
+                      iconOnly
+                      title="View shipment"
+                      onClick={() => navigate(`/shipments/${row.shipment._id}`)}
+                    >
+                      View
+                    </Button>
+                    {row.taxInvoices?.shipper?.url && (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        icon={<FaFileInvoiceDollar size={12} />}
+                        iconOnly
+                        title="View shipper invoice"
+                        onClick={() => openPdf(row.taxInvoices.shipper.url)}
+                      >
+                        Invoice
+                      </Button>
+                    )}
+                  </>
                 ) : null,
             },
           ]}
