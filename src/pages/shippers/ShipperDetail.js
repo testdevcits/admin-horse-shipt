@@ -16,6 +16,17 @@ const formatMoney = (value = 0, currency = "USD") =>
 
 const formatDate = (value) => (value ? new Date(value).toLocaleString() : "N/A");
 
+const formatShortDate = (value) =>
+  value ? new Date(value).toLocaleDateString("en-US") : "N/A";
+
+const formatSubscriptionStatus = (status) => {
+  if (!status || status === "none") return "No Subscription";
+  return status
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+};
+
 const getShipperPayoutAmount = (row) => {
   const storedPayout = Number(row.shipperPayoutAmount || 0);
   if (storedPayout > 0) return storedPayout;
@@ -97,6 +108,7 @@ const ShipperDetail = () => {
     },
   ];
   const payoutSummary = shipperData.payoutSummary || {};
+  const subscription = shipperData.subscription || shipper.subscription || {};
   const payoutColumns = [
     {
       key: "shipment",
@@ -210,6 +222,74 @@ const ShipperDetail = () => {
           >
             {shipper.isActive ? "Active" : "Inactive"}
           </span>
+        </div>
+      </div>
+
+      {/* Subscription Information */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
+          Subscription Information
+        </h3>
+
+        <div className="grid md:grid-cols-2 gap-4 text-sm">
+          <p>
+            <span className="font-medium">Status:</span>{" "}
+            <span
+              className={`inline-block rounded px-2 py-1 text-xs font-semibold ${
+                ["active", "trialing"].includes(subscription.status)
+                  ? "bg-green-100 text-green-700"
+                  : subscription.status === "past_due"
+                  ? "bg-amber-100 text-amber-700"
+                  : "bg-gray-100 text-gray-600"
+              }`}
+            >
+              {formatSubscriptionStatus(subscription.status)}
+            </span>
+          </p>
+
+          <p>
+            <span className="font-medium">Plan:</span>{" "}
+            {subscription.planName || "N/A"}
+          </p>
+
+          <p>
+            <span className="font-medium">Subscription From:</span>{" "}
+            {formatDate(
+              subscription.currentPeriodStart || subscription.trialStart
+            )}
+          </p>
+
+          <p>
+            <span className="font-medium">Subscription To:</span>{" "}
+            {formatDate(subscription.currentPeriodEnd || subscription.trialEnd)}
+          </p>
+
+          <p>
+            <span className="font-medium">Trial From:</span>{" "}
+            {formatShortDate(subscription.trialStart)}
+          </p>
+
+          <p>
+            <span className="font-medium">Trial To:</span>{" "}
+            {formatShortDate(subscription.trialEnd)}
+          </p>
+
+          <p>
+            <span className="font-medium">Next Billing:</span>{" "}
+            {formatDate(
+              subscription.nextBillingDate || subscription.currentPeriodEnd
+            )}
+          </p>
+
+          <p>
+            <span className="font-medium">Cancel At Period End:</span>{" "}
+            {subscription.cancelAtPeriodEnd ? "Yes" : "No"}
+          </p>
+
+          <p>
+            <span className="font-medium">Stripe Subscription ID:</span>{" "}
+            {subscription.stripeSubscriptionId || "N/A"}
+          </p>
         </div>
       </div>
 

@@ -221,10 +221,14 @@ const CreatePriceModal = ({ product, onClose }) => {
 const EditPriceModal = ({ plan, onClose }) => {
   const { updateSubscriptionPrice, updatingPrice } = useStripeAdmin();
   const [active, setActive] = useState(plan.active);
+  const [amount, setAmount] = useState(plan.amount);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await updateSubscriptionPrice(plan.priceId, { active });
+    const res = await updateSubscriptionPrice(plan.priceId, {
+      active,
+      amount: Number(amount),
+    });
     if (res.success) onClose();
   };
 
@@ -234,9 +238,22 @@ const EditPriceModal = ({ plan, onClose }) => {
         <div className="rounded-md border border-gray-100 bg-slate-50 px-3 py-2 text-sm text-gray-700 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300">
           ${plan.amount} {plan.currency.toUpperCase()} / {plan.interval}
           <div className="mt-1 text-xs text-gray-400">
-            Stripe prices are immutable — only status can be changed here.
-            Create a new price to change the amount.
+            Stripe prices are immutable. Changing amount creates a new active
+            price and deactivates this old price automatically.
           </div>
+        </div>
+
+        <div>
+          <label className={labelClass}>Amount</label>
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            required
+            className={inputClass}
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+          />
         </div>
 
         <div>
@@ -277,7 +294,10 @@ const EditPriceModal = ({ plan, onClose }) => {
           </button>
           <button
             type="submit"
-            disabled={updatingPrice || active === plan.active}
+            disabled={
+              updatingPrice ||
+              (active === plan.active && Number(amount) === Number(plan.amount))
+            }
             className="rounded-md bg-[#BF9B53] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#997C42] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {updatingPrice ? "Saving..." : "Save changes"}

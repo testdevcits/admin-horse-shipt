@@ -7,6 +7,17 @@ import { useShippers } from "../../context/ShipperContext";
 import ConfirmModal from "../../components/common/ConfirmModal";
 import useDebouncedValue from "../../hooks/useDebouncedValue";
 
+const formatDate = (value) =>
+  value ? new Date(value).toLocaleDateString("en-US") : "N/A";
+
+const formatSubscriptionStatus = (status) => {
+  if (!status || status === "none") return "No Subscription";
+  return status
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+};
+
 const Shippers = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -43,6 +54,38 @@ const Shippers = () => {
     { key: "name", label: "Shipper Name" },
     { key: "email", label: "Email" },
     { key: "mobile", label: "Phone", render: (row) => row.mobile || "N/A" },
+    {
+      key: "subscriptionStatus",
+      label: "Subscription",
+      render: (row) => {
+        const status = row.subscription?.status || "none";
+        const activeStyles = ["active", "trialing"].includes(status)
+          ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+          : status === "past_due"
+          ? "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300"
+          : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300";
+
+        return (
+          <span className={`px-2 py-1 rounded text-xs font-medium ${activeStyles}`}>
+            {formatSubscriptionStatus(status)}
+          </span>
+        );
+      },
+    },
+    {
+      key: "subscriptionFrom",
+      label: "Sub. From",
+      render: (row) =>
+        formatDate(
+          row.subscription?.currentPeriodStart || row.subscription?.trialStart
+        ),
+    },
+    {
+      key: "subscriptionTo",
+      label: "Sub. To",
+      render: (row) =>
+        formatDate(row.subscription?.currentPeriodEnd || row.subscription?.trialEnd),
+    },
     {
       key: "status",
       label: "Status",
@@ -117,6 +160,7 @@ const Shippers = () => {
           columns={columns}
           data={shippers}
           actions={actions}
+          tableMinWidth="1080px"
           currentPage={pagination.page || page}
           totalPages={pagination.totalPages || 1}
           totalRecords={pagination.totalRecords || pagination.total || 0}
