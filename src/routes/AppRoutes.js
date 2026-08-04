@@ -30,6 +30,8 @@ const AdminNotifications = lazy(() =>
 
 // Breed & Platform
 const BreedList = lazy(() => import("../pages/Breed/BreedList"));
+const ColorList = lazy(() => import("../pages/HorseAttributes/ColorList"));
+const SexList = lazy(() => import("../pages/HorseAttributes/SexList"));
 const PlatformSettings = lazy(() =>
   import("../pages/Platform/PlatformSettings")
 );
@@ -136,6 +138,24 @@ const AppRoutes = () => {
           element={
             <PrivateRoute allowedRoles={["super-admin"]}>
               <BreedList />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/colors"
+          element={
+            <PrivateRoute allowedRoles={["super-admin"]}>
+              <ColorList />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/sexes"
+          element={
+            <PrivateRoute allowedRoles={["super-admin"]}>
+              <SexList />
             </PrivateRoute>
           }
         />

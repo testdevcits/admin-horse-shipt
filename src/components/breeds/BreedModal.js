@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
 
-const BreedModal = ({ open, onClose, onSubmit, initialValue }) => {
+const BreedModal = ({
+  open,
+  onClose,
+  onSubmit,
+  initialValue,
+  entityLabel = "Breed",
+  placeholder = "Enter breed name",
+}) => {
   const [name, setName] = useState("");
 
   useEffect(() => {
@@ -20,13 +27,13 @@ const BreedModal = ({ open, onClose, onSubmit, initialValue }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-md p-6 shadow-lg">
         <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-          {initialValue ? "Edit Breed" : "Add New Breed"}
+          {initialValue ? `Edit ${entityLabel}` : `Add New ${entityLabel}`}
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
-            placeholder="Enter breed name"
+            placeholder={placeholder}
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-system-primary 

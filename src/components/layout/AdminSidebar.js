@@ -49,9 +49,13 @@ const navItems = [
   },
 
   {
-    name: "Breed List",
+    name: "Horse Attributes",
     icon: <Leaf size={20} />,
-    subPaths: [{ name: "Breed List", path: "/breeds" }],
+    subPaths: [
+      { name: "Breed List", path: "/breeds" },
+      { name: "Colors", path: "/colors" },
+      { name: "Sexes", path: "/sexes" },
+    ],
   },
 
   {
