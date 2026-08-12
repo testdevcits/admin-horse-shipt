@@ -4,6 +4,7 @@ import API from "../../api/axios";
 import Button from "../../components/common/Button";
 import ConfirmModal from "../../components/common/ConfirmModal";
 import DataTable from "../../components/common/DataTable";
+import PageLoader from "../../components/common/PageLoader";
 import Toast from "../../components/common/Toast";
 import {
   ADMIN_PERMISSION_GROUPS,
@@ -358,7 +359,7 @@ const AdminUsers = () => {
   ];
 
   return (
-    <div className="space-y-6 min-h-screen">
+    <div className="min-h-screen">
       {toast && (
         <Toast
           message={toast.message}
@@ -367,7 +368,7 @@ const AdminUsers = () => {
         />
       )}
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
           Admin Users
         </h1>
@@ -413,33 +414,45 @@ const AdminUsers = () => {
       />
 
       {modal.open && (
-        <div className="fixed inset-0 z-50 bg-black/40">
+        <div className="fixed inset-0 z-[100] bg-black/45">
           <div
-            className="absolute inset-y-0 right-0 flex w-full max-w-3xl flex-col bg-white shadow-2xl dark:bg-gray-900"
+            className="absolute inset-y-0 right-0 flex h-dvh w-full max-w-4xl flex-col overflow-hidden border-l border-gray-200 bg-white shadow-2xl dark:border-gray-800 dark:bg-gray-900"
             role="dialog"
             aria-modal="true"
           >
-            <div className="flex items-start justify-between gap-4 border-b border-gray-200 px-6 py-5 dark:border-gray-800">
+            {saving && (
+              <PageLoader
+                text="Saving admin..."
+                overlay
+                variant="cube"
+                size={16}
+              />
+            )}
+            <div className="shrink-0 bg-white px-5 py-4 shadow-sm dark:bg-gray-900 sm:px-6">
               <div>
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  {modal.mode === "create" ? "Add Admin" : "Edit Admin"}
-                </h2>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  Assign menu and submenu access for this admin.
-                </p>
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                      {modal.mode === "create" ? "Add Admin" : "Edit Admin"}
+                    </h2>
+                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                      Assign menu and submenu access for this admin.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={closeModal}
+                    className="mt-1 text-gray-500 transition hover:text-gray-800 dark:text-gray-300 dark:hover:text-white"
+                    aria-label="Close"
+                  >
+                    <FiX size={22} />
+                  </button>
+                </div>
               </div>
-              <button
-                type="button"
-                onClick={closeModal}
-                className="mt-1 text-gray-500 transition hover:text-gray-800 dark:text-gray-300 dark:hover:text-white"
-                aria-label="Close"
-              >
-                <FiX size={22} />
-              </button>
             </div>
 
             <form className="flex min-h-0 flex-1 flex-col" onSubmit={handleSubmit}>
-              <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
+              <div className="admin-drawer-scroll min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-6">
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>
                     <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
@@ -530,7 +543,7 @@ const AdminUsers = () => {
                       </label>
                     </div>
 
-                    <div className="grid gap-3 lg:grid-cols-2">
+                    <div className="grid gap-3 pb-2 lg:grid-cols-2">
                       {ADMIN_PERMISSION_GROUPS.map((group) => {
                         const groupState = getGroupState(group);
 
@@ -594,11 +607,11 @@ const AdminUsers = () => {
                 )}
               </div>
 
-              <div className="flex shrink-0 justify-end gap-2 border-t border-gray-200 px-6 py-4 dark:border-gray-800">
+              <div className="flex shrink-0 justify-end gap-2 border-t border-gray-200 bg-white px-5 py-4 shadow-[0_-8px_18px_rgba(15,23,42,0.06)] dark:border-gray-800 dark:bg-gray-900 sm:px-6">
                 <Button variant="outline" onClick={closeModal} disabled={saving}>
                   Cancel
                 </Button>
-                <Button type="submit" loading={saving}>
+                <Button type="submit" disabled={saving}>
                   {modal.mode === "create" ? "Create" : "Save"}
                 </Button>
               </div>
