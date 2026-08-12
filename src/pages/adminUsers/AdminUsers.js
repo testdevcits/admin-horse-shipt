@@ -5,6 +5,7 @@ import Button from "../../components/common/Button";
 import ConfirmModal from "../../components/common/ConfirmModal";
 import DataTable from "../../components/common/DataTable";
 import Toast from "../../components/common/Toast";
+import { ADMIN_PERMISSION_KEYS, ADMIN_PERMISSIONS } from "../../config/adminPermissions";
 import { useAuth } from "../../context/AuthContext";
 import useDebouncedValue from "../../hooks/useDebouncedValue";
 
@@ -13,6 +14,7 @@ const emptyForm = {
   email: "",
   password: "",
   role: "admin",
+  permissions: [],
 };
 
 const formatDateTime = (value) =>
@@ -97,6 +99,7 @@ const AdminUsers = () => {
       email: admin.email || "",
       password: "",
       role: admin.role || "admin",
+      permissions: admin.permissions || [],
     });
     setModal({ open: true, mode: "edit", admin });
   };
@@ -110,6 +113,35 @@ const AdminUsers = () => {
   const handleFormChange = (event) => {
     const { name, value } = event.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleRoleChange = (event) => {
+    const nextRole = event.target.value;
+    setForm((prev) => ({
+      ...prev,
+      role: nextRole,
+      permissions: nextRole === "super-admin" ? ADMIN_PERMISSION_KEYS : prev.permissions,
+    }));
+  };
+
+  const togglePermission = (permissionKey) => {
+    setForm((prev) => {
+      const selected = new Set(prev.permissions || []);
+      if (selected.has(permissionKey)) {
+        selected.delete(permissionKey);
+      } else {
+        selected.add(permissionKey);
+      }
+
+      return { ...prev, permissions: Array.from(selected) };
+    });
+  };
+
+  const setAllPermissions = (checked) => {
+    setForm((prev) => ({
+      ...prev,
+      permissions: checked ? ADMIN_PERMISSION_KEYS : [],
+    }));
   };
 
   const handleSubmit = async (event) => {
@@ -131,6 +163,8 @@ const AdminUsers = () => {
         name: form.name.trim(),
         email: form.email.trim(),
         role: form.role,
+        permissions:
+          form.role === "super-admin" ? [] : form.permissions || [],
       };
 
       if (form.password.trim()) payload.password = form.password.trim();
@@ -398,13 +432,62 @@ const AdminUsers = () => {
                 <select
                   name="role"
                   value={form.role}
-                  onChange={handleFormChange}
+                  onChange={handleRoleChange}
                   className="w-full border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-[#BF9B53] focus:ring-2 focus:ring-[#BF9B53]/15 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                 >
                   <option value="admin">Admin</option>
                   <option value="super-admin">Super Admin</option>
                 </select>
               </div>
+
+              {form.role !== "super-admin" && (
+                <div>
+                  <div className="mb-2 flex items-center justify-between gap-3">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                      Module Access
+                    </label>
+                    <label className="flex items-center gap-2 text-xs font-medium text-gray-600 dark:text-gray-300">
+                      <input
+                        type="checkbox"
+                        checked={
+                          form.permissions.length === ADMIN_PERMISSION_KEYS.length
+                        }
+                        onChange={(event) =>
+                          setAllPermissions(event.target.checked)
+                        }
+                        className="h-4 w-4 accent-[#BF9B53]"
+                      />
+                      Select all
+                    </label>
+                  </div>
+
+                  <div className="grid max-h-56 gap-2 overflow-y-auto border border-gray-200 p-3 dark:border-gray-700 sm:grid-cols-2">
+                    {ADMIN_PERMISSIONS.map((permission) => (
+                      <label
+                        key={permission.key}
+                        className="flex cursor-pointer gap-2 border border-gray-100 p-2 text-sm dark:border-gray-800"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={(form.permissions || []).includes(
+                            permission.key
+                          )}
+                          onChange={() => togglePermission(permission.key)}
+                          className="mt-1 h-4 w-4 shrink-0 accent-[#BF9B53]"
+                        />
+                        <span className="min-w-0">
+                          <span className="block font-semibold text-gray-800 dark:text-gray-100">
+                            {permission.label}
+                          </span>
+                          <span className="block text-xs leading-5 text-gray-500 dark:text-gray-400">
+                            {permission.description}
+                          </span>
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">

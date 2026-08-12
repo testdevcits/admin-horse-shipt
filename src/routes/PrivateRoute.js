@@ -3,8 +3,9 @@ import { useAuth } from "../context/AuthContext";
 import AdminLayout from "../components/layout/AdminLayout";
 import Unauthorized from "../pages/Unauthorized";
 import PageLoader from "../components/common/PageLoader";
+import { hasAdminPermission } from "../config/adminPermissions";
 
-const PrivateRoute = ({ children, allowedRoles }) => {
+const PrivateRoute = ({ children, allowedRoles, permission }) => {
   const { user, loading } = useAuth();
 
   if (loading) return <PageLoader text="Checking access..." fullScreen />;
@@ -12,6 +13,14 @@ const PrivateRoute = ({ children, allowedRoles }) => {
   if (!user) return <Navigate to="/login" />;
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return (
+      <AdminLayout>
+        <Unauthorized />
+      </AdminLayout>
+    );
+  }
+
+  if (permission && !hasAdminPermission(user, permission)) {
     return (
       <AdminLayout>
         <Unauthorized />

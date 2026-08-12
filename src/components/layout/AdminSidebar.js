@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
+import { hasAdminPermission } from "../../config/adminPermissions";
 import comingSoonImg from "../../assets/images/defultlogo.png";
 
 // inside navItems array
@@ -28,29 +29,34 @@ const navItems = [
     path: "/dashboard",
     icon: <Home size={20} />,
     highlight: true,
+    permission: "dashboard:view",
   },
 
   {
     name: "Shippers",
     icon: <Truck size={20} />,
+    permission: "shippers:view",
     subPaths: [{ name: "Shippers List", path: "/shippers" }],
   },
 
   {
     name: "Customers",
     icon: <Users size={20} />,
+    permission: "customers:view",
     subPaths: [{ name: "Customers List", path: "/customers" }],
   },
 
   {
     name: "Shipments",
     icon: <ShieldCheck size={20} />,
+    permission: "shipments:view",
     subPaths: [{ name: "All Shipments", path: "/shipments" }],
   },
 
   {
     name: "Horse Attributes",
     icon: <Leaf size={20} />,
+    permission: "horse_attributes:manage",
     subPaths: [
       { name: "Breed List", path: "/breeds" },
       { name: "Colors", path: "/colors" },
@@ -61,6 +67,7 @@ const navItems = [
   {
     name: "Newsletter",
     icon: <Mail size={20} />,
+    permission: "newsletter:manage",
     subPaths: [
       { name: "Subscribers", path: "/newsletter-subscribers" },
       // You can add more newsletter actions here later
@@ -70,12 +77,14 @@ const navItems = [
   {
     name: "Notifications",
     icon: <Bell size={20} />,
+    permission: "notifications:view",
     subPaths: [{ name: "All Notifications", path: "/notifications" }],
   },
 
   {
   name: "Platform",
   icon: <CreditCard size={20} />,
+  permission: "platform:manage",
   subPaths: [
     {
       name: "Platform Settings",
@@ -95,6 +104,7 @@ const navItems = [
   {
     name: "Legal",
     icon: <BookOpen size={20} />,
+    permission: "legal:manage",
     subPaths: [
       { name: "Privacy Policy", path: "/privacy-policy" },
       { name: "Terms & Conditions", path: "/terms-conditions" },
@@ -104,9 +114,10 @@ const navItems = [
   {
     name: "Account",
     icon: <UserCircle size={20} />,
+    permission: "account:manage",
     subPaths: [
       { name: "Admin Profile", path: "/profile" },
-      { name: "Admin Users", path: "/admin-users" },
+      { name: "Admin Users", path: "/admin-users", superAdminOnly: true },
       { name: "Settings", path: "/settings" },
     ],
   },
@@ -119,7 +130,7 @@ const AdminSidebar = ({
   setMobileOpen,
   isDesktop,
 }) => {
-  const { token, logout } = useAuth();
+  const { token, user, logout } = useAuth();
   const navigate = useNavigate();
   const { darkMode, toggleTheme } = useTheme();
   const [dropdowns, setDropdowns] = useState({});
@@ -146,6 +157,16 @@ const AdminSidebar = ({
   const toggleDropdown = (name) => {
     setDropdowns((prev) => ({ ...prev, [name]: !prev[name] }));
   };
+
+  const visibleNavItems = navItems
+    .filter((item) => hasAdminPermission(user, item.permission))
+    .map((item) => ({
+      ...item,
+      subPaths: item.subPaths?.filter(
+        (subPath) => !subPath.superAdminOnly || user?.role === "super-admin"
+      ),
+    }))
+    .filter((item) => !item.subPaths || item.subPaths.length > 0);
 
   const sidebarWidth = sidebarOpen ? "w-64" : "w-20";
 
@@ -205,7 +226,7 @@ const AdminSidebar = ({
 
         {/* Menu */}
         <nav className="flex-1 overflow-y-auto p-2 space-y-1 app-sidebar-scrollbar">
-          {navItems.map((item) => (
+          {visibleNavItems.map((item) => (
             <div key={item.name}>
               {/* Highlighted dashboard link */}
               {item.highlight && (

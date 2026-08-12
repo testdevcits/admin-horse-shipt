@@ -68,7 +68,7 @@ const AppRoutes = () => {
         <Route
   path="/subscription-settings"
   element={
-    <PrivateRoute>
+    <PrivateRoute permission="platform:manage">
       <SubscriptionSettings />
     </PrivateRoute>
   }
@@ -77,7 +77,7 @@ const AppRoutes = () => {
         <Route
           path="/dashboard"
           element={
-            <PrivateRoute>
+            <PrivateRoute permission="dashboard:view">
               <Dashboard />
             </PrivateRoute>
           }
@@ -86,7 +86,7 @@ const AppRoutes = () => {
         <Route
           path="/shippers"
           element={
-            <PrivateRoute allowedRoles={["super-admin"]}>
+            <PrivateRoute permission="shippers:view">
               <Shippers />
             </PrivateRoute>
           }
@@ -94,7 +94,7 @@ const AppRoutes = () => {
         <Route
           path="/shippers/:id"
           element={
-            <PrivateRoute allowedRoles={["super-admin"]}>
+            <PrivateRoute permission="shippers:view">
               <ShipperDetail />
             </PrivateRoute>
           }
@@ -103,7 +103,7 @@ const AppRoutes = () => {
         <Route
           path="/customers"
           element={
-            <PrivateRoute allowedRoles={["super-admin"]}>
+            <PrivateRoute permission="customers:view">
               <Customers />
             </PrivateRoute>
           }
@@ -111,7 +111,7 @@ const AppRoutes = () => {
         <Route
           path="/customers/:id"
           element={
-            <PrivateRoute allowedRoles={["super-admin"]}>
+            <PrivateRoute permission="customers:view">
               <CustomerDetail />
             </PrivateRoute>
           }
@@ -120,7 +120,7 @@ const AppRoutes = () => {
         <Route
           path="/shipments"
           element={
-            <PrivateRoute allowedRoles={["super-admin"]}>
+            <PrivateRoute permission="shipments:view">
               <Shipments />
             </PrivateRoute>
           }
@@ -128,7 +128,7 @@ const AppRoutes = () => {
         <Route
           path="/shipments/:id"
           element={
-            <PrivateRoute allowedRoles={["super-admin"]}>
+            <PrivateRoute permission="shipments:view">
               <ShipmentDetail />
             </PrivateRoute>
           }
@@ -137,7 +137,7 @@ const AppRoutes = () => {
         <Route
           path="/breeds"
           element={
-            <PrivateRoute allowedRoles={["super-admin"]}>
+            <PrivateRoute permission="horse_attributes:manage">
               <BreedList />
             </PrivateRoute>
           }
@@ -146,7 +146,7 @@ const AppRoutes = () => {
         <Route
           path="/colors"
           element={
-            <PrivateRoute allowedRoles={["super-admin"]}>
+            <PrivateRoute permission="horse_attributes:manage">
               <ColorList />
             </PrivateRoute>
           }
@@ -155,7 +155,7 @@ const AppRoutes = () => {
         <Route
           path="/sexes"
           element={
-            <PrivateRoute allowedRoles={["super-admin"]}>
+            <PrivateRoute permission="horse_attributes:manage">
               <SexList />
             </PrivateRoute>
           }
@@ -164,7 +164,7 @@ const AppRoutes = () => {
         <Route
           path="/platform-settings"
           element={
-            <PrivateRoute allowedRoles={["super-admin"]}>
+            <PrivateRoute permission="platform:manage">
               <PlatformSettings />
             </PrivateRoute>
           }
@@ -173,7 +173,7 @@ const AppRoutes = () => {
         <Route
           path="/stripe-payments"
           element={
-            <PrivateRoute allowedRoles={["super-admin"]}>
+            <PrivateRoute permission="platform:manage">
               <StripePayments />
             </PrivateRoute>
           }
@@ -185,7 +185,7 @@ const AppRoutes = () => {
         <Route
           path="/privacy-policy"
           element={
-            <PrivateRoute allowedRoles={["super-admin"]}>
+            <PrivateRoute permission="legal:manage">
               <PrivacyPolicyList />
             </PrivateRoute>
           }
@@ -194,7 +194,7 @@ const AppRoutes = () => {
         <Route
           path="/terms-conditions"
           element={
-            <PrivateRoute allowedRoles={["super-admin"]}>
+            <PrivateRoute permission="legal:manage">
               <TermsConditionList />
             </PrivateRoute>
           }
@@ -202,7 +202,7 @@ const AppRoutes = () => {
         <Route
           path="/newsletter-subscribers"
           element={
-            <PrivateRoute allowedRoles={["super-admin"]}>
+            <PrivateRoute permission="newsletter:manage">
               <NewsletterSubscribers />
             </PrivateRoute>
           }
@@ -211,7 +211,7 @@ const AppRoutes = () => {
         <Route
           path="/notifications"
           element={
-            <PrivateRoute allowedRoles={["super-admin"]}>
+            <PrivateRoute permission="notifications:view">
               <AdminNotifications />
             </PrivateRoute>
           }
@@ -221,7 +221,7 @@ const AppRoutes = () => {
         <Route
           path="/profile"
           element={
-            <PrivateRoute allowedRoles={["super-admin"]}>
+            <PrivateRoute permission="account:manage">
               <AdminProfile />
             </PrivateRoute>
           }
@@ -239,7 +239,7 @@ const AppRoutes = () => {
         <Route
           path="/settings"
           element={
-            <PrivateRoute allowedRoles={["super-admin"]}>
+            <PrivateRoute permission="account:manage">
               <Settings />
             </PrivateRoute>
           }
