@@ -182,7 +182,7 @@ const Header = ({ sidebarOpen, setSidebarOpen, isDesktop }) => {
                 </span>
               </div>
 
-              <div className="max-h-80 overflow-y-auto">
+              <div className="max-h-85 overflow-y-auto">
                 {recentNotifications.length === 0 ? (
                   <p className="px-4 py-6 text-center text-sm text-gray-500">
                     No notifications yet
