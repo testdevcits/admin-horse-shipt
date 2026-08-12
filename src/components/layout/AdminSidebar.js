@@ -35,41 +35,46 @@ const navItems = [
   {
     name: "Shippers",
     icon: <Truck size={20} />,
-    permission: "shippers:view",
-    subPaths: [{ name: "Shippers List", path: "/shippers" }],
+    subPaths: [
+      { name: "Shippers List", path: "/shippers", permission: "shippers:list" },
+    ],
   },
 
   {
     name: "Customers",
     icon: <Users size={20} />,
-    permission: "customers:view",
-    subPaths: [{ name: "Customers List", path: "/customers" }],
+    subPaths: [
+      { name: "Customers List", path: "/customers", permission: "customers:list" },
+    ],
   },
 
   {
     name: "Shipments",
     icon: <ShieldCheck size={20} />,
-    permission: "shipments:view",
-    subPaths: [{ name: "All Shipments", path: "/shipments" }],
+    subPaths: [
+      { name: "All Shipments", path: "/shipments", permission: "shipments:list" },
+    ],
   },
 
   {
     name: "Horse Attributes",
     icon: <Leaf size={20} />,
-    permission: "horse_attributes:manage",
     subPaths: [
-      { name: "Breed List", path: "/breeds" },
-      { name: "Colors", path: "/colors" },
-      { name: "Sexes", path: "/sexes" },
+      { name: "Breed List", path: "/breeds", permission: "horse_attributes:breeds" },
+      { name: "Colors", path: "/colors", permission: "horse_attributes:colors" },
+      { name: "Sexes", path: "/sexes", permission: "horse_attributes:sexes" },
     ],
   },
 
   {
     name: "Newsletter",
     icon: <Mail size={20} />,
-    permission: "newsletter:manage",
     subPaths: [
-      { name: "Subscribers", path: "/newsletter-subscribers" },
+      {
+        name: "Subscribers",
+        path: "/newsletter-subscribers",
+        permission: "newsletter:subscribers",
+      },
       // You can add more newsletter actions here later
     ],
   },
@@ -77,26 +82,33 @@ const navItems = [
   {
     name: "Notifications",
     icon: <Bell size={20} />,
-    permission: "notifications:view",
-    subPaths: [{ name: "All Notifications", path: "/notifications" }],
+    subPaths: [
+      {
+        name: "All Notifications",
+        path: "/notifications",
+        permission: "notifications:list",
+      },
+    ],
   },
 
   {
   name: "Platform",
   icon: <CreditCard size={20} />,
-  permission: "platform:manage",
   subPaths: [
     {
       name: "Platform Settings",
       path: "/platform-settings",
+      permission: "platform:settings",
     },
     {
       name: "Stripe Payments",
       path: "/stripe-payments",
+      permission: "platform:stripe_payments",
     },
     {
       name: "Subscription Settings",
       path: "/subscription-settings",
+      permission: "platform:subscriptions",
     },
   ],
 },
@@ -104,21 +116,27 @@ const navItems = [
   {
     name: "Legal",
     icon: <BookOpen size={20} />,
-    permission: "legal:manage",
     subPaths: [
-      { name: "Privacy Policy", path: "/privacy-policy" },
-      { name: "Terms & Conditions", path: "/terms-conditions" },
+      {
+        name: "Privacy Policy",
+        path: "/privacy-policy",
+        permission: "legal:privacy_policy",
+      },
+      {
+        name: "Terms & Conditions",
+        path: "/terms-conditions",
+        permission: "legal:terms_conditions",
+      },
     ],
   },
 
   {
     name: "Account",
     icon: <UserCircle size={20} />,
-    permission: "account:manage",
     subPaths: [
-      { name: "Admin Profile", path: "/profile" },
+      { name: "Admin Profile", path: "/profile", permission: "account:profile" },
       { name: "Admin Users", path: "/admin-users", superAdminOnly: true },
-      { name: "Settings", path: "/settings" },
+      { name: "Settings", path: "/settings", permission: "account:settings" },
     ],
   },
 ];
@@ -163,7 +181,9 @@ const AdminSidebar = ({
     .map((item) => ({
       ...item,
       subPaths: item.subPaths?.filter(
-        (subPath) => !subPath.superAdminOnly || user?.role === "super-admin"
+        (subPath) =>
+          (!subPath.superAdminOnly || user?.role === "super-admin") &&
+          hasAdminPermission(user, subPath.permission)
       ),
     }))
     .filter((item) => !item.subPaths || item.subPaths.length > 0);

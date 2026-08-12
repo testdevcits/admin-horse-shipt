@@ -5,7 +5,11 @@ import Button from "../../components/common/Button";
 import ConfirmModal from "../../components/common/ConfirmModal";
 import DataTable from "../../components/common/DataTable";
 import Toast from "../../components/common/Toast";
-import { ADMIN_PERMISSION_KEYS, ADMIN_PERMISSIONS } from "../../config/adminPermissions";
+import {
+  ADMIN_PERMISSION_GROUPS,
+  ADMIN_PERMISSION_KEYS,
+  expandAdminPermissions,
+} from "../../config/adminPermissions";
 import { useAuth } from "../../context/AuthContext";
 import useDebouncedValue from "../../hooks/useDebouncedValue";
 
@@ -99,7 +103,7 @@ const AdminUsers = () => {
       email: admin.email || "",
       password: "",
       role: admin.role || "admin",
-      permissions: admin.permissions || [],
+      permissions: expandAdminPermissions(admin.permissions || []),
     });
     setModal({ open: true, mode: "edit", admin });
   };
@@ -142,6 +146,34 @@ const AdminUsers = () => {
       ...prev,
       permissions: checked ? ADMIN_PERMISSION_KEYS : [],
     }));
+  };
+
+  const togglePermissionGroup = (group, checked) => {
+    const groupKeys = group.permissions.map((permission) => permission.key);
+
+    setForm((prev) => {
+      const selected = new Set(prev.permissions || []);
+      groupKeys.forEach((permissionKey) => {
+        if (checked) {
+          selected.add(permissionKey);
+        } else {
+          selected.delete(permissionKey);
+        }
+      });
+
+      return { ...prev, permissions: Array.from(selected) };
+    });
+  };
+
+  const getGroupState = (group) => {
+    const selected = new Set(form.permissions || []);
+    const groupKeys = group.permissions.map((permission) => permission.key);
+    const selectedCount = groupKeys.filter((key) => selected.has(key)).length;
+
+    return {
+      checked: selectedCount === groupKeys.length,
+      partial: selectedCount > 0 && selectedCount < groupKeys.length,
+    };
   };
 
   const handleSubmit = async (event) => {
@@ -381,135 +413,188 @@ const AdminUsers = () => {
       />
 
       {modal.open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="w-full max-w-lg bg-white p-6 shadow-xl dark:bg-gray-900">
-            <div className="mb-5 flex items-center justify-between gap-3">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                {modal.mode === "create" ? "Add Admin" : "Edit Admin"}
-              </h2>
+        <div className="fixed inset-0 z-50 bg-black/40">
+          <div
+            className="absolute inset-y-0 right-0 flex w-full max-w-3xl flex-col bg-white shadow-2xl dark:bg-gray-900"
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="flex items-start justify-between gap-4 border-b border-gray-200 px-6 py-5 dark:border-gray-800">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  {modal.mode === "create" ? "Add Admin" : "Edit Admin"}
+                </h2>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  Assign menu and submenu access for this admin.
+                </p>
+              </div>
               <button
                 type="button"
                 onClick={closeModal}
-                className="text-gray-500 transition hover:text-gray-800 dark:text-gray-300 dark:hover:text-white"
+                className="mt-1 text-gray-500 transition hover:text-gray-800 dark:text-gray-300 dark:hover:text-white"
                 aria-label="Close"
               >
-                <FiX size={20} />
+                <FiX size={22} />
               </button>
             </div>
 
-            <form className="space-y-4" onSubmit={handleSubmit}>
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
-                  Name
-                </label>
-                <input
-                  name="name"
-                  value={form.name}
-                  onChange={handleFormChange}
-                  className="w-full border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-[#BF9B53] focus:ring-2 focus:ring-[#BF9B53]/15 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
-                  Email
-                </label>
-                <input
-                  name="email"
-                  type="email"
-                  value={form.email}
-                  onChange={handleFormChange}
-                  className="w-full border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-[#BF9B53] focus:ring-2 focus:ring-[#BF9B53]/15 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
-                  Role
-                </label>
-                <select
-                  name="role"
-                  value={form.role}
-                  onChange={handleRoleChange}
-                  className="w-full border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-[#BF9B53] focus:ring-2 focus:ring-[#BF9B53]/15 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
-                >
-                  <option value="admin">Admin</option>
-                  <option value="super-admin">Super Admin</option>
-                </select>
-              </div>
-
-              {form.role !== "super-admin" && (
-                <div>
-                  <div className="mb-2 flex items-center justify-between gap-3">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
-                      Module Access
+            <form className="flex min-h-0 flex-1 flex-col" onSubmit={handleSubmit}>
+              <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
+                      Name
                     </label>
-                    <label className="flex items-center gap-2 text-xs font-medium text-gray-600 dark:text-gray-300">
-                      <input
-                        type="checkbox"
-                        checked={
-                          form.permissions.length === ADMIN_PERMISSION_KEYS.length
-                        }
-                        onChange={(event) =>
-                          setAllPermissions(event.target.checked)
-                        }
-                        className="h-4 w-4 accent-[#BF9B53]"
-                      />
-                      Select all
-                    </label>
+                    <input
+                      name="name"
+                      value={form.name}
+                      onChange={handleFormChange}
+                      className="w-full border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-[#BF9B53] focus:ring-2 focus:ring-[#BF9B53]/15 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                      required
+                    />
                   </div>
 
-                  <div className="grid max-h-56 gap-2 overflow-y-auto border border-gray-200 p-3 dark:border-gray-700 sm:grid-cols-2">
-                    {ADMIN_PERMISSIONS.map((permission) => (
-                      <label
-                        key={permission.key}
-                        className="flex cursor-pointer gap-2 border border-gray-100 p-2 text-sm dark:border-gray-800"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={(form.permissions || []).includes(
-                            permission.key
-                          )}
-                          onChange={() => togglePermission(permission.key)}
-                          className="mt-1 h-4 w-4 shrink-0 accent-[#BF9B53]"
-                        />
-                        <span className="min-w-0">
-                          <span className="block font-semibold text-gray-800 dark:text-gray-100">
-                            {permission.label}
-                          </span>
-                          <span className="block text-xs leading-5 text-gray-500 dark:text-gray-400">
-                            {permission.description}
-                          </span>
-                        </span>
-                      </label>
-                    ))}
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
+                      Email
+                    </label>
+                    <input
+                      name="email"
+                      type="email"
+                      value={form.email}
+                      onChange={handleFormChange}
+                      className="w-full border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-[#BF9B53] focus:ring-2 focus:ring-[#BF9B53]/15 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
+                      Role
+                    </label>
+                    <select
+                      name="role"
+                      value={form.role}
+                      onChange={handleRoleChange}
+                      className="w-full border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-[#BF9B53] focus:ring-2 focus:ring-[#BF9B53]/15 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                    >
+                      <option value="admin">Admin</option>
+                      <option value="super-admin">Super Admin</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
+                      Password
+                    </label>
+                    <input
+                      name="password"
+                      type="password"
+                      value={form.password}
+                      onChange={handleFormChange}
+                      placeholder={
+                        modal.mode === "create"
+                          ? "Required"
+                          : "Leave blank to keep current password"
+                      }
+                      className="w-full border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-[#BF9B53] focus:ring-2 focus:ring-[#BF9B53]/15 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                      required={modal.mode === "create"}
+                      minLength={6}
+                    />
                   </div>
                 </div>
-              )}
 
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
-                  Password
-                </label>
-                <input
-                  name="password"
-                  type="password"
-                  value={form.password}
-                  onChange={handleFormChange}
-                  placeholder={
-                    modal.mode === "create"
-                      ? "Required"
-                      : "Leave blank to keep current password"
-                  }
-                  className="w-full border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-[#BF9B53] focus:ring-2 focus:ring-[#BF9B53]/15 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
-                  required={modal.mode === "create"}
-                  minLength={6}
-                />
+                {form.role !== "super-admin" && (
+                  <div className="mt-6">
+                    <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">
+                          Menu and Submenu Access
+                        </h3>
+                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                          Select a parent menu to grant all of its submenus, or select submenus one by one.
+                        </p>
+                      </div>
+                      <label className="flex items-center gap-2 text-xs font-medium text-gray-600 dark:text-gray-300">
+                        <input
+                          type="checkbox"
+                          checked={
+                            form.permissions.length === ADMIN_PERMISSION_KEYS.length
+                          }
+                          onChange={(event) =>
+                            setAllPermissions(event.target.checked)
+                          }
+                          className="h-4 w-4 accent-[#BF9B53]"
+                        />
+                        Select all
+                      </label>
+                    </div>
+
+                    <div className="grid gap-3 lg:grid-cols-2">
+                      {ADMIN_PERMISSION_GROUPS.map((group) => {
+                        const groupState = getGroupState(group);
+
+                        return (
+                          <div
+                            key={group.key}
+                            className="border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950"
+                          >
+                            <label className="flex cursor-pointer items-start gap-3">
+                              <input
+                                type="checkbox"
+                                checked={groupState.checked}
+                                ref={(input) => {
+                                  if (input) input.indeterminate = groupState.partial;
+                                }}
+                                onChange={(event) =>
+                                  togglePermissionGroup(group, event.target.checked)
+                                }
+                                className="mt-1 h-4 w-4 shrink-0 accent-[#BF9B53]"
+                              />
+                              <span className="min-w-0">
+                                <span className="block font-semibold text-gray-900 dark:text-white">
+                                  {group.label}
+                                </span>
+                                <span className="block text-xs leading-5 text-gray-500 dark:text-gray-400">
+                                  {group.description}
+                                </span>
+                              </span>
+                            </label>
+
+                            <div className="mt-3 space-y-2 border-t border-gray-100 pt-3 dark:border-gray-800">
+                              {group.permissions.map((permission) => (
+                                <label
+                                  key={permission.key}
+                                  className="flex cursor-pointer gap-2 text-sm"
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={(form.permissions || []).includes(
+                                      permission.key
+                                    )}
+                                    onChange={() => togglePermission(permission.key)}
+                                    className="mt-1 h-4 w-4 shrink-0 accent-[#BF9B53]"
+                                  />
+                                  <span className="min-w-0">
+                                    <span className="block font-medium text-gray-800 dark:text-gray-100">
+                                      {permission.label}
+                                    </span>
+                                    <span className="block text-xs leading-5 text-gray-500 dark:text-gray-400">
+                                      {permission.description}
+                                    </span>
+                                  </span>
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex shrink-0 justify-end gap-2 border-t border-gray-200 px-6 py-4 dark:border-gray-800">
                 <Button variant="outline" onClick={closeModal} disabled={saving}>
                   Cancel
                 </Button>

@@ -68,7 +68,7 @@ const AppRoutes = () => {
         <Route
   path="/subscription-settings"
   element={
-    <PrivateRoute permission="platform:manage">
+    <PrivateRoute permission="platform:subscriptions">
       <SubscriptionSettings />
     </PrivateRoute>
   }
@@ -86,7 +86,7 @@ const AppRoutes = () => {
         <Route
           path="/shippers"
           element={
-            <PrivateRoute permission="shippers:view">
+            <PrivateRoute permission="shippers:list">
               <Shippers />
             </PrivateRoute>
           }
@@ -94,7 +94,7 @@ const AppRoutes = () => {
         <Route
           path="/shippers/:id"
           element={
-            <PrivateRoute permission="shippers:view">
+            <PrivateRoute permission="shippers:list">
               <ShipperDetail />
             </PrivateRoute>
           }
@@ -103,7 +103,7 @@ const AppRoutes = () => {
         <Route
           path="/customers"
           element={
-            <PrivateRoute permission="customers:view">
+            <PrivateRoute permission="customers:list">
               <Customers />
             </PrivateRoute>
           }
@@ -111,7 +111,7 @@ const AppRoutes = () => {
         <Route
           path="/customers/:id"
           element={
-            <PrivateRoute permission="customers:view">
+            <PrivateRoute permission="customers:list">
               <CustomerDetail />
             </PrivateRoute>
           }
@@ -120,7 +120,7 @@ const AppRoutes = () => {
         <Route
           path="/shipments"
           element={
-            <PrivateRoute permission="shipments:view">
+            <PrivateRoute permission="shipments:list">
               <Shipments />
             </PrivateRoute>
           }
@@ -128,7 +128,7 @@ const AppRoutes = () => {
         <Route
           path="/shipments/:id"
           element={
-            <PrivateRoute permission="shipments:view">
+            <PrivateRoute permission="shipments:list">
               <ShipmentDetail />
             </PrivateRoute>
           }
@@ -137,7 +137,7 @@ const AppRoutes = () => {
         <Route
           path="/breeds"
           element={
-            <PrivateRoute permission="horse_attributes:manage">
+            <PrivateRoute permission="horse_attributes:breeds">
               <BreedList />
             </PrivateRoute>
           }
@@ -146,7 +146,7 @@ const AppRoutes = () => {
         <Route
           path="/colors"
           element={
-            <PrivateRoute permission="horse_attributes:manage">
+            <PrivateRoute permission="horse_attributes:colors">
               <ColorList />
             </PrivateRoute>
           }
@@ -155,7 +155,7 @@ const AppRoutes = () => {
         <Route
           path="/sexes"
           element={
-            <PrivateRoute permission="horse_attributes:manage">
+            <PrivateRoute permission="horse_attributes:sexes">
               <SexList />
             </PrivateRoute>
           }
@@ -164,7 +164,7 @@ const AppRoutes = () => {
         <Route
           path="/platform-settings"
           element={
-            <PrivateRoute permission="platform:manage">
+            <PrivateRoute permission="platform:settings">
               <PlatformSettings />
             </PrivateRoute>
           }
@@ -173,7 +173,7 @@ const AppRoutes = () => {
         <Route
           path="/stripe-payments"
           element={
-            <PrivateRoute permission="platform:manage">
+            <PrivateRoute permission="platform:stripe_payments">
               <StripePayments />
             </PrivateRoute>
           }
@@ -185,7 +185,7 @@ const AppRoutes = () => {
         <Route
           path="/privacy-policy"
           element={
-            <PrivateRoute permission="legal:manage">
+            <PrivateRoute permission="legal:privacy_policy">
               <PrivacyPolicyList />
             </PrivateRoute>
           }
@@ -194,7 +194,7 @@ const AppRoutes = () => {
         <Route
           path="/terms-conditions"
           element={
-            <PrivateRoute permission="legal:manage">
+            <PrivateRoute permission="legal:terms_conditions">
               <TermsConditionList />
             </PrivateRoute>
           }
@@ -202,7 +202,7 @@ const AppRoutes = () => {
         <Route
           path="/newsletter-subscribers"
           element={
-            <PrivateRoute permission="newsletter:manage">
+            <PrivateRoute permission="newsletter:subscribers">
               <NewsletterSubscribers />
             </PrivateRoute>
           }
@@ -211,7 +211,7 @@ const AppRoutes = () => {
         <Route
           path="/notifications"
           element={
-            <PrivateRoute permission="notifications:view">
+            <PrivateRoute permission="notifications:list">
               <AdminNotifications />
             </PrivateRoute>
           }
@@ -221,7 +221,7 @@ const AppRoutes = () => {
         <Route
           path="/profile"
           element={
-            <PrivateRoute permission="account:manage">
+            <PrivateRoute permission="account:profile">
               <AdminProfile />
             </PrivateRoute>
           }
@@ -239,7 +239,7 @@ const AppRoutes = () => {
         <Route
           path="/settings"
           element={
-            <PrivateRoute permission="account:manage">
+            <PrivateRoute permission="account:settings">
               <Settings />
             </PrivateRoute>
           }
