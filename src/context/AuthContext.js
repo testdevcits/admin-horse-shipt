@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }) => {
 
     if (token && storedUser) {
       setUser(JSON.parse(storedUser));
-      setLoading(false);
+      fetchProfile();
     } else if (token) {
       fetchProfile();
     } else {

@@ -106,6 +106,7 @@ const navItems = [
     icon: <UserCircle size={20} />,
     subPaths: [
       { name: "Admin Profile", path: "/profile" },
+      { name: "Admin Users", path: "/admin-users" },
       { name: "Settings", path: "/settings" },
     ],
   },

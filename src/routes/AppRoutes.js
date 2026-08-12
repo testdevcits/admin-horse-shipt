@@ -20,6 +20,7 @@ const Shipments = lazy(() => import("../pages/shipments/Shipments"));
 const ShipmentDetail = lazy(() => import("../pages/shipments/ShipmentDetail"));
 const Settings = lazy(() => import("../pages/settings/Settings"));
 const AdminProfile = lazy(() => import("../pages/profile/AdminProfile"));
+const AdminUsers = lazy(() => import("../pages/adminUsers/AdminUsers"));
 const Unauthorized = lazy(() => import("../pages/Unauthorized"));
 const NewsletterSubscribers = lazy(() =>
   import("../pages/Newsletter/NewsletterSubscribers")
@@ -222,6 +223,15 @@ const AppRoutes = () => {
           element={
             <PrivateRoute allowedRoles={["super-admin"]}>
               <AdminProfile />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/admin-users"
+          element={
+            <PrivateRoute allowedRoles={["super-admin"]}>
+              <AdminUsers />
             </PrivateRoute>
           }
         />
