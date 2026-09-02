@@ -532,82 +532,6 @@ const Settings = () => {
         </SettingsCard>
 
         <SettingsCard
-          title="Security"
-          description="Update your admin password. Keep it unique and private."
-          icon={<FiLock size={18} />}
-        >
-          <form onSubmit={handlePasswordSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-              <input
-                type="password"
-                name="currentPassword"
-                value={passwords.currentPassword}
-                onChange={handlePasswordChange}
-                placeholder="Current password"
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#BF9B53] focus:ring-2 focus:ring-[#BF9B53]/20 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
-                required
-              />
-              <input
-                type="password"
-                name="newPassword"
-                value={passwords.newPassword}
-                onChange={handlePasswordChange}
-                placeholder="New password"
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#BF9B53] focus:ring-2 focus:ring-[#BF9B53]/20 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
-                required
-              />
-              <input
-                type="password"
-                name="confirmPassword"
-                value={passwords.confirmPassword}
-                onChange={handlePasswordChange}
-                placeholder="Confirm password"
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#BF9B53] focus:ring-2 focus:ring-[#BF9B53]/20 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={saving}
-              className="rounded-md bg-gray-900 px-5 py-2 text-sm font-bold text-white transition hover:bg-[#4C3E21] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#BF9B53] dark:hover:bg-[#997C42]"
-            >
-              {saving ? "Updating..." : "Update Password"}
-            </button>
-          </form>
-        </SettingsCard>
-
-        <SettingsCard
-          title="Operations"
-          description="Common admin areas and support actions."
-          icon={<FiShield size={18} />}
-        >
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {[
-              ["Platform Settings", "/platform-settings", FiCheckCircle],
-              ["Legal Content", "/privacy-policy", FiCheckCircle],
-              ["Newsletter", "/newsletter-subscribers", FiMail],
-              ["Notifications", "/notifications", FiBell],
-            ].map(([label, href, Icon]) => (
-              <a
-                key={label}
-                href={href}
-                className="flex items-center gap-3 rounded-md border border-gray-100 bg-slate-50 p-3 text-sm font-semibold text-gray-700 transition hover:border-[#BF9B53]/40 hover:bg-[#BF9B53]/10 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-200"
-              >
-                <Icon className="text-[#BF9B53]" />
-                {label}
-              </a>
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={logout}
-            className="mt-4 rounded-md border border-red-200 bg-red-50 px-5 py-2 text-sm font-bold text-red-600 transition hover:bg-red-100 dark:border-red-900 dark:bg-red-950"
-          >
-            Logout
-          </button>
-        </SettingsCard>
-
-        <SettingsCard
           title="Social Media"
           description="Manage footer social links without changing code."
           icon={<FaInstagram size={18} />}
@@ -677,6 +601,82 @@ const Settings = () => {
             </div>
           </form>
         </SettingsCard>
+
+        <SettingsCard
+          title="Operations"
+          description="Common admin areas and support actions."
+          icon={<FiShield size={18} />}
+        >
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {[
+              ["Platform Settings", "/platform-settings", FiCheckCircle],
+              ["Legal Content", "/privacy-policy", FiCheckCircle],
+              ["Newsletter", "/newsletter-subscribers", FiMail],
+              ["Notifications", "/notifications", FiBell],
+            ].map(([label, href, Icon]) => (
+              <a
+                key={label}
+                href={href}
+                className="flex items-center gap-3 rounded-md border border-gray-100 bg-slate-50 p-3 text-sm font-semibold text-gray-700 transition hover:border-[#BF9B53]/40 hover:bg-[#BF9B53]/10 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-200"
+              >
+                <Icon className="text-[#BF9B53]" />
+                {label}
+              </a>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={logout}
+            className="mt-4 rounded-md border border-red-200 bg-red-50 px-5 py-2 text-sm font-bold text-red-600 transition hover:bg-red-100 dark:border-red-900 dark:bg-red-950"
+          >
+            Logout
+          </button>
+        </SettingsCard>
+ <SettingsCard
+          title="Security"
+          description="Update your admin password. Keep it unique and private."
+          icon={<FiLock size={18} />}
+        >
+          <form onSubmit={handlePasswordSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+              <input
+                type="password"
+                name="currentPassword"
+                value={passwords.currentPassword}
+                onChange={handlePasswordChange}
+                placeholder="Current password"
+                className="rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#BF9B53] focus:ring-2 focus:ring-[#BF9B53]/20 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                required
+              />
+              <input
+                type="password"
+                name="newPassword"
+                value={passwords.newPassword}
+                onChange={handlePasswordChange}
+                placeholder="New password"
+                className="rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#BF9B53] focus:ring-2 focus:ring-[#BF9B53]/20 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                required
+              />
+              <input
+                type="password"
+                name="confirmPassword"
+                value={passwords.confirmPassword}
+                onChange={handlePasswordChange}
+                placeholder="Confirm password"
+                className="rounded-md border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#BF9B53] focus:ring-2 focus:ring-[#BF9B53]/20 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={saving}
+              className="rounded-md bg-gray-900 px-5 py-2 text-sm font-bold text-white transition hover:bg-[#4C3E21] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#BF9B53] dark:hover:bg-[#997C42]"
+            >
+              {saving ? "Updating..." : "Update Password"}
+            </button>
+          </form>
+        </SettingsCard>
+       
       </div>
     </div>
   );
