@@ -12,6 +12,7 @@ import {
   Home,
   Leaf,
   Mail,
+  MessageSquareText,
   ShieldCheck,
   Truck,
   UserCircle,
@@ -87,6 +88,17 @@ const navItems = [
         name: "All Notifications",
         path: "/notifications",
         permission: "notifications:list",
+      },
+    ],
+  },
+  {
+    name: "Support",
+    icon: <MessageSquareText size={20} />,
+    subPaths: [
+      {
+        name: "Support Inbox",
+        path: "/support",
+        permission: "support:list",
       },
     ],
   },

@@ -28,6 +28,7 @@ const NewsletterSubscribers = lazy(() =>
 const AdminNotifications = lazy(() =>
   import("../pages/notifications/AdminNotifications")
 );
+const SupportInbox = lazy(() => import("../pages/support/SupportInbox"));
 
 // Breed & Platform
 const BreedList = lazy(() => import("../pages/Breed/BreedList"));
@@ -213,6 +214,14 @@ const AppRoutes = () => {
           element={
             <PrivateRoute permission="notifications:list">
               <AdminNotifications />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/support"
+          element={
+            <PrivateRoute permission="support:list">
+              <SupportInbox />
             </PrivateRoute>
           }
         />

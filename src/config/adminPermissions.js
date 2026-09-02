@@ -94,6 +94,18 @@ export const ADMIN_PERMISSION_GROUPS = [
     ],
   },
   {
+    key: "support:manage",
+    label: "Support",
+    description: "View and reply to shipper and customer support requests.",
+    permissions: [
+      {
+        key: "support:list",
+        label: "Support Inbox",
+        description: "Manage support tickets and mark them resolved.",
+      },
+    ],
+  },
+  {
     key: "platform:manage",
     label: "Platform",
     description: "Manage platform settings, Stripe, payments, and subscriptions.",
@@ -170,6 +182,7 @@ export const LEGACY_PERMISSION_GRANTS = {
   ],
   "newsletter:manage": ["newsletter:subscribers"],
   "notifications:view": ["notifications:list"],
+  "support:manage": ["support:list"],
   "platform:manage": [
     "platform:settings",
     "platform:stripe_payments",
