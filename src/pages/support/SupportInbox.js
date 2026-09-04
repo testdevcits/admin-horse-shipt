@@ -1,5 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { FiCheckCircle, FiClock, FiMessageSquare, FiRefreshCcw, FiSend } from "react-icons/fi";
+import {
+  FiCheckCircle,
+  FiClock,
+  FiFileText,
+  FiRefreshCcw,
+  FiSend,
+} from "react-icons/fi";
 import API from "../../api/axios";
 import Button from "../../components/common/Button";
 
@@ -16,8 +22,8 @@ const statusStyles = {
 };
 
 const tabs = [
-  { label: "Shipper", value: "shipper" },
-  { label: "Customer", value: "customer" },
+  { label: "Shipper Tickets", value: "shipper" },
+  { label: "Customer Tickets", value: "customer" },
 ];
 
 const statusOptions = [
@@ -32,6 +38,7 @@ const formatDate = (value) =>
     ? new Date(value).toLocaleString("en-US", {
         month: "short",
         day: "numeric",
+        year: "numeric",
         hour: "numeric",
         minute: "2-digit",
       })
@@ -39,6 +46,17 @@ const formatDate = (value) =>
 
 const requesterName = (ticket) =>
   ticket.requester?.name || ticket.requester?.email || "Unknown user";
+
+const getTicketNumber = (ticket) =>
+  ticket?._id ? `HS-${ticket._id.slice(-6).toUpperCase()}` : "HS-NEW";
+
+const getInitialIssue = (ticket) =>
+  ticket?.messages?.find((item) => item.senderRole === ticket.requesterRole);
+
+const getLatestAdminReply = (ticket) =>
+  [...(ticket?.messages || [])]
+    .reverse()
+    .find((item) => item.senderRole === "admin");
 
 const SupportInbox = () => {
   const [role, setRole] = useState("shipper");
@@ -127,11 +145,11 @@ const SupportInbox = () => {
       });
       replaceTicket(res.data?.data);
       setReply("");
-      setNotice({ type: "success", message: "Reply sent successfully." });
+      setNotice({ type: "success", message: "Admin response saved." });
     } catch (error) {
       setNotice({
         type: "error",
-        message: error.response?.data?.message || "Failed to send reply.",
+        message: error.response?.data?.message || "Failed to save response.",
       });
     } finally {
       setSaving(false);
@@ -143,10 +161,10 @@ const SupportInbox = () => {
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-            Support Inbox
+            Support Tickets
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Reply to support messages and mark requests in progress or resolved.
+            Review user queries, reply, and update ticket status.
           </p>
         </div>
         <Button
@@ -210,155 +228,229 @@ const SupportInbox = () => {
         </div>
       )}
 
-      <div className="grid gap-5 xl:grid-cols-[420px_1fr]">
+      <div className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
         <section className="border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
           <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-gray-800">
             <p className="text-sm font-bold text-gray-800 dark:text-white">
-              {role === "shipper" ? "Shipper" : "Customer"} Queries
+              {role === "shipper" ? "Shipper" : "Customer"} Ticket Table
             </p>
             <span className="text-xs font-semibold text-system-primary">
               {tickets.length}
             </span>
           </div>
-          <div className="max-h-[680px] overflow-y-auto">
-            {loading ? (
-              <p className="p-4 text-sm text-gray-500 dark:text-gray-400">
-                Loading tickets...
-              </p>
-            ) : tickets.length === 0 ? (
-              <p className="p-4 text-sm text-gray-500 dark:text-gray-400">
-                No support queries found.
-              </p>
-            ) : (
-              tickets.map((ticket) => (
-                <button
-                  key={ticket._id}
-                  type="button"
-                  onClick={() => setSelectedId(ticket._id)}
-                  className={`block w-full border-b border-gray-100 px-4 py-3 text-left transition hover:bg-system-primary/5 dark:border-gray-800 dark:hover:bg-gray-800 ${
-                    selectedId === ticket._id
-                      ? "bg-system-primary/10 dark:bg-gray-800"
-                      : ""
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-bold text-gray-800 dark:text-white">
-                        {ticket.subject}
-                      </p>
-                      <p className="mt-1 truncate text-xs text-gray-500 dark:text-gray-400">
-                        {requesterName(ticket)} • {ticket.category}
-                      </p>
-                    </div>
-                    <span
-                      className={`shrink-0 px-2 py-1 text-[10px] font-bold ${
-                        statusStyles[ticket.status]
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[900px] text-left">
+              <thead className="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-800 dark:text-gray-300">
+                <tr>
+                  <th className="px-4 py-3">Ticket ID</th>
+                  <th className="px-4 py-3">User</th>
+                  <th className="px-4 py-3">Subject</th>
+                  <th className="px-4 py-3">Category</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">Updated</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-5 text-sm text-gray-500">
+                      Loading tickets...
+                    </td>
+                  </tr>
+                ) : tickets.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-5 text-sm text-gray-500">
+                      No support tickets found.
+                    </td>
+                  </tr>
+                ) : (
+                  tickets.map((ticket) => (
+                    <tr
+                      key={ticket._id}
+                      onClick={() => setSelectedId(ticket._id)}
+                      className={`cursor-pointer border-t border-gray-100 transition hover:bg-system-primary/5 dark:border-gray-800 dark:hover:bg-gray-800 ${
+                        selectedId === ticket._id ? "bg-system-primary/10 dark:bg-gray-800" : ""
                       }`}
                     >
-                      {statusLabels[ticket.status]}
-                    </span>
-                  </div>
-                  <p className="mt-2 truncate text-xs text-gray-500 dark:text-gray-400">
-                    {ticket.latestMessage?.message || "No message"}
-                  </p>
-                </button>
-              ))
-            )}
+                      <td className="px-4 py-3 text-sm font-bold text-system-primary">
+                        {getTicketNumber(ticket)}
+                      </td>
+                      <td className="px-4 py-3">
+                        <p className="text-sm font-semibold text-gray-800 dark:text-white">
+                          {requesterName(ticket)}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {ticket.requester?.email || "No email"}
+                        </p>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200">
+                        {ticket.subject}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
+                        {ticket.category}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-flex px-2 py-1 text-xs font-bold ${
+                            statusStyles[ticket.status]
+                          }`}
+                        >
+                          {statusLabels[ticket.status]}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
+                        {formatDate(ticket.lastMessageAt)}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         </section>
 
-        <section className="flex min-h-[680px] flex-col border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+        <section className="border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+          <div className="border-b border-gray-200 px-5 py-4 dark:border-gray-800">
+            <h2 className="text-base font-bold text-gray-800 dark:text-white">
+              Ticket Details
+            </h2>
+          </div>
           {selectedTicket ? (
-            <>
-              <div className="border-b border-gray-200 px-5 py-4 dark:border-gray-800">
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                  <div>
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-                      {selectedTicket.subject}
-                    </h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {requesterName(selectedTicket)} • {selectedTicket.requester?.email || "No email"}
-                    </p>
-                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                      Created {formatDate(selectedTicket.createdAt)} • Last message {formatDate(selectedTicket.lastMessageAt)}
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      icon={<FiClock size={13} />}
-                      disabled={saving || selectedTicket.status === "in_progress"}
-                      onClick={() => updateStatus("in_progress")}
-                    >
-                      In Progress
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="primary"
-                      icon={<FiCheckCircle size={13} />}
-                      disabled={saving || selectedTicket.status === "resolved"}
-                      onClick={() => updateStatus("resolved")}
-                    >
-                      Resolve
-                    </Button>
-                  </div>
+            <div className="space-y-5 p-5">
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="border border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-gray-950">
+                  <p className="text-xs font-bold uppercase text-gray-500">Ticket ID</p>
+                  <p className="mt-1 text-sm font-bold text-gray-900 dark:text-white">
+                    {getTicketNumber(selectedTicket)}
+                  </p>
+                </div>
+                <div className="border border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-gray-950">
+                  <p className="text-xs font-bold uppercase text-gray-500">Priority</p>
+                  <p className="mt-1 text-sm font-bold capitalize text-gray-900 dark:text-white">
+                    {selectedTicket.priority}
+                  </p>
+                </div>
+                <div className="border border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-gray-950">
+                  <p className="text-xs font-bold uppercase text-gray-500">Status</p>
+                  <p className="mt-1 text-sm font-bold text-gray-900 dark:text-white">
+                    {statusLabels[selectedTicket.status]}
+                  </p>
                 </div>
               </div>
 
-              <div className="flex-1 space-y-3 overflow-y-auto bg-gray-50 p-5 dark:bg-gray-950/40">
-                {selectedTicket.messages?.map((item) => {
-                  const adminMessage = item.senderRole === "admin";
-                  return (
+              <div>
+                <p className="text-xs font-bold uppercase text-gray-500">Submitted By</p>
+                <p className="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
+                  {requesterName(selectedTicket)}
+                </p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {selectedTicket.requester?.email || "No email"}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs font-bold uppercase text-gray-500">Subject</p>
+                <p className="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
+                  {selectedTicket.subject}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-xs font-bold uppercase text-gray-500">Issue Details</p>
+                <div className="mt-2 border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950">
+                  <p className="whitespace-pre-wrap text-sm leading-6 text-gray-800 dark:text-gray-100">
+                    {getInitialIssue(selectedTicket)?.message || "No issue details available."}
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs font-bold uppercase text-gray-500">Latest Admin Response</p>
+                <div className="mt-2 border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950">
+                  {getLatestAdminReply(selectedTicket) ? (
+                    <>
+                      <p className="whitespace-pre-wrap text-sm leading-6 text-gray-800 dark:text-gray-100">
+                        {getLatestAdminReply(selectedTicket).message}
+                      </p>
+                      <p className="mt-2 text-xs text-gray-500">
+                        {formatDate(getLatestAdminReply(selectedTicket).createdAt)}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-sm text-gray-500">No admin response yet.</p>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <p className="mb-2 text-xs font-bold uppercase text-gray-500">
+                  Ticket Activity
+                </p>
+                <div className="space-y-3">
+                  {selectedTicket.messages?.map((item) => (
                     <div
                       key={item._id || item.createdAt}
-                      className={`flex ${adminMessage ? "justify-end" : "justify-start"}`}
+                      className="border-l-2 border-system-primary pl-3"
                     >
-                      <div
-                        className={`max-w-[78%] border px-4 py-3 text-sm shadow-sm ${
-                          adminMessage
-                            ? "border-system-primary/30 bg-system-primary text-white"
-                            : "border-gray-200 bg-white text-gray-800 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100"
-                        }`}
-                      >
-                        <p className="whitespace-pre-wrap leading-6">{item.message}</p>
-                        <p
-                          className={`mt-2 text-[10px] ${
-                            adminMessage ? "text-white/80" : "text-gray-500 dark:text-gray-400"
-                          }`}
-                        >
-                          {adminMessage ? "Admin" : selectedTicket.requesterRole} • {formatDate(item.createdAt)}
-                        </p>
+                      <div className="flex flex-wrap items-center gap-2 text-xs font-bold uppercase text-gray-500">
+                        {item.senderRole === "admin" ? <FiCheckCircle /> : <FiFileText />}
+                        {item.senderRole === "admin" ? "Admin Response" : "User Update"}
+                        <span className="font-medium normal-case">
+                          {formatDate(item.createdAt)}
+                        </span>
                       </div>
+                      <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-gray-800 dark:text-gray-100">
+                        {item.message}
+                      </p>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
               </div>
 
-              <form onSubmit={sendReply} className="border-t border-gray-200 p-4 dark:border-gray-800">
-                <div className="flex gap-3">
-                  <textarea
-                    value={reply}
-                    onChange={(event) => setReply(event.target.value)}
-                    rows={2}
-                    placeholder="Write admin reply"
-                    className="min-h-[44px] flex-1 resize-none border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-system-primary focus:ring-2 focus:ring-system-primary/15 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-                    maxLength={3000}
-                  />
-                  <button
+              <form onSubmit={sendReply} className="border-t border-gray-200 pt-4 dark:border-gray-800">
+                <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-gray-500">
+                  Admin Response
+                </label>
+                <textarea
+                  value={reply}
+                  onChange={(event) => setReply(event.target.value)}
+                  rows={4}
+                  placeholder="Write a clear support response"
+                  className="w-full resize-none border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-system-primary focus:ring-2 focus:ring-system-primary/15 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                  maxLength={3000}
+                />
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Button
                     type="submit"
-                    disabled={saving || !reply.trim()}
-                    className="flex h-11 w-11 shrink-0 items-center justify-center bg-system-primary text-white transition hover:opacity-90 disabled:opacity-60"
-                    title="Send reply"
+                    icon={<FiSend size={14} />}
+                    loading={saving}
+                    disabled={!reply.trim()}
                   >
-                    {saving ? <FiMessageSquare /> : <FiSend />}
-                  </button>
+                    Save Reply
+                  </Button>
+                  <Button
+                    variant="outline"
+                    icon={<FiClock size={14} />}
+                    disabled={saving || selectedTicket.status === "in_progress"}
+                    onClick={() => updateStatus("in_progress")}
+                  >
+                    Mark In Progress
+                  </Button>
+                  <Button
+                    variant="outline"
+                    icon={<FiCheckCircle size={14} />}
+                    disabled={saving || selectedTicket.status === "resolved"}
+                    onClick={() => updateStatus("resolved")}
+                  >
+                    Mark Resolved
+                  </Button>
                 </div>
               </form>
-            </>
+            </div>
           ) : (
-            <div className="flex flex-1 items-center justify-center p-8 text-center text-gray-500 dark:text-gray-400">
-              Select a support query to view messages.
+            <div className="flex min-h-[420px] items-center justify-center gap-2 p-8 text-center text-gray-500 dark:text-gray-400">
+              <FiClock />
+              Select a ticket from the table.
             </div>
           )}
         </section>
