@@ -17,6 +17,10 @@ const getNotificationTarget = (notification = {}) => {
     return "/newsletter-subscribers";
   }
 
+  if (event.includes("support") || data.ticketId) {
+    return "/support";
+  }
+
   if (data.shipmentId) {
     return `/shipments/${data.shipmentId}`;
   }

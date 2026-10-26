@@ -1,13 +1,7 @@
 import CustomDropdown from "../../components/common/CustomDropdown";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import ClearSearchButton from "../../components/common/ClearSearchButton";
-import {
-  FiCheckCircle,
-  FiClock,
-  FiFileText,
-  FiRefreshCcw,
-  FiSend,
-} from "react-icons/fi";
+import { FiClock, FiRefreshCcw, FiSend } from "react-icons/fi";
 import API from "../../api/axios";
 import Button from "../../components/common/Button";
 
@@ -51,14 +45,6 @@ const requesterName = (ticket) =>
 
 const getTicketNumber = (ticket) =>
   ticket?._id ? `HS-${ticket._id.slice(-6).toUpperCase()}` : "HS-NEW";
-
-const getInitialIssue = (ticket) =>
-  ticket?.messages?.find((item) => item.senderRole === ticket.requesterRole);
-
-const getLatestAdminReply = (ticket) =>
-  [...(ticket?.messages || [])]
-    .reverse()
-    .find((item) => item.senderRole === "admin");
 
 const SupportInbox = () => {
   const [role, setRole] = useState("shipper");
@@ -159,7 +145,7 @@ const SupportInbox = () => {
   };
 
   return (
-    <div className="min-h-screen space-y-5">
+    <div className="min-h-screen space-y-5 bg-[#f4f1eb] p-1 text-[#20201e]">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
@@ -179,8 +165,8 @@ const SupportInbox = () => {
         </Button>
       </div>
 
-      <div className="flex flex-col gap-3 border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900 md:flex-row md:items-center">
-        <div className="inline-flex w-full border border-gray-200 bg-gray-50 p-1 dark:border-gray-700 dark:bg-gray-800 md:w-auto">
+      <div className="grid gap-3 rounded-2xl border border-[#e8e1d6] bg-white p-3 shadow-sm lg:grid-cols-[auto_minmax(220px,1fr)_150px] lg:items-center">
+        <div className="flex rounded-xl border border-[#e8e1d6] bg-[#faf8f4] p-1">
           {tabs.map((tab) => (
             <button
               key={tab.value}
@@ -191,11 +177,16 @@ const SupportInbox = () => {
               }}
               className={`flex-1 px-4 py-2 text-sm font-semibold transition md:flex-none ${
                 role === tab.value
-                  ? "bg-system-primary text-white"
-                  : "text-gray-600 hover:text-system-primary dark:text-gray-300"
+                  ? "rounded-lg bg-[#bf9948] text-white shadow-sm"
+                  : "rounded-lg text-gray-600 hover:bg-white"
               }`}
             >
               {tab.label}
+              {role === tab.value && (
+                <span className="ml-2 rounded-full bg-black/10 px-1.5 py-0.5 text-[10px]">
+                  {tickets.length}
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -204,14 +195,14 @@ const SupportInbox = () => {
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Search subject, category, or message"
-            className="w-full border border-gray-300 px-3 py-2 pr-10 text-sm outline-none transition focus:border-system-primary focus:ring-2 focus:ring-system-primary/15 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+            className="h-10 w-full rounded-lg border border-[#e8e1d6] bg-[#faf8f4] px-3 pr-10 text-sm outline-none transition focus:border-[#bf9948] focus:ring-2 focus:ring-[#bf9948]/15"
           />
           <ClearSearchButton value={search} onClear={() => setSearch("")} />
         </div>
         <CustomDropdown
           value={status}
           onChange={(event) => setStatus(event.target.value)}
-          className="border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-system-primary focus:ring-2 focus:ring-system-primary/15 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+          className="h-10 w-full rounded-lg border border-[#e8e1d6] bg-[#faf8f4] px-3 text-sm outline-none transition focus:border-[#bf9948]"
         >
           {statusOptions.map((option) => (
             <option key={option.value || "all"} value={option.value}>
@@ -233,8 +224,8 @@ const SupportInbox = () => {
         </div>
       )}
 
-      <div className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
-        <section className="border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+      <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(360px,0.9fr)]">
+        <section className="min-w-0 overflow-hidden rounded-2xl border border-[#e8e1d6] bg-white shadow-sm">
           <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-gray-800">
             <p className="text-sm font-bold text-gray-800 dark:text-white">
               {role === "shipper" ? "Shipper" : "Customer"} Ticket Table
@@ -244,8 +235,8 @@ const SupportInbox = () => {
             </span>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] text-left">
-              <thead className="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-800 dark:text-gray-300">
+            <table className="w-full min-w-[680px] text-left">
+              <thead className="bg-[#faf8f4] text-xs uppercase text-gray-500">
                 <tr>
                   <th className="px-4 py-3">Ticket ID</th>
                   <th className="px-4 py-3">User</th>
@@ -314,140 +305,81 @@ const SupportInbox = () => {
           </div>
         </section>
 
-        <section className="border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
-          <div className="border-b border-gray-200 px-5 py-4 dark:border-gray-800">
+        <section className="min-w-0 overflow-hidden rounded-2xl border border-[#e8e1d6] bg-white shadow-sm">
+          <div className="flex items-center justify-between border-b border-[#e8e1d6] px-5 py-4">
             <h2 className="text-base font-bold text-gray-800 dark:text-white">
               Ticket Details
             </h2>
+            {selectedTicket && (
+              <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusStyles[selectedTicket.status]}`}>
+                <span className="mr-1">•</span>{statusLabels[selectedTicket.status]}
+              </span>
+            )}
           </div>
           {selectedTicket ? (
-            <div className="space-y-5 p-5">
-              <div className="grid gap-3 sm:grid-cols-3">
-                <div className="border border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-gray-950">
-                  <p className="text-xs font-bold uppercase text-gray-500">Ticket ID</p>
-                  <p className="mt-1 text-sm font-bold text-gray-900 dark:text-white">
-                    {getTicketNumber(selectedTicket)}
-                  </p>
-                </div>
-                <div className="border border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-gray-950">
-                  <p className="text-xs font-bold uppercase text-gray-500">Priority</p>
-                  <p className="mt-1 text-sm font-bold capitalize text-gray-900 dark:text-white">
-                    {selectedTicket.priority}
-                  </p>
-                </div>
-                <div className="border border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-gray-950">
-                  <p className="text-xs font-bold uppercase text-gray-500">Status</p>
-                  <p className="mt-1 text-sm font-bold text-gray-900 dark:text-white">
-                    {statusLabels[selectedTicket.status]}
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <p className="text-xs font-bold uppercase text-gray-500">Submitted By</p>
-                <p className="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
-                  {requesterName(selectedTicket)}
-                </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {selectedTicket.requester?.email || "No email"}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-xs font-bold uppercase text-gray-500">Subject</p>
-                <p className="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
+            <div className="flex min-h-[520px] flex-col">
+              <div className="space-y-3 border-b border-[#e8e1d6] p-4">
+                <h3 className="text-base font-bold leading-snug text-slate-900">
                   {selectedTicket.subject}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-xs font-bold uppercase text-gray-500">Issue Details</p>
-                <div className="mt-2 border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950">
-                  <p className="whitespace-pre-wrap text-sm leading-6 text-gray-800 dark:text-gray-100">
-                    {getInitialIssue(selectedTicket)?.message || "No issue details available."}
-                  </p>
+                </h3>
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+                  <span className="font-semibold text-slate-700">{getTicketNumber(selectedTicket)}</span>
+                  <span>From <b className="font-semibold text-slate-700">{requesterName(selectedTicket)}</b></span>
+                  <span>Category <b className="font-semibold text-slate-700">{selectedTicket.category}</b></span>
                 </div>
-              </div>
-
-              <div>
-                <p className="text-xs font-bold uppercase text-gray-500">Latest Admin Response</p>
-                <div className="mt-2 border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950">
-                  {getLatestAdminReply(selectedTicket) ? (
-                    <>
-                      <p className="whitespace-pre-wrap text-sm leading-6 text-gray-800 dark:text-gray-100">
-                        {getLatestAdminReply(selectedTicket).message}
-                      </p>
-                      <p className="mt-2 text-xs text-gray-500">
-                        {formatDate(getLatestAdminReply(selectedTicket).createdAt)}
-                      </p>
-                    </>
-                  ) : (
-                    <p className="text-sm text-gray-500">No admin response yet.</p>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <p className="mb-2 text-xs font-bold uppercase text-gray-500">
-                  Ticket Activity
-                </p>
-                <div className="space-y-3">
-                  {selectedTicket.messages?.map((item) => (
-                    <div
-                      key={item._id || item.createdAt}
-                      className="border-l-2 border-system-primary pl-3"
-                    >
-                      <div className="flex flex-wrap items-center gap-2 text-xs font-bold uppercase text-gray-500">
-                        {item.senderRole === "admin" ? <FiCheckCircle /> : <FiFileText />}
-                        {item.senderRole === "admin" ? "Admin Response" : "User Update"}
-                        <span className="font-medium normal-case">
-                          {formatDate(item.createdAt)}
-                        </span>
-                      </div>
-                      <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-gray-800 dark:text-gray-100">
-                        {item.message}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <form onSubmit={sendReply} className="border-t border-gray-200 pt-4 dark:border-gray-800">
-                <label className="mb-1 block text-xs font-bold uppercase tracking-wide text-gray-500">
-                  Admin Response
+                <label className="flex items-center gap-3 text-xs font-semibold text-slate-700">
+                  Status
+                  <CustomDropdown
+                    value={selectedTicket.status}
+                    onChange={(event) => updateStatus(event.target.value)}
+                    disabled={saving}
+                    className="h-10 min-w-[135px] rounded-lg border border-[#e8e1d6] bg-[#faf8f4] px-3 text-sm font-normal"
+                  >
+                    {statusOptions.filter((option) => option.value).map((option) => (
+                      <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
+                  </CustomDropdown>
                 </label>
+              </div>
+
+              <div className="max-h-[360px] min-h-[180px] flex-1 space-y-3 overflow-y-auto bg-[#faf8f4] p-4">
+                {(selectedTicket.messages || []).map((item, index) => {
+                  const isAdmin = item.senderRole === "admin";
+                  return (
+                    <div key={item._id || `${item.createdAt}-${index}`} className={`flex ${isAdmin ? "justify-end" : "justify-start"}`}>
+                      <div className={`max-w-[88%] rounded-xl border px-3 py-2.5 ${isAdmin ? "border-[#f0e4c6] bg-[#f6edd8]" : "border-[#e8e1d6] bg-white"}`}>
+                        <p className="mb-1 text-[11px] text-slate-500">
+                          {isAdmin ? "You" : requesterName(selectedTicket)} · {formatDate(item.createdAt)}
+                        </p>
+                        <p className="whitespace-pre-wrap break-words text-sm leading-5">{item.message}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+                {(!selectedTicket.messages || selectedTicket.messages.length === 0) && (
+                  <p className="py-8 text-center text-sm text-slate-500">No messages on this ticket yet.</p>
+                )}
+              </div>
+
+              <form onSubmit={sendReply} className="border-t border-[#e8e1d6] p-4">
+                <label className="mb-2 block text-xs font-semibold text-slate-700">Reply</label>
                 <textarea
                   value={reply}
                   onChange={(event) => setReply(event.target.value)}
-                  rows={4}
-                  placeholder="Write a clear support response"
-                  className="w-full resize-none border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-system-primary focus:ring-2 focus:ring-system-primary/15 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                  rows={3}
+                  placeholder={`Write a reply to ${requesterName(selectedTicket)}`}
+                  className="w-full resize-y rounded-lg border border-[#e8e1d6] bg-[#faf8f4] px-3 py-2.5 text-sm outline-none focus:border-[#bf9948] focus:ring-2 focus:ring-[#bf9948]/15"
                   maxLength={3000}
                 />
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div className="mt-2 flex justify-end">
                   <Button
                     type="submit"
                     icon={<FiSend size={14} />}
                     loading={saving}
                     disabled={!reply.trim()}
+                    className="rounded-lg bg-[#bf9948] text-white hover:bg-[#a98235]"
                   >
-                    Save Reply
-                  </Button>
-                  <Button
-                    variant="outline"
-                    icon={<FiClock size={14} />}
-                    disabled={saving || selectedTicket.status === "in_progress"}
-                    onClick={() => updateStatus("in_progress")}
-                  >
-                    Mark In Progress
-                  </Button>
-                  <Button
-                    variant="outline"
-                    icon={<FiCheckCircle size={14} />}
-                    disabled={saving || selectedTicket.status === "resolved"}
-                    onClick={() => updateStatus("resolved")}
-                  >
-                    Mark Resolved
+                    Send Reply
                   </Button>
                 </div>
               </form>
