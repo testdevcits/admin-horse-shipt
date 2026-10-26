@@ -185,7 +185,7 @@ const AdminSidebar = ({
   }, [token, logout, navigate]);
 
   const toggleDropdown = (name) => {
-    setDropdowns((prev) => ({ ...prev, [name]: !prev[name] }));
+    setDropdowns((prev) => ({ [name]: !prev[name] }));
   };
 
   const visibleNavItems = navItems
