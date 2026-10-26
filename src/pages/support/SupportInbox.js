@@ -52,6 +52,7 @@ const SupportInbox = () => {
   const [search, setSearch] = useState("");
   const [tickets, setTickets] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
+  const [statusDraft, setStatusDraft] = useState("");
   const [reply, setReply] = useState("");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -61,6 +62,10 @@ const SupportInbox = () => {
     () => tickets.find((ticket) => ticket._id === selectedId) || null,
     [selectedId, tickets]
   );
+
+  useEffect(() => {
+    setStatusDraft(selectedTicket?.status || "");
+  }, [selectedTicket?._id, selectedTicket?.status]);
 
   const loadTickets = useCallback(async () => {
     setLoading(true);
@@ -103,7 +108,7 @@ const SupportInbox = () => {
   };
 
   const updateStatus = async (nextStatus) => {
-    if (!selectedTicket) return;
+    if (!selectedTicket || !nextStatus || nextStatus === selectedTicket.status) return;
     setSaving(true);
     setNotice(null);
     try {
@@ -111,6 +116,7 @@ const SupportInbox = () => {
         status: nextStatus,
       });
       replaceTicket(res.data?.data);
+      setStatusDraft(res.data?.data?.status || nextStatus);
       setNotice({ type: "success", message: "Ticket status updated." });
     } catch (error) {
       setNotice({
@@ -145,7 +151,7 @@ const SupportInbox = () => {
   };
 
   return (
-    <div className="min-h-screen space-y-5 bg-[#f4f1eb] p-1 text-[#20201e]">
+    <div className="min-h-screen space-y-5  text-[#20201e]">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
@@ -327,19 +333,30 @@ const SupportInbox = () => {
                   <span>From <b className="font-semibold text-slate-700">{requesterName(selectedTicket)}</b></span>
                   <span>Category <b className="font-semibold text-slate-700">{selectedTicket.category}</b></span>
                 </div>
-                <label className="flex items-center gap-3 text-xs font-semibold text-slate-700">
-                  Status
-                  <CustomDropdown
-                    value={selectedTicket.status}
-                    onChange={(event) => updateStatus(event.target.value)}
-                    disabled={saving}
-                    className="h-10 min-w-[135px] rounded-lg border border-[#e8e1d6] bg-[#faf8f4] px-3 text-sm font-normal"
+                <div className="flex flex-wrap items-center gap-3">
+                  <label className="flex items-center gap-3 text-xs font-semibold text-slate-700">
+                    Status
+                    <CustomDropdown
+                      value={statusDraft}
+                      onChange={(event) => setStatusDraft(event.target.value)}
+                      disabled={saving}
+                      className="h-10 min-w-[135px] rounded-lg border border-[#e8e1d6] bg-[#faf8f4] px-3 text-sm font-normal"
+                    >
+                      {statusOptions.filter((option) => option.value).map((option) => (
+                        <option key={option.value} value={option.value}>{option.label}</option>
+                      ))}
+                    </CustomDropdown>
+                  </label>
+                  <Button
+                    size="sm"
+                    loading={saving}
+                    disabled={!statusDraft || statusDraft === selectedTicket.status}
+                    onClick={() => updateStatus(statusDraft)}
+                    className="rounded-lg bg-[#bf9948] text-white hover:bg-[#a98235]"
                   >
-                    {statusOptions.filter((option) => option.value).map((option) => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </CustomDropdown>
-                </label>
+                    Update Status
+                  </Button>
+                </div>
               </div>
 
               <div className="max-h-[360px] min-h-[180px] flex-1 space-y-3 overflow-y-auto bg-[#faf8f4] p-4">
