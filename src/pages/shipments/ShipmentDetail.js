@@ -80,7 +80,11 @@ const ShipmentDetail = () => {
   }
 
   const quoteColumns = [
-    { key: "contractId", label: "Contract" },
+    {
+      key: "shipmentCode",
+      label: "Shipment Code",
+      render: () => shipment.shipmentCode || shipment._id || "N/A",
+    },
     {
       key: "shipper",
       label: "Shipper",
