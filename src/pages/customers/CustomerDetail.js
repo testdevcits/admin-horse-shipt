@@ -98,7 +98,7 @@ const CustomerDetail = () => {
   ];
 
   return (
-    <div className=" min-h-screen space-y-6">
+    <div className="w-full min-w-0 max-w-full min-h-screen space-y-6">
       <Button onClick={() => navigate(-1)}>Back</Button>
 
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 flex flex-col md:flex-row gap-6 items-center md:items-start">
@@ -161,7 +161,7 @@ const CustomerDetail = () => {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+      <div className="min-w-0 max-w-full bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
           Customer Shipments
         </h3>

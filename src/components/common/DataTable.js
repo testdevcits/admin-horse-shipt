@@ -22,7 +22,7 @@ const DataTable = ({
       : totalRecords;
 
   return (
-    <div className="max-w-full overflow-hidden bg-white dark:bg-gray-900 shadow-sm border border-gray-200 dark:border-gray-800">
+    <div className="w-full min-w-0 max-w-full overflow-hidden bg-white dark:bg-gray-900 shadow-sm border border-gray-200 dark:border-gray-800">
       {!hideTotalBar && <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 bg-slate-50 px-4 py-3 dark:border-gray-800 dark:bg-gray-900">
         <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
           {totalLabel}:{" "}
@@ -31,7 +31,7 @@ const DataTable = ({
       </div>}
 
       {/* ================= DESKTOP TABLE ================= */}
-      <div className="customscroll hidden max-w-full md:block overflow-x-scroll">
+      <div className="customscroll hidden w-full min-w-0 max-w-full md:block overflow-x-auto">
         <table
           className="w-full border-collapse"
           style={{ minWidth: tableMinWidth }}

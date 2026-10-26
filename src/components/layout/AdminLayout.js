@@ -33,7 +33,7 @@ const AdminLayout = ({ children }) => {
 
       {/* MAIN AREA */}
       <div
-        className="flex-1 flex flex-col transition-all duration-300"
+        className="flex-1 min-w-0 flex flex-col transition-all duration-300"
         style={{
           marginLeft: isDesktop ? sidebarWidth : 0,
         }}
@@ -49,7 +49,7 @@ const AdminLayout = ({ children }) => {
         {/* PAGE CONTENT */}
         <main
           className={`
-            flex-1 overflow-auto
+            flex-1 min-w-0 overflow-auto
             p-4 md:p-6 lg:p-8
             mt-14
             text-gray-800 dark:text-gray-100
