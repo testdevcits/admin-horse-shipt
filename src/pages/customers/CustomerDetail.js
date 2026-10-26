@@ -17,17 +17,24 @@ const formatMoney = (value = 0, currency = "USD") =>
     maximumFractionDigits: 2,
   }).format(Number(value) || 0);
 
-const getShipperPayoutAmount = (row) => {
-  const storedPayout = Number(row.shipperPayoutAmount || 0);
-  if (storedPayout > 0) return storedPayout;
+const formatSettlementFee = (row, field) => {
+  const amount = Number(row[field]);
+  if (amount > 0 || row.payoutStatus === "transferred") {
+    return formatMoney(amount, row.payoutCurrency || row.currency || "USD");
+  }
+  return row.paymentStatus === "paid" ? "Pending settlement" : "—";
+};
 
-  return Math.max(
-    Number(row.totalPrice || 0) -
-      Number(row.stripeFee || 0) -
-      Number(row.platformFee || 0),
-    0
+const formatShipperPayout = (row) => {
+  if (row.payoutStatus !== "transferred") return "Pending";
+  return formatMoney(
+    row.shipperPayoutAmount,
+    row.payoutCurrency || row.currency || "USD"
   );
 };
+
+const formatStatus = (value) =>
+  value ? value.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase()) : "—";
 
 const openPdf = (url) => {
   if (url) window.open(url, "_blank", "noopener,noreferrer");
@@ -243,12 +250,6 @@ const CustomerDetail = () => {
                 render: (row) =>
                   row.shipment?.shipmentCode || row.shipment?._id || "N/A",
               },
-              { key: "contractId", label: "Contract" },
-              {
-                key: "shipper",
-                label: "Shipper",
-                render: (row) => row.shipper?.name || row.shipper?.email || "N/A",
-              },
               {
                 key: "totalPrice",
                 label: "Customer Paid",
@@ -257,36 +258,27 @@ const CustomerDetail = () => {
               {
                 key: "stripeFee",
                 label: "Stripe Fee",
-                render: (row) =>
-                  Number(row.stripeFee || 0) > 0
-                    ? formatMoney(row.stripeFee, row.payoutCurrency || row.currency || "USD")
-                    : "N/A",
+                render: (row) => formatSettlementFee(row, "stripeFee"),
               },
               {
                 key: "platformFee",
                 label: "Platform Fee",
-                render: (row) => formatMoney(row.platformFee, row.currency || "USD"),
+                render: (row) => formatSettlementFee(row, "platformFee"),
               },
               {
                 key: "shipperPayoutAmount",
                 label: "Shipper Payout",
-                render: (row) =>
-                  formatMoney(
-                    getShipperPayoutAmount(row),
-                    row.payoutCurrency || row.currency || "USD"
-                  ),
-              },
-              { key: "paymentStatus", label: "Payment" },
-              { key: "payoutStatus", label: "Payout" },
-              {
-                key: "paidAt",
-                label: "Paid At",
-                render: (row) => formatDate(row.paidAt || row.updatedAt),
+                render: formatShipperPayout,
               },
               {
-                key: "stripePaymentIntentId",
-                label: "Payment Intent",
-                render: (row) => row.stripePaymentIntentId || "N/A",
+                key: "paymentStatus",
+                label: "Payment",
+                render: (row) => formatStatus(row.paymentStatus),
+              },
+              {
+                key: "payoutStatus",
+                label: "Payout",
+                render: (row) => formatStatus(row.payoutStatus),
               },
             ]}
             data={quotes}
@@ -298,8 +290,6 @@ const CustomerDetail = () => {
               0
             }
             onPageChange={setQuotePage}
-            tableMinWidth="1500px"
-            noWrap
             actions={[
               {
                 render: (row) =>
