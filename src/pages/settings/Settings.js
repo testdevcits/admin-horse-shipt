@@ -20,6 +20,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import Toast from "../../components/common/Toast";
 import API from "../../api/axios";
+import ConfirmModal from "../../components/common/ConfirmModal";
 
 const SOCIAL_PLATFORMS = [
   { key: "instagram", label: "Instagram", icon: FaInstagram },
@@ -69,6 +70,7 @@ const Settings = () => {
   const { darkMode, toggleTheme } = useTheme();
 
   const [toast, setToast] = useState(null);
+  const [confirmLogout, setConfirmLogout] = useState(false);
   const [saving, setSaving] = useState(false);
   const [socialLoading, setSocialLoading] = useState(false);
   const [socialSaving, setSocialSaving] = useState(false);
@@ -626,7 +628,7 @@ const Settings = () => {
           </div>
           <button
             type="button"
-            onClick={logout}
+            onClick={() => setConfirmLogout(true)}
             className="mt-4 rounded-md border border-red-200 bg-red-50 px-5 py-2 text-sm font-bold text-red-600 transition hover:bg-red-100 dark:border-red-900 dark:bg-red-950"
           >
             Logout
@@ -678,6 +680,17 @@ const Settings = () => {
         </SettingsCard>
        
       </div>
+      <ConfirmModal
+        show={confirmLogout}
+        title="Logout"
+        message="Are you sure you want to log out?"
+        onConfirm={() => {
+          setConfirmLogout(false);
+          logout();
+        }}
+        onCancel={() => setConfirmLogout(false)}
+        confirmText="Logout"
+      />
     </div>
   );
 };

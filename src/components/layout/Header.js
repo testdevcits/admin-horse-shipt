@@ -6,6 +6,7 @@ import { FiBell, FiMenu } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import comingSoonImg from "../../assets/images/defultlogo.png";
 import { useAdminNotifications } from "../../context/AdminNotificationContext";
+import ConfirmModal from "../common/ConfirmModal";
 
 const getNotificationTarget = (notification = {}) => {
   const event = notification.event || "";
@@ -88,6 +89,7 @@ const Header = ({ sidebarOpen, setSidebarOpen, isDesktop }) => {
 
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
+  const [confirmLogout, setConfirmLogout] = useState(false);
   const tooltipRef = useRef(null);
   const notificationRef = useRef(null);
 
@@ -111,6 +113,7 @@ const Header = ({ sidebarOpen, setSidebarOpen, isDesktop }) => {
   const displayCount = unreadCount > 99 ? "99+" : unreadCount;
 
   return (
+    <>
     <header
       className={`shadow-sm flex justify-between items-center px-4 h-12 z-50 fixed top-0 transition-all duration-300 border-b dark:border-gray-800 ${
         darkMode ? "bg-gray-950/95 text-white" : "bg-white/95 text-dark"
@@ -263,7 +266,7 @@ const Header = ({ sidebarOpen, setSidebarOpen, isDesktop }) => {
                     alt="Logo"
                     className="w-6 h-6 object-contain"
                   />
-                  <button onClick={logout} className="text-left">
+                  <button onClick={() => setConfirmLogout(true)} className="text-left">
                     Logout
                   </button>
                 </div>
@@ -273,6 +276,18 @@ const Header = ({ sidebarOpen, setSidebarOpen, isDesktop }) => {
         </div>
       </div>
     </header>
+    <ConfirmModal
+      show={confirmLogout}
+      title="Logout"
+      message="Are you sure you want to log out?"
+      onConfirm={() => {
+        setConfirmLogout(false);
+        logout();
+      }}
+      onCancel={() => setConfirmLogout(false)}
+      confirmText="Logout"
+    />
+    </>
   );
 };
 
