@@ -25,13 +25,13 @@ export const BreedProvider = ({ children }) => {
   // FETCH BREEDS (PAGINATED)
   // =========================
   const fetchBreeds = useCallback(
-    async (newPage = 1) => {
+    async (newPage = 1, options = {}) => {
       try {
         if (newPage === 1) setLoading(true);
         else setFetchingMore(true);
 
         const res = await API.get(
-          `/admin/breeds?page=${newPage}&limit=${limit}`
+          `/admin/breeds?page=${newPage}&limit=${limit}&status=${encodeURIComponent(options.status || "active")}&search=${encodeURIComponent(options.search || "")}`
         );
         const { data, totalPages: tp, total } = res.data;
 

@@ -4,6 +4,7 @@ import PageLoader from "../../components/common/PageLoader";
 import BreedModal from "../../components/breeds/BreedModal";
 import DataTable from "../../components/common/DataTable";
 import ConfirmModal from "../../components/common/ConfirmModal";
+import AttributeListToolbar from "../../components/common/AttributeListToolbar";
 import { useHorseAttributes } from "../../context/HorseAttributeContext";
 import {
   FaEdit,
@@ -25,6 +26,8 @@ const HorseAttributeList = ({ type, singularLabel, pluralLabel }) => {
 
   const resource = resources[type];
   const [modalOpen, setModalOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("all");
   const [editItem, setEditItem] = useState(null);
   const [confirmModal, setConfirmModal] = useState({
     show: false,
@@ -32,12 +35,16 @@ const HorseAttributeList = ({ type, singularLabel, pluralLabel }) => {
   });
 
   useEffect(() => {
-    fetchAttributes(type, 1);
-  }, [fetchAttributes, type]);
+    const timer = setTimeout(
+      () => fetchAttributes(type, 1, { search, status }),
+      250
+    );
+    return () => clearTimeout(timer);
+  }, [fetchAttributes, type, search, status]);
 
   const loadPage = async (newPage) => {
     if (newPage < 1 || newPage > resource.totalPages) return;
-    await fetchAttributes(type, newPage);
+    await fetchAttributes(type, newPage, { search, status });
   };
 
   const handleAddOrEdit = async (name) => {
@@ -49,7 +56,7 @@ const HorseAttributeList = ({ type, singularLabel, pluralLabel }) => {
 
     setModalOpen(false);
     setEditItem(null);
-    fetchAttributes(type, 1);
+    fetchAttributes(type, 1, { search, status });
   };
 
   const confirmDelete = async () => {
@@ -61,18 +68,30 @@ const HorseAttributeList = ({ type, singularLabel, pluralLabel }) => {
   };
 
   const columns = [
-    { key: "name", label: "Name" },
+    {
+      key: "name",
+      label: "Name",
+      render: (row) => (
+        <div className="flex items-center gap-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#f7eed8] text-sm font-semibold text-[#9b742b]">
+            {row.name?.charAt(0)?.toUpperCase() || "?"}
+          </span>
+          <span className="font-medium text-gray-900 dark:text-white">{row.name}</span>
+        </div>
+      ),
+    },
     {
       key: "status",
       label: "Status",
       render: (row) => (
         <span
-          className={`px-3 py-1 rounded-full text-sm font-medium ${
+          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
             row.isActive
-              ? "bg-green-100 text-green-600"
-              : "bg-red-100 text-red-600"
+              ? "bg-green-100 text-green-700"
+              : "bg-gray-100 text-gray-600"
           }`}
         >
+          <span className={`h-1.5 w-1.5 rounded-full ${row.isActive ? "bg-green-600" : "bg-gray-500"}`} />
           {row.isActive ? "Active" : "Inactive"}
         </span>
       ),
@@ -82,7 +101,7 @@ const HorseAttributeList = ({ type, singularLabel, pluralLabel }) => {
   const actions = [
     {
       render: (row) => (
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex items-center justify-center gap-3">
           <button
             type="button"
             title={`Edit ${singularLabel.toLowerCase()}`}
@@ -91,7 +110,7 @@ const HorseAttributeList = ({ type, singularLabel, pluralLabel }) => {
               setEditItem(row);
               setModalOpen(true);
             }}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-blue-100 bg-blue-50 text-blue-600 transition hover:bg-blue-100"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-[#9b742b]"
           >
             <FaEdit size={14} />
           </button>
@@ -108,11 +127,14 @@ const HorseAttributeList = ({ type, singularLabel, pluralLabel }) => {
                 ? `Deactivate ${singularLabel.toLowerCase()}`
                 : `Activate ${singularLabel.toLowerCase()}`
             }
-            onClick={() => updateAttributeStatus(type, row._id, !row.isActive)}
-            className={`inline-flex h-9 w-9 items-center justify-center rounded-md border transition ${
+            onClick={async () => {
+              const result = await updateAttributeStatus(type, row._id, !row.isActive);
+              if (result?.success) loadPage(resource.page);
+            }}
+            className={`inline-flex h-8 w-8 items-center justify-center rounded-full transition ${
               row.isActive
-                ? "border-green-100 bg-green-50 text-green-600 hover:bg-green-100"
-                : "border-gray-200 bg-gray-50 text-gray-500 hover:bg-gray-100"
+                ? "text-green-700 hover:bg-green-50"
+                : "text-gray-400 hover:bg-gray-100"
             }`}
           >
             {row.isActive ? <FaToggleOn size={18} /> : <FaToggleOff size={18} />}
@@ -123,7 +145,7 @@ const HorseAttributeList = ({ type, singularLabel, pluralLabel }) => {
             title={`Delete ${singularLabel.toLowerCase()}`}
             aria-label={`Delete ${singularLabel.toLowerCase()}`}
             onClick={() => setConfirmModal({ show: true, item: row })}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-red-100 bg-red-50 text-red-600 transition hover:bg-red-100"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-500 transition hover:bg-red-50 hover:text-red-600"
           >
             <FaTrash size={13} />
           </button>
@@ -154,6 +176,15 @@ const HorseAttributeList = ({ type, singularLabel, pluralLabel }) => {
           Add {singularLabel}
         </button>
       </div>
+
+      <AttributeListToolbar
+        search={search}
+        onSearchChange={setSearch}
+        status={status}
+        onStatusChange={setStatus}
+        totalRecords={resource.totalRecords}
+        placeholder={`Search ${pluralLabel.toLowerCase()}`}
+      />
 
       {resource.items.length === 0 ? (
         <div>
@@ -187,6 +218,7 @@ const HorseAttributeList = ({ type, singularLabel, pluralLabel }) => {
             totalPages={resource.totalPages}
             totalRecords={resource.totalRecords}
             onPageChange={loadPage}
+            hideTotalBar
           />
 
           {resource.fetchingMore && (

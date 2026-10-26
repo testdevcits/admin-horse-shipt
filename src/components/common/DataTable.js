@@ -14,6 +14,7 @@ const DataTable = ({
   loading = false,
   tableMinWidth = "760px",
   noWrap = false,
+  hideTotalBar = false,
 }) => {
   const resolvedTotalRecords =
     totalRecords === undefined || totalRecords === null
@@ -22,12 +23,12 @@ const DataTable = ({
 
   return (
     <div className="max-w-full overflow-hidden bg-white dark:bg-gray-900 shadow-sm border border-gray-200 dark:border-gray-800">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 bg-slate-50 px-4 py-3 dark:border-gray-800 dark:bg-gray-900">
+      {!hideTotalBar && <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 bg-slate-50 px-4 py-3 dark:border-gray-800 dark:bg-gray-900">
         <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
           {totalLabel}:{" "}
           <span className="text-[#BF9B53]">{resolvedTotalRecords}</span>
         </p>
-      </div>
+      </div>}
 
       {/* ================= DESKTOP TABLE ================= */}
       <div className="customscroll hidden max-w-full md:block overflow-x-scroll">

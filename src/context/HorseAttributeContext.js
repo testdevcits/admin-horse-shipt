@@ -48,7 +48,7 @@ export const HorseAttributeProvider = ({ children }) => {
   }, []);
 
   const fetchAttributes = useCallback(
-    async (type, newPage = 1) => {
+    async (type, newPage = 1, options = {}) => {
       const config = RESOURCE_CONFIG[type];
       if (!config) return;
 
@@ -61,7 +61,7 @@ export const HorseAttributeProvider = ({ children }) => {
 
         const limit = 10;
         const res = await API.get(
-          `${config.endpoint}?page=${newPage}&limit=${limit}`
+          `${config.endpoint}?page=${newPage}&limit=${limit}&status=${encodeURIComponent(options.status || "active")}&search=${encodeURIComponent(options.search || "")}`
         );
         const { data, totalPages, total } = res.data;
 
