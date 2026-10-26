@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaEye, FaTrash } from "react-icons/fa";
+import ClearSearchButton from "../../components/common/ClearSearchButton";
 import Button from "../../components/common/Button";
 import ConfirmModal from "../../components/common/ConfirmModal";
 import DataTable from "../../components/common/DataTable";
@@ -139,15 +140,18 @@ const Customers = () => {
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
           Customers
         </h1>
-        <input
-          value={search}
-          onChange={(event) => {
-            setSearch(event.target.value);
-            setPage(1);
-          }}
-          placeholder="Search customers"
-          className="w-full sm:w-72 border border-gray-300 rounded-md px-3 py-2 text-sm outline-none transition focus:border-[#BF9B53] focus:ring-2 focus:ring-[#BF9B53]/15 dark:bg-gray-900 dark:text-white dark:border-gray-700 dark:focus:border-[#BF9B53] dark:focus:ring-[#BF9B53]/20"
-        />
+        <div className="relative w-full sm:w-72">
+          <input
+            value={search}
+            onChange={(event) => {
+              setSearch(event.target.value);
+              setPage(1);
+            }}
+            placeholder="Search customers"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 pr-10 text-sm outline-none transition focus:border-[#BF9B53] focus:ring-2 focus:ring-[#BF9B53]/15 dark:bg-gray-900 dark:text-white dark:border-gray-700 dark:focus:border-[#BF9B53] dark:focus:ring-[#BF9B53]/20"
+          />
+          <ClearSearchButton value={search} onClear={() => { setSearch(""); setPage(1); }} />
+        </div>
       </div>
 
       <DataTable

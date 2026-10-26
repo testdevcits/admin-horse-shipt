@@ -1,6 +1,8 @@
+import CustomDropdown from "../../components/common/CustomDropdown";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaEye } from "react-icons/fa";
+import ClearSearchButton from "../../components/common/ClearSearchButton";
 import Button from "../../components/common/Button";
 import DataTable from "../../components/common/DataTable";
 import Toast from "../../components/common/Toast";
@@ -66,16 +68,19 @@ const Shipments = () => {
         </h1>
 
         <div className="grid grid-cols-1 sm:grid-cols-[1fr_190px] gap-2 w-full sm:w-auto">
-          <input
-            value={search}
-            onChange={(event) => {
-              setSearch(event.target.value);
-              setPage(1);
-            }}
-            placeholder="Search shipments"
-            className="border border-gray-300 rounded-md px-3 py-2 text-sm outline-none transition focus:border-[#BF9B53] focus:ring-2 focus:ring-[#BF9B53]/15 dark:bg-gray-900 dark:text-white dark:border-gray-700 dark:focus:border-[#BF9B53] dark:focus:ring-[#BF9B53]/20"
-          />
-          <select
+          <div className="relative">
+            <input
+              value={search}
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setPage(1);
+              }}
+              placeholder="Search shipments"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 pr-10 text-sm outline-none transition focus:border-[#BF9B53] focus:ring-2 focus:ring-[#BF9B53]/15 dark:bg-gray-900 dark:text-white dark:border-gray-700 dark:focus:border-[#BF9B53] dark:focus:ring-[#BF9B53]/20"
+            />
+            <ClearSearchButton value={search} onClear={() => { setSearch(""); setPage(1); }} />
+          </div>
+          <CustomDropdown
             value={status}
             onChange={(e) => {
               setStatus(e.target.value);
@@ -91,7 +96,7 @@ const Shipments = () => {
             <option value="delivered">Delivered</option>
             <option value="cancelled">Cancelled</option>
             <option value="open_for_offers">Open For Offers</option>
-          </select>
+          </CustomDropdown>
         </div>
       </div>
 

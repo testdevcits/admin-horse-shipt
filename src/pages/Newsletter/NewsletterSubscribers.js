@@ -1,3 +1,4 @@
+import CustomDropdown from "../../components/common/CustomDropdown";
 import React, {
   useCallback,
   useContext,
@@ -423,7 +424,7 @@ const NewsletterSubscribers = () => {
                 </button>
               )}
             </div>
-            <select
+            <CustomDropdown
               value={statusFilter}
               onChange={(event) => {
                 setPage(1);
@@ -434,7 +435,7 @@ const NewsletterSubscribers = () => {
               <option value="">All Status</option>
               <option value="verified">Verified</option>
               <option value="unverified">Unverified</option>
-            </select>
+            </CustomDropdown>
           </div>
           {(debouncedSearchEmail || statusFilter) && (
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-3">

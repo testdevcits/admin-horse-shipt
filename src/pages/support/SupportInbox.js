@@ -1,4 +1,6 @@
+import CustomDropdown from "../../components/common/CustomDropdown";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import ClearSearchButton from "../../components/common/ClearSearchButton";
 import {
   FiCheckCircle,
   FiClock,
@@ -197,13 +199,16 @@ const SupportInbox = () => {
             </button>
           ))}
         </div>
-        <input
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search subject, category, or message"
-          className="min-w-0 flex-1 border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-system-primary focus:ring-2 focus:ring-system-primary/15 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-        />
-        <select
+        <div className="relative min-w-0 flex-1">
+          <input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search subject, category, or message"
+            className="w-full border border-gray-300 px-3 py-2 pr-10 text-sm outline-none transition focus:border-system-primary focus:ring-2 focus:ring-system-primary/15 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+          />
+          <ClearSearchButton value={search} onClear={() => setSearch("")} />
+        </div>
+        <CustomDropdown
           value={status}
           onChange={(event) => setStatus(event.target.value)}
           className="border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-system-primary focus:ring-2 focus:ring-system-primary/15 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
@@ -213,7 +218,7 @@ const SupportInbox = () => {
               {option.label}
             </option>
           ))}
-        </select>
+        </CustomDropdown>
       </div>
 
       {notice && (

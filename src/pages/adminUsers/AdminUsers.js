@@ -1,5 +1,7 @@
+import CustomDropdown from "../../components/common/CustomDropdown";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { FiEdit2, FiPlus, FiPower, FiTrash2, FiX } from "react-icons/fi";
+import ClearSearchButton from "../../components/common/ClearSearchButton";
 import API from "../../api/axios";
 import Button from "../../components/common/Button";
 import ConfirmModal from "../../components/common/ConfirmModal";
@@ -374,16 +376,19 @@ const AdminUsers = () => {
         </h1>
 
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <input
-            value={search}
-            onChange={(event) => {
-              setSearch(event.target.value);
-              setPage(1);
-            }}
-            placeholder="Search admins"
-            className="w-full border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-[#BF9B53] focus:ring-2 focus:ring-[#BF9B53]/15 dark:border-gray-700 dark:bg-gray-900 dark:text-white sm:w-72"
-          />
-          <select
+          <div className="relative w-full sm:w-72">
+            <input
+              value={search}
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setPage(1);
+              }}
+              placeholder="Search admins"
+              className="w-full border border-gray-300 px-3 py-2 pr-10 text-sm outline-none transition focus:border-[#BF9B53] focus:ring-2 focus:ring-[#BF9B53]/15 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+            />
+            <ClearSearchButton value={search} onClear={() => { setSearch(""); setPage(1); }} />
+          </div>
+          <CustomDropdown
             value={status}
             onChange={(event) => {
               setStatus(event.target.value);
@@ -394,7 +399,7 @@ const AdminUsers = () => {
             <option value="">All Status</option>
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
-          </select>
+          </CustomDropdown>
           <Button icon={<FiPlus size={16} />} onClick={openCreateModal}>
             Add Admin
           </Button>
@@ -485,7 +490,7 @@ const AdminUsers = () => {
                     <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
                       Role
                     </label>
-                    <select
+                    <CustomDropdown
                       name="role"
                       value={form.role}
                       onChange={handleRoleChange}
@@ -493,7 +498,7 @@ const AdminUsers = () => {
                     >
                       <option value="admin">Admin</option>
                       <option value="super-admin">Super Admin</option>
-                    </select>
+                    </CustomDropdown>
                   </div>
 
                   <div>

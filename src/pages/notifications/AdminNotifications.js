@@ -1,3 +1,4 @@
+import CustomDropdown from "../../components/common/CustomDropdown";
 import React, { useCallback, useEffect, useState } from "react";
 import { FiBell, FiCheckCircle, FiSearch, FiTrash2, FiX } from "react-icons/fi";
 import API from "../../api/axios";
@@ -292,7 +293,7 @@ const AdminNotifications = () => {
             )}
           </div>
 
-          <select
+          <CustomDropdown
             value={role}
             onChange={(event) => {
               setPage(1);
@@ -305,9 +306,9 @@ const AdminNotifications = () => {
                 {option.label}
               </option>
             ))}
-          </select>
+          </CustomDropdown>
 
-          <select
+          <CustomDropdown
             value={status}
             onChange={(event) => {
               setPage(1);
@@ -320,7 +321,7 @@ const AdminNotifications = () => {
                 {option.label}
               </option>
             ))}
-          </select>
+          </CustomDropdown>
         </div>
       </div>
 

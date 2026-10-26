@@ -1,5 +1,6 @@
 import React from "react";
 import { FaSearch } from "react-icons/fa";
+import ClearSearchButton from "./ClearSearchButton";
 
 const filters = [
   { value: "all", label: "All" },
@@ -17,16 +18,17 @@ const AttributeListToolbar = ({
 }) => (
   <div className="flex flex-wrap items-center justify-between gap-3 border border-gray-200 bg-white px-4 py-3 dark:border-gray-800 dark:bg-gray-900">
     <div className="flex flex-1 flex-wrap items-center gap-3">
-      <label className="flex min-w-[220px] flex-1 items-center gap-2 border border-gray-200 bg-[#faf9f6] px-3 py-2 text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800">
+      <div className="relative flex min-w-[220px] flex-1 items-center gap-2 border border-gray-200 bg-[#faf9f6] px-3 py-2 pr-10 text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800">
         <FaSearch size={13} />
         <input
-          type="search"
+          type="text"
           value={search}
           onChange={(event) => onSearchChange(event.target.value)}
           placeholder={placeholder}
           className="w-full bg-transparent text-gray-800 outline-none placeholder:text-gray-400 dark:text-gray-100"
         />
-      </label>
+        <ClearSearchButton value={search} onClear={() => onSearchChange("")} />
+      </div>
       <div className="flex items-center gap-1 border border-gray-200 bg-[#faf9f6] p-1 dark:border-gray-700 dark:bg-gray-800">
         {filters.map((filter) => (
           <button
