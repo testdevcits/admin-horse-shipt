@@ -737,7 +737,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_440px]">
+        <div className="mt-5 grid grid-cols-1 items-stretch gap-5 xl:grid-cols-[minmax(0,1fr)_440px]">
           <div className="h-[260px] border border-gray-100 p-4 dark:border-gray-700">
             {stripeChartData.length ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -798,7 +798,7 @@ const Dashboard = () => {
             )}
           </div>
 
-          <div className="border border-gray-100 dark:border-gray-700">
+          <div className="h-[260px] overflow-hidden border border-gray-100 dark:border-gray-700">
             <div className="border-b border-gray-100 bg-slate-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-900">
               <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
                 Recent completed shipment fees
