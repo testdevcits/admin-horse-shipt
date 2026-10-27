@@ -253,7 +253,7 @@ const SmoothLoader = ({ show }) => {
   if (!show) return null;
 
   return (
-    <div className="absolute inset-0 z-30 flex items-start justify-center bg-slate-100/55 pt-24 backdrop-blur-[1px] transition-opacity dark:bg-gray-950/45">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-100/55 backdrop-blur-[1px] transition-opacity dark:bg-gray-950/45">
       <div className="flex items-center gap-3 rounded-sm border border-[#BF9B53]/30 bg-white px-4 py-3 text-xs font-semibold text-gray-700 shadow-lg dark:bg-gray-900 dark:text-gray-200">
         <span className="h-5 w-5 animate-spin rounded-full border-2 border-[#E8D7AD] border-t-[#BF9B53]" />
         Updating dashboard data...
@@ -808,7 +808,7 @@ const Dashboard = () => {
                 completed shipments in ledger
               </p>
             </div>
-            <div className="max-h-[260px] overflow-y-auto overflow-x-hidden">
+            <div className="overflow-x-auto">
               <table className="w-full table-fixed text-left text-xs">
                 <thead className="sticky top-0 bg-white dark:bg-gray-800">
                   <tr className="border-b border-gray-100 text-gray-500">
